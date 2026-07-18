@@ -1,0 +1,1274 @@
+You are the principal software engineer responsible for creating, documenting, and evolving a gamified learning application for software developers.
+
+The product should provide an experience similar to Duolingo, but focused on developers who want to practice software engineering knowledge every day.
+
+Before writing any code, read this entire specification, define an incremental implementation plan, and create the permanent documentation and instruction files described below.
+
+# 1. Product goal
+
+Create a responsive web application, prepared for a future transition to a Progressive Web App, where developers can:
+
+* Create an account and authenticate.
+* Choose a learning path.
+* Complete an initial placement test.
+* Receive personalized daily sessions.
+* Answer technical questions.
+* Receive explanations after each answer.
+* Earn XP.
+* Maintain a daily streak.
+* Improve their mastery of individual skills.
+* Track statistics and progress.
+* Compete in rankings in the future.
+* Review content using spaced repetition.
+* Resume interrupted sessions.
+* Clearly understand which skills they have mastered and which skills require further review.
+
+The first available learning path will be:
+
+Java Backend Developer
+
+It may contain skills such as:
+
+* Java.
+* Object-oriented programming.
+* Collections.
+* Concurrency.
+* Spring Boot.
+* REST APIs.
+* SQL.
+* PostgreSQL.
+* NoSQL databases.
+* Testing.
+* Git.
+* Docker.
+* AWS.
+* Messaging.
+* Observability.
+* System Design.
+
+Do not create hundreds of questions at this stage. Create only a small amount of high-quality initial content that demonstrates the complete application flow.
+
+# 2. Initial MVP scope
+
+The MVP must include:
+
+1. Registration and login.
+2. User profile.
+3. One learning path named Java Backend Developer.
+4. Skills and levels associated with the learning path.
+5. Daily sessions with questions.
+6. Multiple-choice questions.
+7. Code output prediction questions.
+8. Bug identification questions.
+9. Explanations for correct answers.
+10. XP calculation.
+11. Daily streaks.
+12. Progress by skill.
+13. Session history.
+14. User dashboard.
+15. A minimal administrative interface for creating and editing questions.
+16. Automated tests.
+17. API documentation.
+18. Local development configuration.
+19. Deployment configuration for Vercel and Render.
+20. Development seed data containing sample questions.
+
+Do not implement the following in the MVP:
+
+* Remote execution of code submitted by users.
+* Microservices.
+* Kafka.
+* Kubernetes.
+* Real-time chat.
+* Payments.
+* Complex competitive leagues.
+* Native Android or iOS applications.
+
+These capabilities should remain possible to add later without rewriting the application core.
+
+# 3. Initial technology stack
+
+## Backend
+
+Use:
+
+* Java 21.
+* Spring Boot.
+* Maven.
+* Spring Web.
+* Spring Security.
+* Spring Data JPA.
+* Bean Validation.
+* PostgreSQL.
+* Flyway.
+* Springdoc OpenAPI.
+* JUnit 5.
+* Mockito.
+* AssertJ.
+* Testcontainers.
+* ArchUnit when useful for protecting architectural boundaries.
+* Maven Wrapper.
+
+## Frontend
+
+Use:
+
+* An active Node.js LTS version.
+* React.
+* TypeScript.
+* Vite.
+* React Router.
+* TanStack Query for remote state management.
+* React Hook Form.
+* Zod.
+* Vitest.
+* React Testing Library.
+* Playwright for critical end-to-end flows.
+* ESLint.
+* Prettier.
+
+The frontend will be a Single Page Application hosted on Vercel.
+
+Do not place important business rules exclusively in the frontend.
+
+## Initial database
+
+Use PostgreSQL hosted on Supabase.
+
+Supabase must initially be treated as:
+
+* The PostgreSQL provider.
+* The authentication provider.
+
+Do not couple the domain directly to Supabase SDKs, types, or proprietary APIs.
+
+The backend must access PostgreSQL through a standard database connection, JPA, and Flyway.
+
+Every schema change must be represented by a versioned migration committed to the repository.
+
+Do not perform undocumented manual schema changes through the Supabase dashboard.
+
+## Deployment
+
+* Frontend: Vercel.
+* Backend: Render.
+* Database and authentication: Supabase.
+
+Create dedicated documentation for configuring and deploying the application in these environments.
+
+# 4. Architectural principles
+
+Initially implement the application as a modular monolith.
+
+Do not create microservices prematurely.
+
+Use Hexagonal Architecture principles, also known as Ports and Adapters.
+
+Clearly separate:
+
+* Domain.
+* Use cases.
+* Ports.
+* Input adapters.
+* Output adapters.
+* Infrastructure.
+* Configuration.
+
+The domain must not depend on:
+
+* Spring.
+* JPA.
+* Supabase.
+* Render.
+* Vercel.
+* Email providers.
+* Queue providers.
+* Storage providers.
+* User interface libraries.
+
+Dependencies must point toward the application core.
+
+Organize the backend by business modules rather than only by global technical layers.
+
+Example modules:
+
+* identity
+* users
+* learning
+* questions
+* sessions
+* progress
+* gamification
+* administration
+
+Each module may internally contain:
+
+* domain
+* application
+* adapters
+* configuration
+
+Avoid creating a global package structure containing hundreds of classes grouped only into:
+
+* controllers
+* services
+* repositories
+* entities
+
+Protect module boundaries with architecture tests when appropriate.
+
+# 5. Portability and low coupling
+
+The application must be designed to allow external providers and infrastructure components to be replaced in the future.
+
+## Database
+
+Do not write business rules that depend on PostgreSQL-specific features unless there is a documented justification.
+
+Use repository interfaces inside the application core.
+
+JPA implementations must remain inside infrastructure adapters.
+
+Do not expose JPA entities directly through controllers.
+
+Do not use persistence entities as domain models when doing so would create inappropriate coupling.
+
+Explicitly distinguish between:
+
+* Domain entity.
+* Persistence entity.
+* Input DTO.
+* Output DTO.
+
+When complete separation would add unnecessary complexity, document the decision in an Architecture Decision Record.
+
+## Authentication
+
+Create an abstraction similar to:
+
+IdentityProvider
+
+It should support operations such as:
+
+* Validating a token.
+* Retrieving the authenticated identity.
+* Resolving an external identifier.
+* Linking an external identity to an internal user.
+
+Initially implement:
+
+SupabaseIdentityProvider
+
+The application domain must work with the internal user identifier rather than Supabase-specific objects.
+
+A future migration to Auth0, Clerk, Keycloak, Cognito, or a custom authentication implementation must not require significant changes to the domain.
+
+## Notifications
+
+Create a notification port when there is an actual external boundary, even if the MVP only contains a local implementation or no real external integration.
+
+Example:
+
+NotificationGateway
+
+Future implementations may use email, push notifications, or another provider.
+
+Do not create unused abstractions only for formality. Introduce ports where a real external boundary exists.
+
+## File storage
+
+If file storage becomes necessary in the future, use a storage abstraction.
+
+Do not couple business logic directly to Supabase Storage.
+
+## Time
+
+Do not directly call the system clock inside business rules.
+
+Inject a time abstraction such as:
+
+ClockProvider
+
+Use an implementation based on `java.time.Clock` in production.
+
+This is necessary for reliably testing:
+
+* Daily streaks.
+* Expiration.
+* Daily limits.
+* Sessions.
+* Spaced repetition.
+
+## Identifiers
+
+Do not make the domain depend on database-specific sequences.
+
+Prefer UUIDs for public and internal identifiers unless another choice is explicitly justified and documented.
+
+# 6. Twelve-Factor App principles
+
+The application must follow the Twelve-Factor App methodology.
+
+Apply the following principles explicitly.
+
+## Codebase
+
+* Maintain one version-controlled codebase.
+* Produce different deployments from the same codebase.
+* Initially use a monorepo with separate frontend and backend directories.
+
+## Dependencies
+
+* Declare every dependency explicitly.
+* Include Maven Wrapper for the backend.
+* Commit the frontend lockfile.
+* Do not rely on implicit dependencies installed in the local environment.
+
+## Configuration
+
+* Provide configuration through environment variables.
+* Never store secrets in source code.
+* Never commit secrets.
+* Create only `.env.example` files without real secret values.
+* Validate required environment variables during startup.
+
+## Backing services
+
+* Treat the database, authentication provider, email provider, storage provider, and other integrations as replaceable external resources.
+* Provide URLs and credentials through configuration.
+
+## Build, release, and run
+
+* Clearly separate build and execution.
+* Do not modify source code during application startup.
+* Document the migration strategy used during deployments.
+* The same artifact must run in different environments using different configurations.
+
+## Processes
+
+* Keep the backend stateless.
+* Do not depend on persistent local files.
+* Do not store important session state only in memory.
+* Store persistent state in appropriate backing services.
+
+## Port binding
+
+* Expose the backend through the port provided by the environment.
+* Respect the `PORT` environment variable used by Render.
+
+## Concurrency
+
+* Allow horizontal scaling of the backend.
+* Do not depend on in-memory singletons for user state.
+* Future scheduled jobs must account for multiple running instances.
+
+## Disposability
+
+* Start quickly.
+* Shut down gracefully.
+* Handle termination signals appropriately.
+* Important operations must be transactional or idempotent.
+
+## Development and production parity
+
+* Minimize differences between development, test, and production environments.
+* Use PostgreSQL in integration tests through Testcontainers.
+* Do not use H2 to simulate PostgreSQL-specific behavior.
+
+## Logs
+
+* Send logs to stdout and stderr.
+* Use structured logging.
+* Do not store important logs only in local files.
+* Never log passwords, access tokens, refresh tokens, or sensitive data.
+
+## Administrative processes
+
+* Version administrative scripts.
+* Execute seeds and migrations in a controlled and documented way.
+* Do not rely on undocumented manual changes.
+
+# 7. Initial repository structure
+
+Create a structure similar to:
+
+/
+├── AGENTS.md
+├── README.md
+├── CONTRIBUTING.md
+├── SECURITY.md
+├── CHANGELOG.md
+├── docker-compose.yml
+├── .editorconfig
+├── .gitignore
+├── docs/
+│   ├── PRODUCT.md
+│   ├── ARCHITECTURE.md
+│   ├── DEVELOPMENT.md
+│   ├── TESTING.md
+│   ├── DEPLOYMENT.md
+│   ├── API.md
+│   ├── DATA_MODEL.md
+│   ├── GAME_RULES.md
+│   ├── LEARNING_ENGINE.md
+│   ├── RUNBOOK.md
+│   ├── ROADMAP.md
+│   └── adr/
+│       ├── 0001-modular-monolith.md
+│       ├── 0002-hexagonal-architecture.md
+│       ├── 0003-supabase-as-initial-provider.md
+│       └── 0004-rest-api.md
+├── backend/
+│   ├── pom.xml
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   ├── .env.example
+│   ├── Dockerfile
+│   ├── render.yaml
+│   └── src/
+└── frontend/
+├── package.json
+├── package-lock.json
+├── .env.example
+├── vercel.json
+└── src/
+
+The structure may be refined when necessary, but relevant changes must be justified.
+
+# 8. Mandatory AGENTS.md file
+
+Create a file named `AGENTS.md` in the repository root.
+
+This file will be the primary source of permanent instructions for every AI coding agent working on the project.
+
+The `AGENTS.md` file must include at least the following rules.
+
+## Mandatory reading
+
+Before making any change, the agent must read:
+
+1. `AGENTS.md`
+2. `README.md`
+3. `docs/ARCHITECTURE.md`
+4. The code and tests related to the requested change.
+5. Any ADRs related to the affected area.
+
+## Testing rules
+
+* Never delete tests only to make the build pass.
+* Never disable tests with `@Disabled`, skip flags, comments, or equivalent configuration without explicit authorization.
+* Never weaken an assertion only to accept incorrect behavior.
+* Never modify a valid test to hide a regression.
+* When behavior intentionally changes, update the tests and document the reason.
+* When a test becomes obsolete, explain why it is obsolete before removing it.
+* Whenever possible, replace a removed test with another test representing the new behavior.
+* Every bug fix must include a regression test that fails before the fix and passes after it.
+* New business rules must include unit tests.
+* Database integrations must include integration tests when appropriate.
+* Critical user flows must include end-to-end tests.
+* Do not consider a task complete while tests are failing.
+* Do not ignore flaky tests. Investigate their root cause.
+
+## Architecture rules
+
+* Do not create dependencies from the domain to frameworks or external providers.
+* Do not couple business rules to Supabase.
+* Do not allow the frontend to directly access the database for core business operations.
+* The frontend must consume the backend API for the main application rules.
+* Do not expose persistence entities through the API.
+* Do not place significant business logic in controllers.
+* Do not place significant business logic in React components.
+* Do not introduce microservices without an approved architectural decision.
+* Do not add a new library without justifying its necessity.
+* Do not create speculative abstractions without a real boundary or use case.
+* Preserve API compatibility or clearly document breaking changes.
+* New dependencies between modules must respect architectural boundaries.
+
+## Database rules
+
+* Every schema change must use Flyway.
+* Never edit a migration that may already have been executed in another environment.
+* Create a new migration to correct or evolve the schema.
+* Never rely only on manual changes made in the Supabase dashboard.
+* Never store secrets in the database or source code.
+* Analyze backward compatibility for migrations used during deployment.
+* Prefer migrations that support zero-downtime or low-risk deployment strategies.
+
+## Documentation rules
+
+* Update documentation whenever application behavior, architecture, configuration, API design, or development workflow changes.
+* Update `docs/API.md` when endpoints are added or modified.
+* Update `docs/DATA_MODEL.md` when entities or relationships change.
+* Update `docs/ARCHITECTURE.md` when important components or dependencies change.
+* Create or update an ADR for significant architectural decisions.
+* Update `.env.example` whenever an environment variable is added.
+* Never include real secrets in examples.
+* Keep the source code and documentation consistent.
+
+## Security rules
+
+* Never log access tokens, refresh tokens, passwords, or secret keys.
+* Never expose internal stack traces directly to API clients.
+* Validate every external input.
+* Enforce authorization in the backend.
+* Do not rely only on frontend visibility controls.
+* Apply the principle of least privilege.
+* Do not trust user identifiers sent by the client as the authenticated identity.
+* Resolve the authenticated user from the validated token.
+* Protect administrative endpoints by role.
+* Never use the Supabase service role key in the frontend.
+
+## Mandatory change process
+
+For every task:
+
+1. Understand the requirement.
+2. Inspect the existing code.
+3. Identify the affected modules.
+4. Identify risks.
+5. Write or update tests.
+6. Implement the smallest coherent change.
+7. Run the related tests.
+8. Run the complete test suite when feasible.
+9. Run linting and type checking.
+10. Update documentation.
+11. Summarize the changes.
+12. Report the commands executed and their results.
+13. Report real risks or pending work.
+
+## Prohibited behavior
+
+* Do not claim that something was tested unless the test was actually executed.
+* Do not invent files, endpoints, or application behavior that do not exist.
+* Do not hide errors.
+* Do not modify unrelated files without a clear reason.
+* Do not reformat large parts of the project during a small change.
+* Do not add dead code.
+* Do not leave TODO comments without context.
+* Do not use magic values when configuration or constants are more appropriate.
+* Do not create silent fallbacks for mandatory configuration.
+* Do not perform destructive changes without explaining their impact.
+
+## Definition of done
+
+A task is complete only when:
+
+* The requirement has been implemented.
+* Tests have been created or updated.
+* Relevant tests pass.
+* Linting passes.
+* Type checking passes.
+* Applicable documentation has been updated.
+* No secrets are present in the source code.
+* The code respects architectural boundaries.
+* Relevant decisions are documented.
+* The agent clearly reports what was completed and what could not be verified.
+
+# 9. Mandatory documentation
+
+## README.md
+
+Explain:
+
+* What the product is.
+* Who it is for.
+* Main features.
+* Technology stack.
+* Architecture summary.
+* Repository structure.
+* Prerequisites.
+* How to run locally.
+* How to run tests.
+* How to apply migrations.
+* How to create development data.
+* How to configure environment variables.
+* Links to detailed documentation.
+* Current project status.
+
+## docs/PRODUCT.md
+
+Document:
+
+* Product vision.
+* Target audience.
+* Problem being solved.
+* Value proposition.
+* MVP scope.
+* Out-of-scope capabilities.
+* Product metrics.
+* Important product definitions.
+
+The initial north-star metric must be:
+
+Percentage of users who complete at least three learning sessions per week.
+
+## docs/ARCHITECTURE.md
+
+Explain:
+
+* Architecture overview.
+* Modular monolith design.
+* Hexagonal Architecture.
+* Application modules.
+* Allowed dependencies.
+* Request flow.
+* Authentication.
+* Persistence.
+* External integrations.
+* Portability strategy.
+* Scalability decisions.
+* Mermaid diagrams.
+* Current limitations.
+* Future evolution path.
+
+## docs/DEVELOPMENT.md
+
+Explain:
+
+* Local requirements.
+* Configuration.
+* Commands.
+* Local database.
+* Docker Compose usage.
+* How to run backend and frontend.
+* Environment profiles.
+* Debugging.
+* Coding standards.
+* Development workflow.
+
+## docs/TESTING.md
+
+Explain:
+
+* Testing pyramid.
+* Unit tests.
+* Integration tests.
+* Testcontainers.
+* Architecture tests.
+* Frontend tests.
+* End-to-end tests.
+* How to execute each test suite.
+* Policy against improper test removal.
+* Test data strategy.
+
+## docs/DEPLOYMENT.md
+
+Explain:
+
+* Frontend deployment on Vercel.
+* Backend deployment on Render.
+* Supabase configuration.
+* Environment variables.
+* CORS.
+* Health checks.
+* Database migrations.
+* Rollback strategy.
+* Release strategy.
+* Differences between local, staging, and production.
+* Production checklist.
+
+## docs/API.md
+
+Document:
+
+* API conventions.
+* Versioning.
+* Authentication.
+* Response codes.
+* Error format.
+* Pagination.
+* Idempotency.
+* Existing endpoints.
+* Request and response examples.
+* Link to OpenAPI documentation.
+
+## docs/DATA_MODEL.md
+
+Explain:
+
+* Entities.
+* Relationships.
+* Constraints.
+* Indexes.
+* Auditing.
+* Mermaid entity-relationship diagram.
+* Difference between domain models and persistence models.
+
+## docs/GAME_RULES.md
+
+Explicitly define:
+
+* How XP is calculated.
+* How levels are calculated.
+* How daily streaks work.
+* When a session is considered complete.
+* How correct and incorrect answers affect progress.
+* Rules preventing duplicate XP rewards.
+* Idempotency rules.
+* Daily limits.
+* How time zones and dates are handled.
+
+The formulas must be simple in the MVP and easy to modify later.
+
+Do not distribute gamification formulas across unrelated parts of the codebase.
+
+Centralize gamification policies in clear domain classes or domain services.
+
+## docs/LEARNING_ENGINE.md
+
+Explain:
+
+* How questions are selected.
+* How skills are represented.
+* How skill mastery is measured.
+* How spaced repetition works.
+* How the placement test works.
+* How a daily session is assembled.
+* How excessive question repetition is prevented.
+* How the algorithm may evolve in the future.
+
+For the MVP, assemble a daily session approximately as follows:
+
+* 40% review.
+* 30% current-level content.
+* 20% new content.
+* 10% challenge content.
+
+Implement these percentages as a configurable and testable policy.
+
+## docs/RUNBOOK.md
+
+Include:
+
+* How to check application health.
+* How to investigate login failures.
+* How to investigate database failures.
+* How to investigate migration failures.
+* How to investigate HTTP 5xx errors.
+* How to identify CORS issues.
+* How to roll back a deployment.
+* How to disable a feature through configuration when applicable.
+* Where to inspect logs.
+* How to handle common incidents.
+
+## Architecture Decision Records
+
+Use Architecture Decision Records.
+
+Each ADR must include:
+
+* Context.
+* Decision.
+* Alternatives considered.
+* Positive consequences.
+* Negative consequences.
+* Status.
+* Date.
+
+Create initial ADRs for:
+
+1. Modular monolith.
+2. Hexagonal Architecture.
+3. Supabase as an initial replaceable provider.
+4. REST API.
+5. Flyway as the source of truth for the database schema.
+6. React SPA hosted on Vercel.
+7. Stateless backend hosted on Render.
+
+# 10. Initial data model
+
+Initially consider entities or aggregates similar to:
+
+* User
+* ExternalIdentity
+* LearningPath
+* Module
+* Lesson
+* Skill
+* Question
+* QuestionOption
+* QuestionSkill
+* DailySession
+* SessionQuestion
+* UserAnswer
+* UserSkillProgress
+* ExperienceTransaction
+* Streak
+* Achievement
+* UserAchievement
+
+Do not implement every entity if a smaller model is sufficient for the MVP.
+
+Before implementing, evaluate:
+
+* Aggregate boundaries.
+* Transactional consistency.
+* Idempotency.
+* Concurrency.
+* History.
+* Auditing.
+
+Do not store only a mutable XP total without transaction history.
+
+Create a model that prevents XP from being granted more than once for the same action.
+
+Consider an XP transaction ledger with an idempotency key.
+
+# 11. Daily sessions
+
+Daily session generation must:
+
+* Consider the skills in the learning path.
+* Consider the current user level.
+* Prioritize skills that need review.
+* Include new content when appropriate.
+* Avoid immediately repeating the same questions.
+* Be deterministic when required for testing.
+* Allow sessions to be resumed.
+* Avoid creating a new active daily session when one already exists, unless an explicit rule allows it.
+* Be idempotent for repeated requests.
+* Persist the selected questions so the session does not change while the user is completing it.
+
+Completing a session must:
+
+* Record answers.
+* Update progress.
+* Grant XP exactly once.
+* Update the streak exactly once.
+* Produce a session summary.
+* Be transactional.
+* Be safe against duplicate requests.
+
+# 12. Authentication and authorization
+
+Use Supabase Auth initially.
+
+Expected flow:
+
+1. The frontend authenticates the user through Supabase Auth.
+2. The frontend receives an access token.
+3. The frontend sends the token to the backend using the `Authorization` header.
+4. The backend validates the token.
+5. The backend resolves the external identity.
+6. The backend finds or creates the internal user.
+7. Application use cases operate using the internal user identifier.
+
+Do not trust the frontend to determine roles.
+
+Implement at least:
+
+* USER role.
+* ADMIN role.
+
+Do not expose administrative endpoints to regular users.
+
+Clearly document how tokens are validated.
+
+# 13. Initial API
+
+Create versioned REST endpoints under `/api/v1`.
+
+Consider endpoints similar to:
+
+* GET `/api/v1/me`
+* GET `/api/v1/learning-paths`
+* GET `/api/v1/learning-paths/{id}`
+* POST `/api/v1/placement-tests`
+* GET `/api/v1/daily-sessions/current`
+* POST `/api/v1/daily-sessions`
+* GET `/api/v1/daily-sessions/{id}`
+* POST `/api/v1/daily-sessions/{id}/answers`
+* POST `/api/v1/daily-sessions/{id}/complete`
+* GET `/api/v1/progress`
+* GET `/api/v1/stats`
+* GET `/api/v1/history`
+* Administrative CRUD endpoints for questions.
+
+The final endpoint design must be based on application use cases rather than copied mechanically from this suggestion.
+
+Use a consistent error response format containing at least:
+
+* code
+* message
+* timestamp
+* path
+* correlationId
+* validationErrors, when applicable
+
+Do not expose internal implementation details or stack traces.
+
+# 14. Testing strategy
+
+## Backend
+
+Create:
+
+* Unit tests for domain rules.
+* Unit tests for use cases.
+* Integration tests using PostgreSQL through Testcontainers.
+* Controller tests.
+* Security tests.
+* Migration tests.
+* Architecture tests using ArchUnit.
+* Idempotency tests for XP and session completion.
+* Tests involving dates, time zones, and streaks.
+
+## Frontend
+
+Create:
+
+* Component tests.
+* Hook tests.
+* Validation tests.
+* Tests for loading, error, and empty states.
+* Tests for the critical daily session flow.
+
+## End-to-end
+
+Initially create tests for:
+
+1. Login using a test environment or documented authentication strategy.
+2. Viewing the dashboard.
+3. Starting a daily session.
+4. Answering a question.
+5. Completing a session.
+6. Viewing updated XP and progress.
+
+Do not depend on real external services in automated tests when this can be avoided.
+
+Create fake adapters or controlled test environments.
+
+# 15. Observability
+
+Implement in the backend:
+
+* Structured logging.
+* Correlation IDs.
+* Health endpoint.
+* Readiness and liveness endpoints when appropriate.
+* Basic metrics using Spring Boot Actuator.
+* Global error handling.
+* Protection against logging tokens or sensitive data.
+
+Implement in the frontend:
+
+* Global API failure handling.
+* Clear error states.
+* A structure prepared for future integration with an observability platform.
+
+Do not couple the domain to a specific observability provider.
+
+# 16. Configuration
+
+Create `.env.example` files for both frontend and backend.
+
+The backend may require variables such as:
+
+* PORT
+* SPRING_PROFILES_ACTIVE
+* DATABASE_URL
+* DATABASE_USERNAME
+* DATABASE_PASSWORD
+* SUPABASE_URL
+* SUPABASE_JWT_ISSUER
+* SUPABASE_JWT_AUDIENCE
+* CORS_ALLOWED_ORIGINS
+* LOG_LEVEL
+
+The frontend may require:
+
+* VITE_API_BASE_URL
+* VITE_SUPABASE_URL
+* VITE_SUPABASE_ANON_KEY
+
+Never include:
+
+* Real passwords.
+* A Supabase service role key in the frontend.
+* Real tokens.
+* Secrets in committed files.
+
+Validate configuration and fail fast when required values are missing.
+
+# 17. Local development
+
+Provide a simple local development experience.
+
+Create a `docker-compose.yml` file that starts at least:
+
+* A local PostgreSQL instance.
+
+Allow the project to be developed without requiring the remote Supabase database.
+
+For local authentication, choose and document a safe and simple strategy such as:
+
+* Local Supabase.
+* A fake identity provider enabled only in the local profile.
+* Development tokens signed with a local key.
+
+The local authentication strategy must never be accidentally enabled in production.
+
+# 18. User interface
+
+Create an interface that is:
+
+* Responsive.
+* Mobile-first.
+* Accessible.
+* Modern.
+* Simple.
+* Visually original and not a direct copy of Duolingo.
+* Prepared for PWA support.
+* Easy to navigate.
+* Capable of providing clear feedback for answers.
+* Complete with loading, error, and empty states.
+
+Initial screens:
+
+* Login.
+* Registration.
+* Onboarding.
+* Learning path selection.
+* Placement test.
+* Dashboard.
+* Daily session.
+* Session results.
+* Skill progress.
+* Session history.
+* Profile.
+* Question administration.
+
+Create reusable components.
+
+Avoid excessively large components.
+
+Do not scatter HTTP calls directly across React components.
+
+Centralize API access and use TanStack Query.
+
+# 19. Security
+
+Include:
+
+* Input validation.
+* Endpoint protection.
+* Role-based access control.
+* Restricted CORS configuration.
+* Secure headers.
+* Payload size limits.
+* Logging policies.
+* Secure token handling.
+* Protection against duplicate reward grants.
+* Protection against modifying another user's session.
+* Backend ownership verification.
+* Maintainable and updatable dependencies.
+* An initial threat model in `SECURITY.md`.
+
+Do not trust values calculated by the frontend, including:
+
+* Earned XP.
+* Correct answers.
+* User roles.
+* Progress.
+* Session completion.
+
+These values must be determined by the backend.
+
+# 20. Code quality
+
+Backend:
+
+* Small and cohesive classes.
+* Clear naming.
+* Focused methods.
+* Java records for DTOs when appropriate.
+* Consistent use of `Optional`.
+* Clear domain exceptions.
+* Transactions at the correct boundaries.
+* No business logic in controllers.
+* Controllers must not access repositories directly.
+* No circular dependencies.
+
+Frontend:
+
+* Strict TypeScript.
+* Avoid `any`.
+* Reusable components.
+* Separate UI, hooks, services, and schemas.
+* Consistent error handling.
+* Basic accessibility.
+* No critical business logic only in the client.
+
+Both:
+
+* Do not create unnecessary abstractions.
+* Do not duplicate logic.
+* Do not optimize prematurely.
+* Prefer clarity.
+* Document unusual decisions.
+* Keep changes conceptually small when possible.
+
+# 21. Continuous integration
+
+Create a CI pipeline compatible with the selected repository provider.
+
+It must run:
+
+Backend:
+
+* Compilation.
+* Unit tests.
+* Integration tests.
+* Architecture checks.
+* Configured static analysis.
+
+Frontend:
+
+* Dependency installation using the lockfile.
+* Linting.
+* Type checking.
+* Tests.
+* Build.
+* End-to-end tests when feasible.
+
+The pipeline must fail when any mandatory verification fails.
+
+Do not configure automatic deployment until the necessary documentation and environment variables are defined.
+
+# 22. Implementation strategy
+
+Implement the application in small stages.
+
+## Stage 0 — Foundation
+
+* Create the repository structure.
+* Create `AGENTS.md`.
+* Create the initial documentation.
+* Create ADRs.
+* Configure the backend.
+* Configure the frontend.
+* Configure the local database.
+* Configure linting and testing.
+* Configure CI.
+* Ensure empty or minimal builds work successfully.
+
+## Stage 1 — Identity and users
+
+* Authentication integration.
+* Internal user resolution.
+* User profile.
+* Roles.
+* Tests.
+
+## Stage 2 — Learning catalog
+
+* Learning paths.
+* Modules.
+* Skills.
+* Questions.
+* Seed data.
+* Minimal administration interface.
+* Tests.
+
+## Stage 3 — Daily session
+
+* Session generation.
+* Persistence.
+* Answers.
+* Explanations.
+* Resume capability.
+* Completion.
+* Idempotency.
+* Tests.
+
+## Stage 4 — Gamification
+
+* XP.
+* Levels.
+* Streaks.
+* Reward history.
+* Date and concurrency tests.
+
+## Stage 5 — Progress
+
+* Skill mastery.
+* Dashboard.
+* History.
+* Session summary.
+* Tests.
+
+## Stage 6 — Production readiness
+
+* Vercel deployment.
+* Render deployment.
+* Supabase configuration.
+* Observability.
+* Security.
+* Runbook.
+* Production checklist.
+
+Do not attempt to implement the entire system in one change.
+
+# 23. Expected agent behavior
+
+Before starting any stage:
+
+1. Read the existing rules and architecture documents.
+2. Inspect the repository.
+3. State which files are expected to change.
+4. Explain the goal of the stage.
+5. Identify risks and decisions.
+6. Implement only the current stage scope.
+7. Run available verification commands.
+8. Update documentation.
+9. Present a final summary.
+
+When completing a change, report:
+
+* What was implemented.
+* Main files changed.
+* Decisions made.
+* Tests added.
+* Commands executed.
+* Test results.
+* Pending work.
+* Risks.
+* Recommended next step.
+
+Do not respond only with “done.”
+
+Do not claim that commands were executed when they were not.
+
+When something cannot be executed or verified, state the limitation clearly.
+
+# 24. First task
+
+Execute only Stage 0 — Foundation.
+
+Do not implement all product capabilities yet.
+
+During Stage 0:
+
+1. Create the initial monorepo structure.
+2. Create the minimal Spring Boot backend.
+3. Create the minimal React, TypeScript, and Vite frontend.
+4. Create the local PostgreSQL service with Docker Compose.
+5. Create a public backend health endpoint.
+6. Create a simple frontend screen that verifies communication with the backend.
+7. Configure minimum backend and frontend tests.
+8. Configure linting and type checking.
+9. Configure the CI pipeline.
+10. Create all initial documentation.
+11. Create `AGENTS.md` containing the permanent rules.
+12. Create the initial ADRs.
+13. Create `.env.example` files.
+14. Create the initial Vercel and Render configuration.
+15. Ensure that no secrets are committed.
+16. Run builds and tests.
+17. Update the README using commands that are actually valid.
+
+Before writing code, present a short plan for Stage 0.
+
+Then implement Stage 0 completely.
+
+Do not automatically continue to Stage 1.
