@@ -1,0 +1,21 @@
+# Production profile overrides.
+# Active when: SPRING_PROFILES_ACTIVE=prod
+# Ensure all required environment variables are set before starting.
+
+spring:
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: INFO
+    com.devlearn: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+
+# Disable Swagger UI in production
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false

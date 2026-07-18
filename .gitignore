@@ -1,49 +1,74 @@
-# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# ===========================
+# Backend (Java / Maven)
+# ===========================
+backend/target/
+backend/*.class
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/.factorypath
+backend/.env
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
 
-# compiled output
-dist
-tmp
-out-tsc
+# ===========================
+# Frontend (Node.js / Vite)
+# ===========================
+artifacts/frontend/node_modules/
+artifacts/frontend/dist/
+artifacts/frontend/.env.local
+artifacts/frontend/.env.development.local
+artifacts/frontend/.env.test.local
+artifacts/frontend/.env.production.local
+
+# pnpm workspace
+node_modules/
+.pnpm-store/
+
+# TypeScript build output
+dist/
 *.tsbuildinfo
-.expo
-.expo-shared
 
-# dependencies
-node_modules
+# ===========================
+# General
+# ===========================
+.env
+.env.*
+!.env.example
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
-.DS_Store
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.DS_Store
 Thumbs.db
 
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Playwright test output
+artifacts/frontend/test-results/
+artifacts/frontend/playwright-report/
+
+# Coverage reports
+artifacts/frontend/coverage/
+backend/target/site/
 
 # Replit
-.cache/
-.local/
+.replit
+replit.nix

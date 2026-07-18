@@ -1,0 +1,33 @@
+# Test profile — used by integration tests.
+# Testcontainers provides the PostgreSQL instance automatically.
+# Do not configure a real database URL here.
+
+spring:
+  datasource:
+    # Replaced by Testcontainers at runtime via @DynamicPropertySource
+    url: jdbc:postgresql://localhost:5432/test
+    username: test
+    password: test
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  flyway:
+    enabled: true
+
+logging:
+  level:
+    root: WARN
+    com.devlearn: DEBUG
+
+devlearn:
+  cors:
+    allowed-origins: http://localhost:3000
+  supabase:
+    url: https://test.supabase.co
+    jwt-issuer: https://test.supabase.co/auth/v1
+    jwt-audience: authenticated
+
+springdoc:
+  swagger-ui:
+    enabled: false
