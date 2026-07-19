@@ -1,11 +1,13 @@
 services:
   - type: web
     name: devlearn-backend
-    runtime: java
-    buildCommand: "./mvnw -B package -Dmaven.test.skip=true -q"
-    startCommand: "java -jar target/devlearn-backend-*.jar"
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /api/actuator/health
     envVars:
+      - key: PORT
+        value: 8080
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: DEVLEARN_DB_URL
