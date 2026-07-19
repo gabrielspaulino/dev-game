@@ -1,0 +1,74 @@
+# ===========================
+# Backend (Java / Maven)
+# ===========================
+backend/target/
+backend/*.class
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/.factorypath
+backend/.env
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# ===========================
+# Frontend (Node.js / Vite)
+# ===========================
+artifacts/frontend/node_modules/
+artifacts/frontend/dist/
+artifacts/frontend/.env.local
+artifacts/frontend/.env.development.local
+artifacts/frontend/.env.test.local
+artifacts/frontend/.env.production.local
+
+# pnpm workspace
+node_modules/
+.pnpm-store/
+
+# TypeScript build output
+dist/
+*.tsbuildinfo
+
+# ===========================
+# General
+# ===========================
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Playwright test output
+artifacts/frontend/test-results/
+artifacts/frontend/playwright-report/
+
+# Coverage reports
+artifacts/frontend/coverage/
+backend/target/site/
+
+# Replit
+.replit
+replit.nix

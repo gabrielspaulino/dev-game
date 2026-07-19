@@ -1,0 +1,128 @@
+spring:
+  application:
+    name: devlearn-backend
+    version: 0.1.0
+
+  # ==========================================
+  # Database
+  # ==========================================
+  datasource:
+    # Use DEVLEARN_DB_URL (JDBC format: jdbc:postgresql://...) — not DATABASE_URL,
+    # which Replit auto-sets in a libpq format incompatible with the JDBC driver.
+    url: ${DEVLEARN_DB_URL:jdbc:postgresql://localhost:5432/devlearn_dev}
+    username: ${DATABASE_USERNAME:devlearn}
+    password: ${DATABASE_PASSWORD:devlearn_local_dev_only}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # ==========================================
+  # JPA / Hibernate
+  # ==========================================
+  jpa:
+    hibernate:
+      # Flyway controls the schema — Hibernate must not modify it
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: public
+        jdbc:
+          time_zone: UTC
+
+  # ==========================================
+  # Flyway
+  # ==========================================
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    validate-on-migrate: true
+
+# ==========================================
+# Server
+# ==========================================
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /api
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+
+# ==========================================
+# Actuator / Health
+# ==========================================
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: DevLeap Backend
+    version: ${spring.application.version}
+    description: Gamified learning platform for software developers
+
+# ==========================================
+# Springdoc / OpenAPI
+# ==========================================
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+
+# ==========================================
+# Logging
+# ==========================================
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
+    com.devlearn: ${LOG_LEVEL:INFO}
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'
+
+# ==========================================
+# DevLeap application properties
+# ==========================================
+devlearn:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+  supabase:
+    url: ${SUPABASE_URL:}
+    jwt-issuer: ${SUPABASE_JWT_ISSUER:}
+    jwt-audience: ${SUPABASE_JWT_AUDIENCE:authenticated}
+
+  session:
+    question-count: 10
+    repetition-cooldown-sessions: 3
+
+  gamification:
+    base-xp-per-question: 10
+    accuracy-bonus-multiplier: 0.5
+    streak-bonus-multiplier: 0.01
+    max-streak-bonus-days: 30
+
+  features:
+    placement-test-enabled: true
+    streak-enabled: true

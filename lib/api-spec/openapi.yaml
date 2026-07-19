@@ -1,0 +1,49 @@
+openapi: 3.1.0
+info:
+  # Do not change the title — it controls generated filenames.
+  title: Api
+  version: 0.1.0
+  description: DevLeap API — gamified learning platform for software developers.
+servers:
+  - url: /api
+    description: Base API path (proxy routes /api → Java Spring Boot backend)
+tags:
+  - name: health
+    description: Health and connectivity endpoints
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Simple health check
+      description: Returns UP when the application is running.
+      responses:
+        "200":
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /v1/health:
+    get:
+      operationId: apiHealth
+      tags: [health]
+      summary: API v1 health check
+      description: Returns UP when the API v1 layer is operational.
+      responses:
+        "200":
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "UP"
+      required:
+        - status

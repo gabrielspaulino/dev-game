@@ -1,0 +1,16 @@
+# Replit workspace profile.
+# Disables JPA / Flyway / DataSource so the backend starts without a database.
+# Stage 0 health endpoints are purely in-memory and require no DB connectivity.
+# In Stage 1, set DEVLEARN_DB_URL to a real Supabase connection string to
+# re-enable persistence while developing on Replit.
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+
+logging:
+  level:
+    root: INFO
+    com.devlearn: DEBUG

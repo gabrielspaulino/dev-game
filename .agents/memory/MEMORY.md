@@ -1,0 +1,1 @@
+- [Replit DATABASE_URL conflict](replit-database-url-conflict.md) — Replit auto-sets DATABASE_URL in libpq format; use DEVLEARN_DB_URL for JDBC, replit Spring profile disables DB for dev.
