@@ -28,4 +28,4 @@ COPY --from=build /workspace/target/devlearn-backend-*.jar app.jar
 # Render injects PORT at runtime; Spring Boot reads it via ${PORT:8080}
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.net.preferIPv4Stack=true", "-jar", "app.jar"]
