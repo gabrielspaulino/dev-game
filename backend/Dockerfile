@@ -1,18 +1,18 @@
-# Multi-stage build for the DevLeap backend.
-# Stage 1: Build the fat JAR with Maven.
-# Stage 2: Run the JAR on a minimal JRE image.
-
 # ---- Build stage ----
 FROM eclipse-temurin:21-jdk-alpine AS build
 
 WORKDIR /workspace
 
-# Cache Maven dependencies before copying source
+# Copy Maven wrapper and POM first to cache dependencies
+COPY .mvn .mvn
+COPY mvnw .
 COPY pom.xml .
-RUN mvn -B dependency:go-offline -q 2>/dev/null || true
 
+RUN chmod +x mvnw && ./mvnw -B dependency:go-offline -q 2>/dev/null || true
+
+# Copy source and build
 COPY src ./src
-RUN mvn -B package -DskipTests -q
+RUN ./mvnw -B package -Dmaven.test.skip=true -q
 
 # ---- Runtime stage ----
 FROM eclipse-temurin:21-jre-alpine AS runtime
@@ -25,7 +25,7 @@ WORKDIR /app
 
 COPY --from=build /workspace/target/devlearn-backend-*.jar app.jar
 
-# Port is provided by the platform (Render sets $PORT)
+# Render injects PORT at runtime; Spring Boot reads it via ${PORT:8080}
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
