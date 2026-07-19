@@ -7,11 +7,11 @@ spring:
   # Database
   # ==========================================
   datasource:
-    # Use DEVLEARN_DB_URL (JDBC format: jdbc:postgresql://...) — not DATABASE_URL,
-    # which Replit auto-sets in a libpq format incompatible with the JDBC driver.
-    url: ${DEVLEARN_DB_URL:jdbc:postgresql://localhost:5432/devlearn_dev}
-    username: ${DATABASE_USERNAME:devlearn}
-    password: ${DATABASE_PASSWORD:devlearn_local_dev_only}
+    # Prefer DEVLEARN_DB_URL for this project. Spring also accepts DATABASE_URL
+    # or the common Spring datasource variables when they are provided as JDBC URLs.
+    url: ${DEVLEARN_DB_URL:${DATABASE_URL:${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/devlearn_dev}}}
+    username: ${DATABASE_USERNAME:${SPRING_DATASOURCE_USERNAME:devlearn}}
+    password: ${DATABASE_PASSWORD:${SPRING_DATASOURCE_PASSWORD:devlearn_local_dev_only}}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10

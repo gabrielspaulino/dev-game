@@ -23,9 +23,9 @@ From the Supabase dashboard → Settings → API:
 - `SUPABASE_JWT_AUDIENCE` = `authenticated`
 
 From Settings → Database:
-- `DATABASE_URL` = JDBC URL (format: `jdbc:postgresql://db.<ref>.supabase.co:5432/postgres`)
-- `DATABASE_USERNAME` = `postgres`
-- `DATABASE_PASSWORD` = your database password
+- `DEVLEARN_DB_URL` (or `DATABASE_URL` / `SPRING_DATASOURCE_URL`) = JDBC URL (format: `jdbc:postgresql://db.<ref>.supabase.co:5432/postgres`)
+- `DATABASE_USERNAME` (or `SPRING_DATASOURCE_USERNAME`) = `postgres`
+- `DATABASE_PASSWORD` (or `SPRING_DATASOURCE_PASSWORD`) = your database password
 
 **Never commit these values.**
 
@@ -60,7 +60,7 @@ Set Redirect URLs to include your production and staging domains.
 ```
 PORT=8080
 SPRING_PROFILES_ACTIVE=prod
-DATABASE_URL=jdbc:postgresql://...
+DEVLEARN_DB_URL=jdbc:postgresql://...
 DATABASE_USERNAME=...
 DATABASE_PASSWORD=...
 SUPABASE_URL=...
