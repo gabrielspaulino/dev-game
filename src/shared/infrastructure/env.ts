@@ -18,8 +18,11 @@ const serverEnvSchema = z.object({
   // Node
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 
-  // Database
-  DATABASE_URL: z.string().url("DATABASE_URL must be a valid PostgreSQL URL"),
+  // Database (optional — app runs without a DB, only DB-dependent features degrade)
+  DATABASE_URL: z
+    .string()
+    .url("DATABASE_URL must be a valid PostgreSQL URL")
+    .optional(),
   DIRECT_DATABASE_URL: z
     .string()
     .url("DIRECT_DATABASE_URL must be a valid PostgreSQL URL")
