@@ -23,10 +23,10 @@ export interface Topic {
   title: string;
   description: string;
   icon: string;
-  color: string;       // Tailwind color name, e.g. "amber"
-  bgClass: string;     // e.g. "bg-amber-500"
+  color: string; // Tailwind color name, e.g. "amber"
+  bgClass: string; // e.g. "bg-amber-500"
   borderClass: string; // e.g. "border-amber-500"
-  textClass: string;   // e.g. "text-amber-400"
+  textClass: string; // e.g. "text-amber-400"
   lessons: Lesson[];
 }
 

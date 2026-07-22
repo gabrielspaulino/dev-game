@@ -14,10 +14,7 @@ module.exports = {
       comment: "Domain layer must not depend on infrastructure.",
       from: { path: "^src/modules/[^/]+/domain" },
       to: {
-        path: [
-          "^src/modules/[^/]+/infrastructure",
-          "^src/modules/[^/]+/adapters",
-        ],
+        path: ["^src/modules/[^/]+/infrastructure", "^src/modules/[^/]+/adapters"],
       },
     },
     {

@@ -9,18 +9,21 @@ This document defines all gamification rules. Business logic that implements the
 XP is awarded when a daily session is completed.
 
 **Base formula (configurable, Stage 4):**
+
 ```
 session_xp = correct_answers × XP_PER_CORRECT_ANSWER
            + (is_perfect_session ? XP_PERFECT_BONUS : 0)
 ```
 
 Default values (subject to tuning):
+
 - `XP_PER_CORRECT_ANSWER` = 10
 - `XP_PERFECT_BONUS` = 50
 
 ### How XP is recorded
 
 Every XP award creates an `ExperienceTransaction` record:
+
 ```
 user_id, amount, reason, idempotency_key, created_at
 ```
@@ -38,14 +41,14 @@ Each XP award has a unique `idempotency_key` (e.g., `session:{session_id}:comple
 User level is calculated from total XP using a configurable threshold table:
 
 | Level | XP Required |
-|-------|-------------|
-| 1 | 0 |
-| 2 | 100 |
-| 3 | 300 |
-| 4 | 600 |
-| 5 | 1,000 |
-| 10 | 5,000 |
-| ... | ... |
+| ----- | ----------- |
+| 1     | 0           |
+| 2     | 100         |
+| 3     | 300         |
+| 4     | 600         |
+| 5     | 1,000       |
+| 10    | 5,000       |
+| ...   | ...         |
 
 The formula is centralized in a domain service. Thresholds are configurable without schema changes.
 
@@ -76,6 +79,7 @@ A second request to complete the same session on the same day must not increment
 ### When a session is considered complete
 
 A daily session is complete when:
+
 1. The user has answered all questions in the session.
 2. The application has processed the answers server-side.
 3. The `complete` endpoint has been called and has succeeded.
@@ -99,6 +103,7 @@ A correct answer increases mastery for the associated skill. An incorrect answer
 ## Concurrency Behavior
 
 Session completion is protected by:
+
 - A database transaction that updates the session status, creates the XP transaction, and updates the streak atomically.
 - The idempotency key on `ExperienceTransaction` prevents duplicate XP even if the transaction is retried.
 

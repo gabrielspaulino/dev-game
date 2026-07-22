@@ -10,10 +10,12 @@ We need a hosted PostgreSQL database and an authentication system for the MVP. W
 ## Decision
 
 We will use **Supabase** as:
+
 1. The initial **PostgreSQL provider** (managed PostgreSQL with pgBouncer connection pooling).
 2. The initial **authentication provider** (Supabase Auth with JWTs).
 
 Supabase is treated as a **replaceable external provider**, not a core architectural dependency:
+
 - The domain never imports Supabase SDK types.
 - The `IdentityProvider` port abstracts authentication.
 - Repository ports abstract persistence.

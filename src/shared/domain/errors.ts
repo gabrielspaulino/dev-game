@@ -61,10 +61,7 @@ export class ValidationError extends AppError {
   readonly statusCode = 422;
   readonly validationErrors: ReadonlyArray<{ field: string; message: string }>;
 
-  constructor(
-    message: string,
-    validationErrors: Array<{ field: string; message: string }> = [],
-  ) {
+  constructor(message: string, validationErrors: Array<{ field: string; message: string }> = []) {
     super(message);
     this.validationErrors = validationErrors;
   }

@@ -16,22 +16,22 @@ export function TopBar({ progress }: TopBarProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4 gap-4">
+      <div className="mx-auto flex h-16 max-w-3xl items-center justify-between gap-4 px-4">
         {/* Streak */}
-        <div className="flex items-center gap-1.5 min-w-[60px]">
+        <div className="flex min-w-[60px] items-center gap-1.5">
           <span className="text-2xl" role="img" aria-label="streak">
             🔥
           </span>
-          <span className="text-lg font-bold text-orange-400">
-            {progress.streak}
-          </span>
+          <span className="text-lg font-bold text-orange-400">{progress.streak}</span>
         </div>
 
         {/* XP bar */}
         <div className="flex flex-1 flex-col gap-1">
           <div className="flex justify-between text-xs text-slate-500">
             <span>Level {level}</span>
-            <span>{xpInLevel} / {XP_PER_LEVEL} XP</span>
+            <span>
+              {xpInLevel} / {XP_PER_LEVEL} XP
+            </span>
           </div>
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-700">
             <div
@@ -42,7 +42,7 @@ export function TopBar({ progress }: TopBarProps) {
         </div>
 
         {/* Hearts */}
-        <div className="flex items-center gap-0.5 min-w-[80px] justify-end">
+        <div className="flex min-w-[80px] items-center justify-end gap-0.5">
           {Array.from({ length: MAX_HEARTS }).map((_, i) => (
             <span
               key={i}

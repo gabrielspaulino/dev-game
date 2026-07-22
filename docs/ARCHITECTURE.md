@@ -40,6 +40,7 @@ Infrastructure Adapters implement Ports ← defined by Application/Domain
 **The reverse dependency must not occur.**
 
 Domain and application code must not import from:
+
 - Next.js request/response objects
 - React
 - Supabase
@@ -62,22 +63,23 @@ src/modules/<name>/
 
 ### Modules
 
-| Module | Responsibility |
-|--------|---------------|
-| `identity` | Authentication, token validation, identity provider abstraction |
-| `users` | Internal user accounts, roles, profile |
-| `learning` | Learning paths, modules, lessons, skills |
-| `questions` | Question bank, options, skill associations |
-| `sessions` | Daily session lifecycle: generation, answering, completion |
-| `progress` | Skill mastery, user progress, session history |
-| `gamification` | XP transactions, user levels, streaks, achievements |
-| `administration` | Admin use cases for question and content management |
+| Module           | Responsibility                                                  |
+| ---------------- | --------------------------------------------------------------- |
+| `identity`       | Authentication, token validation, identity provider abstraction |
+| `users`          | Internal user accounts, roles, profile                          |
+| `learning`       | Learning paths, modules, lessons, skills                        |
+| `questions`      | Question bank, options, skill associations                      |
+| `sessions`       | Daily session lifecycle: generation, answering, completion      |
+| `progress`       | Skill mastery, user progress, session history                   |
+| `gamification`   | XP transactions, user levels, streaks, achievements             |
+| `administration` | Admin use cases for question and content management             |
 
 ### Cross-Module Dependencies
 
 Modules communicate only through explicitly defined ports. A module must not import from another module's `domain`, `application`, or `infrastructure` layers directly. Dependencies must be declared and reviewed.
 
 Allowed dependencies (examples):
+
 - `sessions` → `questions` (read questions for session assembly)
 - `sessions` → `gamification` (trigger XP award on completion)
 - `sessions` → `progress` (update skill mastery on completion)
@@ -98,6 +100,7 @@ HTTP Request
 ```
 
 Route Handlers must not:
+
 - Contain business rules
 - Access the database directly
 - Expose ORM records
@@ -140,14 +143,14 @@ Domain objects must not be Drizzle records — map at the adapter boundary.
 
 ## External Provider Adapters
 
-| Concern | Port | Initial Adapter |
-|---------|------|-----------------|
-| Authentication | `IdentityProvider` | `SupabaseIdentityProvider` |
-| Database | Repository interfaces | `DrizzleXxxRepository` |
-| Time | `Clock` | `SystemClock` |
-| Randomness | `QuestionSelector` | `RandomQuestionSelector` |
-| Notifications | `NotificationGateway` | (not yet implemented) |
-| Background jobs | `JobPort` | (not yet implemented) |
+| Concern         | Port                  | Initial Adapter            |
+| --------------- | --------------------- | -------------------------- |
+| Authentication  | `IdentityProvider`    | `SupabaseIdentityProvider` |
+| Database        | Repository interfaces | `DrizzleXxxRepository`     |
+| Time            | `Clock`               | `SystemClock`              |
+| Randomness      | `QuestionSelector`    | `RandomQuestionSelector`   |
+| Notifications   | `NotificationGateway` | (not yet implemented)      |
+| Background jobs | `JobPort`             | (not yet implemented)      |
 
 ## Serverless Constraints
 

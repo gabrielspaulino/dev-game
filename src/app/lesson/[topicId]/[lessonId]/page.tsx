@@ -22,6 +22,6 @@ export async function generateStaticParams() {
     topic.lessons.map((lesson) => ({
       topicId: topic.id,
       lessonId: lesson.id,
-    }))
+    })),
   );
 }

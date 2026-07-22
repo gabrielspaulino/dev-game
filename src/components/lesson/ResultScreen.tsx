@@ -16,7 +16,7 @@ export function ResultScreen({
   totalQuestions,
   correctAnswers,
   lessonTitle,
-  topicId,
+  topicId: _topicId,
   onRetry,
 }: ResultScreenProps) {
   const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
@@ -25,7 +25,7 @@ export function ResultScreen({
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-900 p-6 text-center">
       {/* Trophy / medal */}
-      <div className="mb-6 text-8xl animate-bounce-once">
+      <div className="animate-bounce-once mb-6 text-8xl">
         {isPerfect ? "🏆" : accuracy >= 60 ? "🎯" : "💪"}
       </div>
 
@@ -64,15 +64,7 @@ export function ResultScreen({
   );
 }
 
-function Stat({
-  label,
-  value,
-  color,
-}: {
-  label: string;
-  value: string;
-  color: string;
-}) {
+function Stat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div className="flex flex-col items-center gap-1 rounded-2xl border border-slate-700 bg-slate-800 px-6 py-4">
       <span className={`text-2xl font-black ${color}`}>{value}</span>

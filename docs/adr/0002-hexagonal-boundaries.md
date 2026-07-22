@@ -12,6 +12,7 @@ We need to decide how to structure the internal layers of each module so that bu
 We will apply **Hexagonal Architecture (Ports and Adapters)** principles within each module.
 
 Dependency rule:
+
 ```
 UI + Framework Adapters → Application Use Cases → Domain
 Infrastructure Adapters implement Ports ← defined by Application/Domain

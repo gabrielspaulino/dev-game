@@ -19,10 +19,7 @@ const serverEnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 
   // Database (optional — app runs without a DB, only DB-dependent features degrade)
-  DATABASE_URL: z
-    .string()
-    .url("DATABASE_URL must be a valid PostgreSQL URL")
-    .optional(),
+  DATABASE_URL: z.string().url("DATABASE_URL must be a valid PostgreSQL URL").optional(),
   DIRECT_DATABASE_URL: z
     .string()
     .url("DIRECT_DATABASE_URL must be a valid PostgreSQL URL")
@@ -41,9 +38,7 @@ const serverEnvSchema = z.object({
   AUTH_REDIRECT_URL: z.string().url().optional(),
 
   // Logging
-  LOG_LEVEL: z
-    .enum(["trace", "debug", "info", "warn", "error", "fatal"])
-    .default("info"),
+  LOG_LEVEL: z.enum(["trace", "debug", "info", "warn", "error", "fatal"]).default("info"),
 
   // Feature flags
   ENABLE_LOCAL_AUTH: z
@@ -56,7 +51,7 @@ const serverEnvSchema = z.object({
     .default("true"),
 });
 
-const clientEnvSchema = z.object({
+export const clientEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
   NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
@@ -69,9 +64,7 @@ function validateEnv() {
     const formatted = serverResult.error.errors
       .map((e) => `  ${e.path.join(".")}: ${e.message}`)
       .join("\n");
-    throw new Error(
-      `❌ Invalid environment variables:\n${formatted}\n\nFix your .env.local file.`,
-    );
+    throw new Error(`❌ Invalid environment variables:\n${formatted}\n\nFix your .env.local file.`);
   }
 
   const env = serverResult.data;

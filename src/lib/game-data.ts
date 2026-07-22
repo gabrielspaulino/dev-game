@@ -450,7 +450,8 @@ console.log(i);`,
           {
             id: "git-r5",
             type: "multiple-choice",
-            prompt: "You pushed a commit with a bug. What's the SAFE way to undo it on a shared branch?",
+            prompt:
+              "You pushed a commit with a bug. What's the SAFE way to undo it on a shared branch?",
             options: [
               "git reset --hard and force push",
               "Delete the remote branch and recreate it",
@@ -495,12 +496,7 @@ console.log(i);`,
             type: "multiple-choice",
             prompt: "What is the output of this code?",
             code: `print(type([]))`,
-            options: [
-              "<class 'array'>",
-              "<class 'list'>",
-              "<class 'tuple'>",
-              "list",
-            ],
+            options: ["<class 'array'>", "<class 'list'>", "<class 'tuple'>", "list"],
             correctIndex: 1,
             explanation:
               "In Python, `[]` creates a `list`. `type([])` returns `<class 'list'>`. Python's `list` is a dynamic array — the most common sequence type.",
@@ -570,12 +566,7 @@ console.log(i);`,
             type: "multiple-choice",
             prompt: "What does this list comprehension produce?",
             code: `[x**2 for x in range(4)]`,
-            options: [
-              "[0, 1, 2, 3]",
-              "[1, 4, 9, 16]",
-              "[0, 1, 4, 9]",
-              "[4, 9, 16, 25]",
-            ],
+            options: ["[0, 1, 2, 3]", "[1, 4, 9, 16]", "[0, 1, 4, 9]", "[4, 9, 16, 25]"],
             correctIndex: 2,
             explanation:
               "`range(4)` yields 0, 1, 2, 3. Squaring each: 0²=0, 1²=1, 2²=4, 3²=9. Result: `[0, 1, 4, 9]`. List comprehensions are a concise, Pythonic way to create lists.",

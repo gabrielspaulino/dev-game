@@ -2,12 +2,12 @@
 
 ## Prerequisites
 
-| Requirement | Version | Notes |
-|-------------|---------|-------|
-| Node.js | ≥ 20 | LTS recommended |
-| npm | ≥ 10 | Bundled with Node.js 20 |
-| Docker | Any recent | For local PostgreSQL |
-| Docker Compose | v2+ | `docker compose` (not `docker-compose`) |
+| Requirement    | Version    | Notes                                   |
+| -------------- | ---------- | --------------------------------------- |
+| Node.js        | ≥ 20       | LTS recommended                         |
+| npm            | ≥ 10       | Bundled with Node.js 20                 |
+| Docker         | Any recent | For local PostgreSQL                    |
+| Docker Compose | v2+        | `docker compose` (not `docker-compose`) |
 
 ## Environment Configuration
 
@@ -24,6 +24,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 For authentication (Stage 1 and later), you will also need:
+
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
@@ -41,6 +42,7 @@ npm run docker:down
 ```
 
 This starts PostgreSQL on `localhost:5432` with:
+
 - Database: `devgame`
 - User: `postgres`
 - Password: `postgres`
@@ -81,27 +83,27 @@ Stage 0 has no seed data. The seed script is populated in Stage 2.
 
 ## Development Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start Next.js development server |
-| `npm run build` | Production build |
-| `npm start` | Start production server locally |
-| `npm run lint` | Run ESLint |
-| `npm run lint:fix` | Fix auto-fixable lint errors |
-| `npm run format` | Format all files with Prettier |
-| `npm run format:check` | Check formatting without writing |
-| `npm run typecheck` | TypeScript type checking |
-| `npm run test` | Run all unit tests |
-| `npm run test:watch` | Watch mode for unit tests |
-| `npm run test:coverage` | Unit tests with coverage report |
-| `npm run test:e2e` | End-to-end tests (requires running app) |
-| `npm run db:generate` | Generate Drizzle migration from schema |
-| `npm run db:migrate` | Apply pending migrations |
-| `npm run db:push` | Push schema to DB (dev only, no migration file) |
-| `npm run db:studio` | Open Drizzle Studio |
-| `npm run db:seed` | Seed development data |
-| `npm run docker:up` | Start local services (PostgreSQL) |
-| `npm run docker:down` | Stop local services |
+| Command                 | Description                                     |
+| ----------------------- | ----------------------------------------------- |
+| `npm run dev`           | Start Next.js development server                |
+| `npm run build`         | Production build                                |
+| `npm start`             | Start production server locally                 |
+| `npm run lint`          | Run ESLint                                      |
+| `npm run lint:fix`      | Fix auto-fixable lint errors                    |
+| `npm run format`        | Format all files with Prettier                  |
+| `npm run format:check`  | Check formatting without writing                |
+| `npm run typecheck`     | TypeScript type checking                        |
+| `npm run test`          | Run all unit tests                              |
+| `npm run test:watch`    | Watch mode for unit tests                       |
+| `npm run test:coverage` | Unit tests with coverage report                 |
+| `npm run test:e2e`      | End-to-end tests (requires running app)         |
+| `npm run db:generate`   | Generate Drizzle migration from schema          |
+| `npm run db:migrate`    | Apply pending migrations                        |
+| `npm run db:push`       | Push schema to DB (dev only, no migration file) |
+| `npm run db:studio`     | Open Drizzle Studio                             |
+| `npm run db:seed`       | Seed development data                           |
+| `npm run docker:up`     | Start local services (PostgreSQL)               |
+| `npm run docker:down`   | Stop local services                             |
 
 ## Module Conventions
 

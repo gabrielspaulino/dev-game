@@ -7,6 +7,7 @@ Help software developers continuously improve their skills through short, enjoya
 ## Target Audience
 
 Software developers at all levels who want to:
+
 - Reinforce and refresh existing knowledge
 - Identify and close knowledge gaps
 - Build consistent learning habits
@@ -20,6 +21,7 @@ Primary persona: A working developer with limited free time who can dedicate 5�
 Developers often learn reactively — studying when a project demands a specific skill — rather than building a durable foundation. The result is knowledge that fades quickly and gaps that remain hidden until they cause problems in production or interviews.
 
 There is no existing product that combines:
+
 - Developer-specific technical content at depth
 - Gamified habit-forming mechanics
 - Spaced repetition adapted to software concepts
@@ -28,6 +30,7 @@ There is no existing product that combines:
 ## Value Proposition
 
 dev-game gives developers:
+
 - **Daily structure** — a session they can complete in under 15 minutes
 - **Progress visibility** — XP, levels, streaks, and skill mastery bars
 - **Adaptive content** — questions selected based on what they know and what they're forgetting
@@ -78,6 +81,7 @@ These capabilities must remain possible to add later without rewriting the core.
 **North-star metric:** Percentage of active users who complete at least three learning sessions per week.
 
 Supporting metrics:
+
 - Daily active users (DAU)
 - Session completion rate
 - Average session duration
@@ -88,17 +92,17 @@ Supporting metrics:
 
 ## Product Terminology
 
-| Term | Definition |
-|------|-----------|
-| Learning Path | A structured curriculum for a developer specialty (e.g., Java Backend Developer) |
-| Module | A topic group within a learning path (e.g., Spring Boot) |
-| Skill | A specific concept or capability within a module (e.g., Dependency Injection) |
-| Daily Session | A curated set of questions for one day's practice |
-| XP | Experience points awarded for completing sessions and answering correctly |
-| Level | A user's overall progression tier calculated from total XP |
-| Streak | The count of consecutive days on which the user completed a session |
-| Mastery | A per-skill score (0–100) reflecting correctness and recency |
-| Placement Test | An adaptive assessment to determine starting skill levels |
+| Term           | Definition                                                                       |
+| -------------- | -------------------------------------------------------------------------------- |
+| Learning Path  | A structured curriculum for a developer specialty (e.g., Java Backend Developer) |
+| Module         | A topic group within a learning path (e.g., Spring Boot)                         |
+| Skill          | A specific concept or capability within a module (e.g., Dependency Injection)    |
+| Daily Session  | A curated set of questions for one day's practice                                |
+| XP             | Experience points awarded for completing sessions and answering correctly        |
+| Level          | A user's overall progression tier calculated from total XP                       |
+| Streak         | The count of consecutive days on which the user completed a session              |
+| Mastery        | A per-skill score (0–100) reflecting correctness and recency                     |
+| Placement Test | An adaptive assessment to determine starting skill levels                        |
 
 ## Initial Assumptions
 

@@ -120,6 +120,7 @@ The reverse dependency MUST NOT occur.
 ## 9. Mandatory Change Process
 
 For every task:
+
 1. Understand the requirement.
 2. Inspect the existing implementation.
 3. Identify affected modules and documents.
@@ -156,6 +157,7 @@ For every task:
 ## 11. Definition of Done
 
 A task is complete only when:
+
 - The requested behavior is implemented.
 - Relevant tests exist and pass.
 - Linting passes (`npm run lint`).
@@ -171,18 +173,18 @@ A task is complete only when:
 
 ## 12. Key Documents
 
-| Document | Purpose |
-|---|---|
-| `docs/ARCHITECTURE.md` | System design, modules, dependencies |
-| `docs/PRODUCT.md` | Vision, scope, terminology |
-| `docs/DEVELOPMENT.md` | Local setup and workflow |
-| `docs/TESTING.md` | Testing strategy and commands |
-| `docs/DEPLOYMENT.md` | Vercel + Supabase deployment |
-| `docs/API.md` | API conventions and endpoint reference |
-| `docs/DATA_MODEL.md` | Entities, schema, migrations |
-| `docs/GAME_RULES.md` | XP, levels, streaks, rewards |
+| Document                  | Purpose                                      |
+| ------------------------- | -------------------------------------------- |
+| `docs/ARCHITECTURE.md`    | System design, modules, dependencies         |
+| `docs/PRODUCT.md`         | Vision, scope, terminology                   |
+| `docs/DEVELOPMENT.md`     | Local setup and workflow                     |
+| `docs/TESTING.md`         | Testing strategy and commands                |
+| `docs/DEPLOYMENT.md`      | Vercel + Supabase deployment                 |
+| `docs/API.md`             | API conventions and endpoint reference       |
+| `docs/DATA_MODEL.md`      | Entities, schema, migrations                 |
+| `docs/GAME_RULES.md`      | XP, levels, streaks, rewards                 |
 | `docs/LEARNING_ENGINE.md` | Session assembly, mastery, spaced repetition |
-| `docs/SECURITY.md` | Auth, authorization, threat model |
-| `docs/RUNBOOK.md` | Operational procedures |
-| `docs/ROADMAP.md` | Implementation stages |
-| `docs/adr/` | Architecture Decision Records |
+| `docs/SECURITY.md`        | Auth, authorization, threat model            |
+| `docs/RUNBOOK.md`         | Operational procedures                       |
+| `docs/ROADMAP.md`         | Implementation stages                        |
+| `docs/adr/`               | Architecture Decision Records                |

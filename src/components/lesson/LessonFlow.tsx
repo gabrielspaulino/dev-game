@@ -28,7 +28,7 @@ export function LessonFlow({ topic, lesson }: LessonFlowProps) {
   }, []);
 
   const currentQuestion = lesson.questions[questionIdx]!;
-  const progress = ((questionIdx) / lesson.questions.length) * 100;
+  const progress = (questionIdx / lesson.questions.length) * 100;
 
   const handleCheck = useCallback(() => {
     if (selectedOption === null) return;
@@ -102,17 +102,17 @@ export function LessonFlow({ topic, lesson }: LessonFlowProps) {
   return (
     <div className="flex min-h-screen flex-col bg-slate-900">
       {/* Lesson top bar */}
-      <div className="flex items-center gap-4 px-4 py-4 border-b border-slate-800">
+      <div className="flex items-center gap-4 border-b border-slate-800 px-4 py-4">
         <button
           onClick={() => router.push("/")}
-          className="text-slate-500 hover:text-slate-300 transition-colors text-xl"
+          className="text-xl text-slate-500 transition-colors hover:text-slate-300"
           aria-label="Exit lesson"
         >
           ✕
         </button>
 
         {/* Progress bar */}
-        <div className="flex-1 h-3 bg-slate-700 rounded-full overflow-hidden">
+        <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-700">
           <div
             className={`h-full rounded-full transition-all duration-500 ${topic.bgClass}`}
             style={{ width: `${progress}%` }}
@@ -133,34 +133,33 @@ export function LessonFlow({ topic, lesson }: LessonFlowProps) {
       </div>
 
       {/* Question area */}
-      <div className="flex flex-1 flex-col items-center px-4 py-8 max-w-2xl mx-auto w-full">
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center px-4 py-8">
         {/* Question number */}
-        <p className={`text-sm font-bold uppercase tracking-widest mb-6 ${topic.textClass}`}>
+        <p className={`mb-6 text-sm font-bold uppercase tracking-widest ${topic.textClass}`}>
           Question {questionIdx + 1} of {lesson.questions.length}
         </p>
 
         {/* Question text */}
-        <h2 className="text-xl font-bold text-white text-center mb-6 leading-snug">
+        <h2 className="mb-6 text-center text-xl font-bold leading-snug text-white">
           {currentQuestion.prompt}
         </h2>
 
         {/* Code block */}
         {currentQuestion.code && (
-          <pre className="w-full mb-6 rounded-xl bg-slate-800 border border-slate-700 p-4 text-sm text-emerald-300 font-mono overflow-x-auto leading-relaxed">
+          <pre className="mb-6 w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800 p-4 font-mono text-sm leading-relaxed text-emerald-300">
             {currentQuestion.code}
           </pre>
         )}
 
         {/* Answer options */}
-        <div className="w-full grid gap-3">
+        <div className="grid w-full gap-3">
           {currentQuestion.options.map((option, idx) => {
             let stateClass =
               "border-slate-700 bg-slate-800 text-slate-200 hover:border-slate-500 hover:bg-slate-700";
 
             if (answerState !== "unanswered") {
               if (idx === currentQuestion.correctIndex) {
-                stateClass =
-                  "border-emerald-500 bg-emerald-900/40 text-emerald-200";
+                stateClass = "border-emerald-500 bg-emerald-900/40 text-emerald-200";
               } else if (idx === selectedOption && answerState === "incorrect") {
                 stateClass = "border-red-500 bg-red-900/40 text-red-200";
               } else {
@@ -195,12 +194,12 @@ export function LessonFlow({ topic, lesson }: LessonFlowProps) {
                 : "border-red-500 bg-red-900/30"
             }`}
           >
-            <p className={`mb-1 font-bold ${answerState === "correct" ? "text-emerald-400" : "text-red-400"}`}>
+            <p
+              className={`mb-1 font-bold ${answerState === "correct" ? "text-emerald-400" : "text-red-400"}`}
+            >
               {answerState === "correct" ? "✓ Correct!" : "✗ Not quite"}
             </p>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              {currentQuestion.explanation}
-            </p>
+            <p className="text-sm leading-relaxed text-slate-300">{currentQuestion.explanation}</p>
           </div>
         )}
       </div>
@@ -214,7 +213,7 @@ export function LessonFlow({ topic, lesson }: LessonFlowProps) {
               onClick={handleCheck}
               className={`w-full rounded-2xl py-4 text-lg font-bold transition-all active:scale-[0.98] ${
                 selectedOption === null
-                  ? "bg-slate-700 text-slate-500 cursor-not-allowed"
+                  ? "cursor-not-allowed bg-slate-700 text-slate-500"
                   : `${topic.bgClass} text-white shadow-lg hover:opacity-90`
               }`}
             >
@@ -233,7 +232,8 @@ export function LessonFlow({ topic, lesson }: LessonFlowProps) {
             </button>
           )}
           <p className="mt-2 text-center text-xs text-slate-600">
-            Press Enter to {answerState === "unanswered" ? "check" : "continue"} · 1–{currentQuestion.options.length} to select
+            Press Enter to {answerState === "unanswered" ? "check" : "continue"} · 1–
+            {currentQuestion.options.length} to select
           </p>
         </div>
       </div>
