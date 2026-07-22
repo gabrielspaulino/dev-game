@@ -16,7 +16,7 @@ export function ResultScreen({
   totalQuestions,
   correctAnswers,
   lessonTitle,
-  topicId,
+  topicId: _topicId,
   onRetry,
 }: ResultScreenProps) {
   const accuracy = Math.round((correctAnswers / totalQuestions) * 100);

@@ -73,7 +73,7 @@ export function loseHeart(progress: UserProgress): UserProgress {
 export function isLessonUnlocked(
   topicIndex: number,
   lessonIndex: number,
-  topicId: string,
+  _topicId: string,
   lessons: { id: string }[],
   progress: UserProgress
 ): boolean {
