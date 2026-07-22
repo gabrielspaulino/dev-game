@@ -8,26 +8,26 @@ The data model is designed for a modular monolith deployed on PostgreSQL. Domain
 
 The schema grows incrementally. Entities are introduced per stage.
 
-| Entity | Stage | Module |
-|--------|-------|--------|
-| User | 1 | users |
-| ExternalIdentity | 1 | identity |
-| LearningPath | 2 | learning |
-| LearningModule | 2 | learning |
-| Lesson | 2 | learning |
-| Skill | 2 | learning |
-| Question | 2 | questions |
-| QuestionOption | 2 | questions |
-| QuestionSkill | 2 | questions |
-| PlacementTest | 2 | learning |
-| DailySession | 3 | sessions |
-| SessionQuestion | 3 | sessions |
-| UserAnswer | 3 | sessions |
-| ExperienceTransaction | 4 | gamification |
-| Streak | 4 | gamification |
-| Achievement | 4 | gamification |
-| UserAchievement | 4 | gamification |
-| UserSkillProgress | 5 | progress |
+| Entity                | Stage | Module       |
+| --------------------- | ----- | ------------ |
+| User                  | 1     | users        |
+| ExternalIdentity      | 1     | identity     |
+| LearningPath          | 2     | learning     |
+| LearningModule        | 2     | learning     |
+| Lesson                | 2     | learning     |
+| Skill                 | 2     | learning     |
+| Question              | 2     | questions    |
+| QuestionOption        | 2     | questions    |
+| QuestionSkill         | 2     | questions    |
+| PlacementTest         | 2     | learning     |
+| DailySession          | 3     | sessions     |
+| SessionQuestion       | 3     | sessions     |
+| UserAnswer            | 3     | sessions     |
+| ExperienceTransaction | 4     | gamification |
+| Streak                | 4     | gamification |
+| Achievement           | 4     | gamification |
+| UserAchievement       | 4     | gamification |
+| UserSkillProgress     | 5     | progress     |
 
 ## Stage 0 Schema
 
@@ -36,6 +36,7 @@ The Stage 0 schema is intentionally empty. The first migration establishes the b
 ## Common Audit Fields
 
 Every table will include:
+
 ```sql
 created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -46,6 +47,7 @@ updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 ## Soft Deletion
 
 Sensitive records (users, questions) use soft deletion:
+
 ```sql
 deleted_at  TIMESTAMPTZ NULL
 ```
@@ -67,10 +69,12 @@ Actions that must not be repeated (e.g., XP awards, session completion) use a un
 ## Domain-to-Persistence Mapping
 
 Each repository adapter maps between:
+
 - **Domain object:** Pure TypeScript class/interface, no ORM imports
 - **Persistence record:** Drizzle select/insert type from the schema
 
 Example (Stage 1):
+
 ```ts
 // Domain
 interface User { id: string; email: string; role: UserRole; createdAt: Date; }

@@ -9,13 +9,13 @@
 
 ## Test Stack
 
-| Type | Tool | Location |
-|------|------|----------|
-| Unit | Vitest | `src/**/*.test.ts(x)` |
-| Component | Vitest + React Testing Library | `src/**/*.test.tsx` |
-| Integration | Vitest + PostgreSQL | `tests/integration/` |
-| Architecture | dependency-cruiser | `tests/architecture/` |
-| E2E | Playwright | `tests/e2e/` |
+| Type         | Tool                           | Location              |
+| ------------ | ------------------------------ | --------------------- |
+| Unit         | Vitest                         | `src/**/*.test.ts(x)` |
+| Component    | Vitest + React Testing Library | `src/**/*.test.tsx`   |
+| Integration  | Vitest + PostgreSQL            | `tests/integration/`  |
+| Architecture | dependency-cruiser             | `tests/architecture/` |
+| E2E          | Playwright                     | `tests/e2e/`          |
 
 ## Running Tests
 
@@ -110,6 +110,7 @@ Use **Testcontainers** when supported, or point at a dedicated test database.
 ### Test isolation
 
 Each test must:
+
 - Run migrations before the suite.
 - Clear relevant tables between tests (not truncate everything blindly — be targeted).
 - Not depend on data left by another test.
@@ -119,6 +120,7 @@ Each test must:
 Run `npm run test:arch` to check module boundaries using dependency-cruiser.
 
 This enforces:
+
 - No circular dependencies.
 - Domain must not depend on infrastructure.
 - Domain must not import Next.js.
@@ -129,6 +131,7 @@ This enforces:
 Location: `tests/e2e/`
 
 Playwright tests cover critical user flows:
+
 1. Authentication (registration, login, logout)
 2. Onboarding (learning path selection)
 3. Placement test flow
@@ -143,12 +146,14 @@ Use a controlled test environment — do not run E2E tests against production.
 ## Policy Against Deleting or Weakening Tests
 
 These actions are **prohibited without explicit authorization**:
+
 - Deleting a test to make the build pass
 - Skipping a test with `it.skip`, `test.only`, or config exclusions
 - Weakening an assertion (`expect(x).toBeDefined()` when `expect(x).toBe("value")` was passing)
 - Modifying a valid test to accept incorrect behavior
 
 When a test becomes genuinely obsolete:
+
 - Explain why the behavior it tested no longer applies.
 - Replace it with tests for the new behavior.
 

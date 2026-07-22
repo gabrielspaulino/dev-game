@@ -10,6 +10,7 @@
 ## Authentication
 
 Include the Supabase access token as a Bearer token:
+
 ```
 Authorization: Bearer <access_token>
 ```
@@ -27,9 +28,7 @@ All errors return:
   "timestamp": "2026-01-01T10:00:00.000Z",
   "path": "/api/v1/...",
   "correlationId": "uuid-v4",
-  "validationErrors": [
-    { "field": "email", "message": "Invalid email address." }
-  ]
+  "validationErrors": [{ "field": "email", "message": "Invalid email address." }]
 }
 ```
 
@@ -37,18 +36,19 @@ All errors return:
 
 ## Common Error Codes
 
-| Code | HTTP Status | Meaning |
-|------|-------------|---------|
-| `UNAUTHORIZED` | 401 | Missing or invalid authentication |
-| `FORBIDDEN` | 403 | Authenticated but not authorized |
-| `NOT_FOUND` | 404 | Resource not found |
-| `CONFLICT` | 409 | State conflict (e.g., session already exists) |
-| `VALIDATION_ERROR` | 422 | Input validation failed |
-| `INTERNAL_ERROR` | 500 | Unexpected server error |
+| Code               | HTTP Status | Meaning                                       |
+| ------------------ | ----------- | --------------------------------------------- |
+| `UNAUTHORIZED`     | 401         | Missing or invalid authentication             |
+| `FORBIDDEN`        | 403         | Authenticated but not authorized              |
+| `NOT_FOUND`        | 404         | Resource not found                            |
+| `CONFLICT`         | 409         | State conflict (e.g., session already exists) |
+| `VALIDATION_ERROR` | 422         | Input validation failed                       |
+| `INTERNAL_ERROR`   | 500         | Unexpected server error                       |
 
 ## Correlation IDs
 
 Every request receives a correlation ID in the response header:
+
 ```
 X-Correlation-Id: <uuid>
 ```
@@ -58,10 +58,12 @@ Pass `X-Correlation-Id` or `X-Request-Id` in the request to use your own ID (use
 ## Pagination
 
 Paginated endpoints accept:
+
 - `?page=1` — 1-indexed page number
 - `?limit=20` — results per page (max 100)
 
 Response includes:
+
 ```json
 {
   "data": [...],
@@ -87,6 +89,7 @@ Endpoints that create resources and must be safe to retry accept an `Idempotency
 **Public.** Returns application and service status.
 
 **Response 200 — Healthy:**
+
 ```json
 {
   "status": "ok",
@@ -99,6 +102,7 @@ Endpoints that create resources and must be safe to retry accept an `Idempotency
 ```
 
 **Response 503 — Degraded:**
+
 ```json
 {
   "status": "degraded",
@@ -112,7 +116,7 @@ Endpoints that create resources and must be safe to retry accept an `Idempotency
 
 ---
 
-*The following endpoints are planned and will be documented as each stage is implemented.*
+_The following endpoints are planned and will be documented as each stage is implemented._
 
 ### Users (Stage 1)
 

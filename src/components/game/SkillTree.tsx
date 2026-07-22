@@ -21,14 +21,13 @@ export function SkillTree() {
   let globalLessonIndex = 0;
 
   return (
-    <div className="mx-auto max-w-sm px-4 py-8 space-y-10">
+    <div className="mx-auto max-w-sm space-y-10 px-4 py-8">
       {TOPICS.map((topic, topicIdx) => {
         // Check if the whole topic is locked (all lessons of prev topic must be done)
         const prevTopic = TOPICS[topicIdx - 1];
         const topicUnlocked =
           topicIdx === 0 ||
-          (prevTopic?.lessons.every((l) => progress.completedLessons[l.id]) ??
-            false);
+          (prevTopic?.lessons.every((l) => progress.completedLessons[l.id]) ?? false);
 
         return (
           <section key={topic.id} aria-label={topic.title}>
@@ -65,17 +64,14 @@ export function SkillTree() {
             {/* Lesson nodes */}
             <div className="flex flex-col gap-4">
               {topic.lessons.map((lesson, lessonIdx) => {
-                const staggerClass =
-                  STAGGER[globalLessonIndex % STAGGER.length] ?? "ml-16";
+                const staggerClass = STAGGER[globalLessonIndex % STAGGER.length] ?? "ml-16";
                 globalLessonIndex++;
 
                 const isDone = !!progress.completedLessons[lesson.id];
                 const isUnlocked =
                   topicUnlocked &&
                   (lessonIdx === 0 ||
-                    !!progress.completedLessons[
-                      topic.lessons[lessonIdx - 1]!.id
-                    ]);
+                    !!progress.completedLessons[topic.lessons[lessonIdx - 1]!.id]);
                 const isCurrent = isUnlocked && !isDone;
 
                 return (
@@ -98,9 +94,7 @@ export function SkillTree() {
               <div className="mt-6 flex justify-center">
                 <div className="flex flex-col items-center gap-1">
                   <span className="text-4xl">🏆</span>
-                  <span className="text-xs font-medium text-yellow-400">
-                    Unit complete!
-                  </span>
+                  <span className="text-xs font-medium text-yellow-400">Unit complete!</span>
                 </div>
               </div>
             )}
@@ -111,8 +105,7 @@ export function SkillTree() {
       {/* Footer */}
       <div className="pb-8 text-center text-xs text-slate-600">
         {Object.keys(progress.completedLessons).length} /{" "}
-        {TOPICS.reduce((a, t) => a + t.lessons.length, 0)} lessons complete ·{" "}
-        {progress.xp} XP total
+        {TOPICS.reduce((a, t) => a + t.lessons.length, 0)} lessons complete · {progress.xp} XP total
       </div>
     </div>
   );
@@ -127,14 +120,7 @@ interface LessonNodeProps {
   topicId: string;
 }
 
-function LessonNode({
-  topic,
-  lesson,
-  isDone,
-  isUnlocked,
-  isCurrent,
-  topicId,
-}: LessonNodeProps) {
+function LessonNode({ topic, lesson, isDone, isUnlocked, isCurrent, topicId }: LessonNodeProps) {
   const href = `/lesson/${topicId}/${lesson.id}`;
 
   const button = (
@@ -150,9 +136,7 @@ function LessonNode({
         }`}
       >
         <div className="text-xs font-bold">{lesson.title}</div>
-        {isCurrent && (
-          <div className="text-xs opacity-80">+{lesson.xpReward} XP</div>
-        )}
+        {isCurrent && <div className="text-xs opacity-80">+{lesson.xpReward} XP</div>}
       </div>
 
       {/* Circle button */}
@@ -161,7 +145,7 @@ function LessonNode({
           isDone
             ? `${topic.bgClass} border-transparent`
             : isCurrent
-              ? `border-4 ${topic.borderClass} bg-slate-800 ${topic.textClass} ring-4 ring-offset-2 ring-offset-slate-900 animate-pulse-ring`
+              ? `border-4 ${topic.borderClass} bg-slate-800 ${topic.textClass} animate-pulse-ring ring-4 ring-offset-2 ring-offset-slate-900`
               : "border-slate-700 bg-slate-800 text-slate-600"
         } ${isUnlocked ? "cursor-pointer group-hover:scale-110 group-hover:shadow-xl" : "cursor-not-allowed opacity-50"}`}
       >
@@ -183,7 +167,7 @@ function LessonNode({
 
 function SkillTreeSkeleton() {
   return (
-    <div className="mx-auto max-w-sm px-4 py-8 space-y-10 animate-pulse">
+    <div className="mx-auto max-w-sm animate-pulse space-y-10 px-4 py-8">
       {[1, 2, 3].map((i) => (
         <div key={i} className="space-y-4">
           <div className="h-24 rounded-2xl bg-slate-800" />

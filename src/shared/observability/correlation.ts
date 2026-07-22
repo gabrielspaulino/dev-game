@@ -18,9 +18,5 @@ export function generateCorrelationId(): string {
  * Extract a correlation ID from request headers, or generate a new one.
  */
 export function resolveCorrelationId(headers: Headers): string {
-  return (
-    headers.get("x-correlation-id") ??
-    headers.get("x-request-id") ??
-    generateCorrelationId()
-  );
+  return headers.get("x-correlation-id") ?? headers.get("x-request-id") ?? generateCorrelationId();
 }

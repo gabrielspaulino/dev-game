@@ -24,23 +24,24 @@ Questions have a `difficulty` value from 1 (introductory) to 5 (expert).
 
 ### Mastery updates (Stage 5)
 
-| Event | Effect |
-|-------|--------|
-| Correct answer | `mastery = min(100, mastery + MASTERY_GAIN)` |
-| Incorrect answer | `mastery = max(0, mastery - MASTERY_LOSS)` |
+| Event            | Effect                                       |
+| ---------------- | -------------------------------------------- |
+| Correct answer   | `mastery = min(100, mastery + MASTERY_GAIN)` |
+| Incorrect answer | `mastery = max(0, mastery - MASTERY_LOSS)`   |
 
 Default constants (configurable, not hardcoded):
+
 - `MASTERY_GAIN` = 5
 - `MASTERY_LOSS` = 3
 
 ### Mastery tiers
 
-| Mastery | Label |
-|---------|-------|
-| 0–30 | Novice |
-| 31–60 | Developing |
-| 61–85 | Proficient |
-| 86–100 | Expert |
+| Mastery | Label      |
+| ------- | ---------- |
+| 0–30    | Novice     |
+| 31–60   | Developing |
+| 61–85   | Proficient |
+| 86–100  | Expert     |
 
 ## Session Assembly
 
@@ -48,12 +49,12 @@ Daily sessions are assembled from the question bank using a configurable mix pol
 
 ### Question mix (configurable, not scattered in code)
 
-| Category | Target % | Source |
-|----------|----------|--------|
-| Review | 40% | Questions the user has seen, with low or declining mastery |
-| Current level | 30% | Questions matching the user's current skill level |
-| New content | 20% | Questions the user has not seen before |
-| Challenge | 10% | Questions one difficulty level above the user's current level |
+| Category      | Target % | Source                                                        |
+| ------------- | -------- | ------------------------------------------------------------- |
+| Review        | 40%      | Questions the user has seen, with low or declining mastery    |
+| Current level | 30%      | Questions matching the user's current skill level             |
+| New content   | 20%      | Questions the user has not seen before                        |
+| Challenge     | 10%      | Questions one difficulty level above the user's current level |
 
 These percentages are centralized in a single `SessionAssemblyPolicy` configuration object. Changing them requires only editing the config, not hunting through multiple files.
 
@@ -85,6 +86,7 @@ The placement test is a short assessment (10–20 questions across all skills an
 Questions that the user answered incorrectly, or that have low mastery, are prioritized in the "Review" category.
 
 The review scheduling algorithm in the MVP is simple:
+
 1. Questions with the lowest mastery score are reviewed first.
 2. Questions not seen in the longest time are reviewed next within the same mastery tier.
 
@@ -97,6 +99,7 @@ The session assembly algorithm is fully deterministic in tests. Inject a `FixedC
 ## Algorithm Evolution
 
 The learning engine is encapsulated behind the `SessionAssembler` application service and the `QuestionSelector` port. Improving the algorithm requires only:
+
 1. Writing a new `QuestionSelector` implementation.
 2. Updating the assembly policy.
 3. Adding tests for the new behavior.

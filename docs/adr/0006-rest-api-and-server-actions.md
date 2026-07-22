@@ -22,6 +22,7 @@ Server Actions may be used only for simple, form-based mutations where they prov
 ## Decision Rationale
 
 Route Handlers provide:
+
 - Clear request/response contract documentable in `docs/API.md`.
 - Standard HTTP verbs and status codes.
 - Testable without the Next.js framework.

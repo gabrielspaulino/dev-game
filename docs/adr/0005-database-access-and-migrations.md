@@ -9,14 +9,14 @@ We need a TypeScript-compatible ORM and migration tool for PostgreSQL. The solut
 
 ### Evaluation Criteria
 
-| Criterion | Weight |
-|-----------|--------|
-| Serverless compatibility | High |
-| Connection management | High |
-| Type safety | High |
-| Migration workflow | High |
-| Testability | Medium |
-| Operational simplicity | Medium |
+| Criterion                | Weight |
+| ------------------------ | ------ |
+| Serverless compatibility | High   |
+| Connection management    | High   |
+| Type safety              | High   |
+| Migration workflow       | High   |
+| Testability              | Medium |
+| Operational simplicity   | Medium |
 
 ### Options Evaluated
 

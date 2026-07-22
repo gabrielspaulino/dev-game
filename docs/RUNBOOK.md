@@ -64,6 +64,7 @@ Check Vercel dashboard → Deployments for function errors.
 ## Inspect Logs
 
 Logs are available in:
+
 - **Vercel dashboard:** Project → Functions → Logs (real-time and historical)
 - **Locally:** `npm run dev` (pretty-printed pino logs in terminal)
 
@@ -88,21 +89,25 @@ Set the variable in Vercel and redeploy.
 ## Respond to Common Incidents
 
 ### "Users can't log in"
+
 1. Check Supabase Auth logs.
 2. Verify auth configuration (callback URLs, anon key).
 3. Check health endpoint for database status.
 
 ### "XP not updating after session"
+
 1. Check logs for the session completion request.
 2. Verify the idempotency key was not reused unexpectedly.
 3. Check ExperienceTransaction table for missing or duplicate records.
 
 ### "Streak reset incorrectly"
+
 1. Verify user's time zone is set correctly.
 2. Check the `Streak.last_session_date` value in the database.
 3. Check logs for any error during streak update.
 
 ### "Database is at connection limit"
+
 1. Verify `DATABASE_URL` uses the pgBouncer pooled URL (port 6543).
 2. Check for any code that opens a connection without reusing the singleton.
 3. Consider reducing Vercel concurrency or increasing Supabase connection limits.

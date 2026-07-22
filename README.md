@@ -20,28 +20,28 @@ The first learning path covers **Java Backend Development** (Java, OOP, Spring B
 
 ## Current Status
 
-| Stage | Name | Status |
-|-------|------|--------|
-| 0 | Foundation | ✅ Complete |
-| 1 | Identity & Users | ⏳ Not started |
-| 2 | Learning Catalog | ⏳ Not started |
-| 3 | Daily Sessions | ⏳ Not started |
-| 4 | Gamification | ⏳ Not started |
-| 5 | Progress & Learning Engine | ⏳ Not started |
-| 6 | Production Readiness | ⏳ Not started |
+| Stage | Name                       | Status         |
+| ----- | -------------------------- | -------------- |
+| 0     | Foundation                 | ✅ Complete    |
+| 1     | Identity & Users           | ⏳ Not started |
+| 2     | Learning Catalog           | ⏳ Not started |
+| 3     | Daily Sessions             | ⏳ Not started |
+| 4     | Gamification               | ⏳ Not started |
+| 5     | Progress & Learning Engine | ⏳ Not started |
+| 6     | Production Readiness       | ⏳ Not started |
 
 ## Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 15 (App Router) |
-| Language | TypeScript 5 (strict) |
-| Styling | Tailwind CSS |
-| ORM | Drizzle ORM |
-| Database | PostgreSQL (Supabase in production) |
-| Auth | Supabase Auth (Stage 1) |
-| Testing | Vitest + React Testing Library + Playwright |
-| Deployment | Vercel |
+| Layer      | Technology                                  |
+| ---------- | ------------------------------------------- |
+| Framework  | Next.js 15 (App Router)                     |
+| Language   | TypeScript 5 (strict)                       |
+| Styling    | Tailwind CSS                                |
+| ORM        | Drizzle ORM                                 |
+| Database   | PostgreSQL (Supabase in production)         |
+| Auth       | Supabase Auth (Stage 1)                     |
+| Testing    | Vitest + React Testing Library + Playwright |
+| Deployment | Vercel                                      |
 
 ## Architecture Summary
 
@@ -190,25 +190,26 @@ npm start
 See `docs/DEPLOYMENT.md` for the full deployment guide.
 
 Quick start:
+
 1. Connect the repository to a Vercel project.
 2. Set all environment variables listed in `.env.example`.
 3. Run `npm run db:migrate` with `DIRECT_DATABASE_URL` pointing at your production database before promoting the deployment.
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| `AGENTS.md` | AI-agent rules — read before making any change |
-| `docs/PRODUCT.md` | Vision, scope, metrics |
-| `docs/ARCHITECTURE.md` | System design and module boundaries |
-| `docs/DEVELOPMENT.md` | Local development guide |
-| `docs/TESTING.md` | Testing strategy and commands |
-| `docs/DEPLOYMENT.md` | Vercel + Supabase deployment |
-| `docs/API.md` | API conventions and endpoint reference |
-| `docs/DATA_MODEL.md` | Entities, schema, migrations |
-| `docs/GAME_RULES.md` | XP, levels, streaks, rewards |
-| `docs/LEARNING_ENGINE.md` | Session assembly and mastery |
-| `docs/SECURITY.md` | Auth, authorization, threat model |
-| `docs/RUNBOOK.md` | Operational procedures |
-| `docs/ROADMAP.md` | Implementation stages |
-| `docs/adr/` | Architecture Decision Records |
+| Document                  | Description                                    |
+| ------------------------- | ---------------------------------------------- |
+| `AGENTS.md`               | AI-agent rules — read before making any change |
+| `docs/PRODUCT.md`         | Vision, scope, metrics                         |
+| `docs/ARCHITECTURE.md`    | System design and module boundaries            |
+| `docs/DEVELOPMENT.md`     | Local development guide                        |
+| `docs/TESTING.md`         | Testing strategy and commands                  |
+| `docs/DEPLOYMENT.md`      | Vercel + Supabase deployment                   |
+| `docs/API.md`             | API conventions and endpoint reference         |
+| `docs/DATA_MODEL.md`      | Entities, schema, migrations                   |
+| `docs/GAME_RULES.md`      | XP, levels, streaks, rewards                   |
+| `docs/LEARNING_ENGINE.md` | Session assembly and mastery                   |
+| `docs/SECURITY.md`        | Auth, authorization, threat model              |
+| `docs/RUNBOOK.md`         | Operational procedures                         |
+| `docs/ROADMAP.md`         | Implementation stages                          |
+| `docs/adr/`               | Architecture Decision Records                  |
