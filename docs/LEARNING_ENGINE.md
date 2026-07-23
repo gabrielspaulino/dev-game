@@ -1,5 +1,17 @@
 # Learning Engine
 
+## Study Track Selection (Client-Side — Current)
+
+Before any learning begins, users select a study track. The current client-side implementation supports three tracks:
+
+- **Systems Design** — 15 questions covering distributed systems fundamentals
+- **Java** — 15 questions covering OOP, collections, concurrency, and patterns
+- **JavaScript** — 15 questions covering closures, async, prototypes, and ES6+
+
+Each track has a pool of questions. The daily quiz draws 5 questions per day using a deterministic date-based seed (ensuring the same quiz for the same day, but different questions each day). Selection is stored in `localStorage` and can be changed from the dashboard.
+
+This client-side model will be replaced by server-side study tracks when Stages 2–3 are implemented.
+
 ## Skill Representation
 
 Each `Skill` belongs to a `Lesson`, which belongs to a `LearningModule`, which belongs to a `LearningPath`.

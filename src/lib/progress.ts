@@ -11,6 +11,8 @@ export const DEFAULT_PROGRESS: UserProgress = {
   hearts: MAX_HEARTS,
   lastPlayedDate: null,
   completedLessons: {},
+  selectedTopicId: null,
+  dailyQuizCompletedDate: null,
 };
 
 export function loadProgress(): UserProgress {
@@ -18,7 +20,11 @@ export function loadProgress(): UserProgress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_PROGRESS;
-    return JSON.parse(raw) as UserProgress;
+    const parsed = JSON.parse(raw) as UserProgress;
+    return {
+      ...DEFAULT_PROGRESS,
+      ...parsed,
+    };
   } catch {
     return DEFAULT_PROGRESS;
   }
@@ -27,6 +33,51 @@ export function loadProgress(): UserProgress {
 export function saveProgress(progress: UserProgress): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+}
+
+export function selectTopic(progress: UserProgress, topicId: string): UserProgress {
+  const updated: UserProgress = {
+    ...progress,
+    selectedTopicId: topicId,
+  };
+  saveProgress(updated);
+  return updated;
+}
+
+export function completeDailyQuiz(progress: UserProgress, xpEarned: number): UserProgress {
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+
+  const isAlreadyDoneToday = progress.dailyQuizCompletedDate === today;
+  const newXp = progress.xp + (isAlreadyDoneToday ? 0 : xpEarned);
+
+  let newStreak = progress.streak;
+  if (!isAlreadyDoneToday) {
+    if (progress.lastPlayedDate === yesterday) {
+      newStreak = progress.streak + 1;
+    } else if (progress.lastPlayedDate !== today) {
+      newStreak = 1;
+    }
+  }
+
+  const updated: UserProgress = {
+    ...progress,
+    xp: newXp,
+    streak: newStreak,
+    lastPlayedDate: today,
+    dailyQuizCompletedDate: today,
+  };
+  saveProgress(updated);
+  return updated;
+}
+
+export function getStreakEncouragement(streak: number): string {
+  if (streak === 0) return "Start your daily learning streak today! 🚀";
+  if (streak === 1) return "Day 1 complete! Keep the momentum going tomorrow! 🔥";
+  if (streak < 3) return `${streak}-day streak! You're building a powerful habit! 💪`;
+  if (streak < 7) return `${streak}-day streak! You're on fire! 🔥 Keep learning!`;
+  if (streak < 30) return `Unstoppable! ${streak} days of continuous learning! 🏆`;
+  return `Legendary Engineer! ${streak}-day streak! ⚡`;
 }
 
 export function completeLesson(
