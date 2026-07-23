@@ -183,7 +183,57 @@ A task is complete only when:
 
 ---
 
-## 13. Key Documents
+## 13. Question Domain Model
+
+### Difficulty and Reasoning
+
+- **Difficulty** (`EASY | MEDIUM | HARD | EXPERT`) measures how hard a question is. Maps to numeric 1–4 via `difficultyToNumeric()`.
+- **Reasoning Level** (`RECOGNIZE | APPLY | ANALYZE | COMBINE`) measures the cognitive operation required. Independent from difficulty.
+- These are PostgreSQL enums defined in `database/schema/enums.ts` and mirrored as TypeScript unions in `src/modules/questions/domain/question.ts`.
+
+### Question Types
+
+`SINGLE_CHOICE | MULTIPLE_CHOICE | TRUE_FALSE | CODE_OUTPUT | BUG_IDENTIFICATION | ORDERING | CODE_COMPLETION | ARCHITECTURE_SCENARIO`
+
+### Question Versioning
+
+- Questions are immutable once published. Corrections create a new `question_version`.
+- `questions.current_version_number` points to the latest version.
+- `correct_answer` lives in `question_versions` — never expose it to the client.
+- Sessions pin the exact version via `quiz_session_questions.question_version_id`.
+
+### Question Families
+
+`question_families` groups different wordings of the same concept. Use them to prevent the same concept from appearing twice in one session.
+
+### Skill Hierarchy
+
+- Skills form a tree via `parent_skill_id` (self-referencing FK).
+- Each question has a `primary_skill_id` and optional secondary/context skills via `question_skills`.
+- `question_prerequisites` enforces minimum mastery to attempt a question.
+
+### Selection Pipeline
+
+```
+SessionPlanner → CandidateQuery → EligibilityFilter → Ranking → DiversitySelection → SessionPersistence
+```
+
+All pipeline services live in `src/modules/sessions/domain/selection/`. The orchestrator `QuestionSelectionService` depends on four injected ports — no direct database access.
+
+### Server-Side Evaluation
+
+The client must never send: correctness, score, mastery changes, XP, or completion status. These are computed server-side using `question_versions.correct_answer`.
+
+### Migration Conventions
+
+- Schema defined in Drizzle ORM (`database/schema/`). Enums in `enums.ts`, tables in `tables.ts`, barrel export via `index.ts`.
+- Generate migrations with `npm run db:generate` (requires `DIRECT_DATABASE_URL`).
+- Never edit an applied migration — create a new one.
+- Use `pgEnum` for all enum types (native PostgreSQL enums, not text columns).
+
+---
+
+## 14. Key Documents
 
 | Document                  | Purpose                                      |
 | ------------------------- | -------------------------------------------- |

@@ -1,3 +1,6 @@
+import type { Difficulty } from "../../questions/domain/question";
+import { difficultyToNumeric } from "../../questions/domain/question";
+
 export interface MasteryConfig {
   baseGain: number;
   baseLoss: number;
@@ -44,13 +47,21 @@ export function getMasteryBand(mastery: number): string {
   return "Beginner";
 }
 
+export function getTargetDifficulty(mastery: number): Difficulty {
+  if (mastery < 30) return "EASY";
+  if (mastery < 50) return "MEDIUM";
+  if (mastery < 70) return "HARD";
+  return "EXPERT";
+}
+
 export function calculateMasteryGain(
   config: MasteryConfig,
-  difficulty: number,
+  difficulty: Difficulty,
   usedHint: boolean,
   isChallenge: boolean,
 ): number {
-  let gain = config.baseGain + difficulty * config.difficultyGainMultiplier;
+  const numericDifficulty = difficultyToNumeric(difficulty);
+  let gain = config.baseGain + numericDifficulty * config.difficultyGainMultiplier;
 
   if (usedHint) {
     gain *= 1 - config.hintPenaltyPercent / 100;
@@ -63,15 +74,16 @@ export function calculateMasteryGain(
   return Math.round(gain);
 }
 
-export function calculateMasteryLoss(config: MasteryConfig, difficulty: number): number {
-  return Math.round(config.baseLoss + difficulty * config.difficultyLossMultiplier);
+export function calculateMasteryLoss(config: MasteryConfig, difficulty: Difficulty): number {
+  const numericDifficulty = difficultyToNumeric(difficulty);
+  return Math.round(config.baseLoss + numericDifficulty * config.difficultyLossMultiplier);
 }
 
 export function applyMasteryChange(
   currentMastery: number,
   isCorrect: boolean,
   config: MasteryConfig,
-  difficulty: number,
+  difficulty: Difficulty,
   usedHint: boolean,
   isChallenge: boolean,
 ): number {
