@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -11,13 +12,25 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        primary: "var(--primary)",
-        accent: "var(--accent)",
-        card: "var(--card)",
-        muted: "var(--muted)",
-        border: "var(--border)",
+        surface: {
+          DEFAULT: "var(--surface)",
+          raised: "var(--surface-raised)",
+          inset: "var(--surface-inset)",
+          overlay: "var(--surface-overlay)",
+        },
+        line: {
+          DEFAULT: "var(--line)",
+          strong: "var(--line-strong)",
+        },
+        fg: {
+          DEFAULT: "var(--fg)",
+          secondary: "var(--fg-secondary)",
+          muted: "var(--fg-muted)",
+          faint: "var(--fg-faint)",
+        },
+      },
+      ringOffsetColor: {
+        surface: "var(--surface)",
       },
     },
   },

@@ -21,7 +21,7 @@ export const STUDY_TRACKS: StudyTrack[] = [
     color: "indigo",
     bgClass: "bg-indigo-500",
     borderClass: "border-indigo-500",
-    textClass: "text-indigo-400",
+    textClass: "text-indigo-600 dark:text-indigo-400",
     questions: [
       {
         id: "sd-1",
@@ -243,7 +243,7 @@ export const STUDY_TRACKS: StudyTrack[] = [
     color: "red",
     bgClass: "bg-red-500",
     borderClass: "border-red-500",
-    textClass: "text-red-400",
+    textClass: "text-red-600 dark:text-red-400",
     questions: [
       {
         id: "java-1",
@@ -469,7 +469,7 @@ System.out.println(a == b);`,
     color: "amber",
     bgClass: "bg-amber-500",
     borderClass: "border-amber-500",
-    textClass: "text-amber-400",
+    textClass: "text-amber-600 dark:text-amber-400",
     questions: [
       {
         id: "jsq-1",

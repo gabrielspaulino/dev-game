@@ -25,38 +25,50 @@ export function QuizResultScreen({
   const isPerfect = correctCount === totalQuestions;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-900 p-6 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-surface p-6 text-center">
       <div className="animate-bounce-once mb-4 text-8xl">
         {isPerfect ? "🏆" : accuracy >= 60 ? "🎯" : "💪"}
       </div>
 
-      <h1 className="mb-1 text-3xl font-black text-white">
-        {isPerfect ? "Perfect!" : accuracy >= 60 ? "Well done!" : "Keep going!"}
+      <h1 className="mb-1 font-mono text-3xl font-black text-fg">
+        {isPerfect ? "Zero bugs!" : accuracy >= 60 ? "Build succeeded!" : "Debug harder!"}
       </h1>
-      <p className={`mb-6 text-sm font-medium ${track?.textClass ?? "text-slate-400"}`}>
-        {track?.title} Daily Quiz
+      <p className={`mb-6 font-mono text-sm font-medium ${track?.textClass ?? "text-fg-muted"}`}>
+        {track?.title} {"// daily_challenge"}
       </p>
 
-      {/* Streak highlight */}
-      <div className="mb-6 flex items-center gap-2 rounded-full bg-orange-950/40 px-5 py-2">
+      <div className="mb-6 flex items-center gap-2 rounded-full bg-orange-50 px-5 py-2 dark:bg-orange-950/40">
         <span className="text-2xl">🔥</span>
-        <span className="text-lg font-bold text-orange-400">{streak}-day streak</span>
+        <span className="font-mono text-lg font-bold text-orange-600 dark:text-orange-400">
+          {streak}-day streak
+        </span>
       </div>
 
-      <p className="mb-8 max-w-xs text-sm text-slate-400">{getStreakEncouragement(streak)}</p>
+      <p className="mb-8 max-w-xs text-sm text-fg-muted">{getStreakEncouragement(streak)}</p>
 
-      {/* Stats */}
       <div className="mb-10 flex gap-4">
-        <Stat label="XP earned" value={`+${xpEarned}`} color="text-emerald-400" />
-        <Stat label="Accuracy" value={`${accuracy}%`} color="text-indigo-400" />
-        <Stat label="Correct" value={`${correctCount}/${totalQuestions}`} color="text-amber-400" />
+        <Stat
+          label="XP earned"
+          value={`+${xpEarned}`}
+          color="text-emerald-600 dark:text-emerald-400"
+        />
+        <Stat
+          label="Coverage"
+          value={`${accuracy}%`}
+          color="text-indigo-600 dark:text-indigo-400"
+        />
+        <Stat
+          label="Passed"
+          value={`${correctCount}/${totalQuestions}`}
+          color="text-amber-600 dark:text-amber-400"
+        />
       </div>
 
       <button
         onClick={onContinue}
-        className="w-full max-w-xs rounded-2xl bg-emerald-500 py-4 text-lg font-bold text-white shadow-lg transition-all hover:bg-emerald-400 active:scale-95"
+        className="w-full max-w-xs rounded-2xl bg-emerald-500 py-4 font-mono text-lg font-bold text-white shadow-lg transition-all hover:bg-emerald-400 active:scale-95"
       >
-        Continue
+        {"> continue"}
       </button>
     </div>
   );
@@ -64,9 +76,9 @@ export function QuizResultScreen({
 
 function Stat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className="flex flex-col items-center gap-1 rounded-2xl border border-slate-700 bg-slate-800 px-5 py-3">
-      <span className={`text-xl font-black ${color}`}>{value}</span>
-      <span className="text-xs text-slate-500">{label}</span>
+    <div className="flex flex-col items-center gap-1 rounded-2xl border border-line bg-surface-raised px-5 py-3">
+      <span className={`font-mono text-xl font-black ${color}`}>{value}</span>
+      <span className="text-xs text-fg-muted">{label}</span>
     </div>
   );
 }

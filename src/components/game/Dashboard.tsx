@@ -3,6 +3,7 @@
 import type { UserProgress } from "@/lib/types";
 import { getStreakEncouragement } from "@/lib/progress";
 import { getStudyTrack } from "@/lib/daily-quiz-data";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface DashboardProps {
   progress: UserProgress;
@@ -19,51 +20,66 @@ export function Dashboard({ progress, onChangeTopic }: DashboardProps) {
   const xpPct = (xpInLevel / XP_PER_LEVEL) * 100;
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-900">
-      {/* Top bar */}
-      <header className="border-b border-slate-800 bg-slate-900/95">
+    <div className="flex min-h-screen flex-col bg-surface">
+      <header className="border-b border-line bg-surface-overlay">
         <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
-          <span className="text-lg font-bold text-white">DevGame</span>
-          {track && (
-            <span className={`text-sm font-medium ${track.textClass}`}>
-              {track.icon} {track.title}
-            </span>
-          )}
+          <span className="font-mono text-lg font-bold text-fg">
+            <span className="text-fg-muted">&lt;</span>
+            DevGame
+            <span className="text-fg-muted"> /&gt;</span>
+          </span>
+          <div className="flex items-center gap-3">
+            {track && (
+              <span className={`font-mono text-sm font-medium ${track.textClass}`}>
+                {track.icon} {track.title}
+              </span>
+            )}
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col items-center px-4 py-8">
-        {/* Streak section */}
-        <div className="mb-8 w-full rounded-2xl border-2 border-orange-500/30 bg-gradient-to-br from-orange-950/40 to-slate-800 p-6 text-center">
+        <div className="mb-8 w-full rounded-2xl border-2 border-orange-300 bg-orange-50 p-6 text-center dark:border-orange-500/30 dark:bg-gradient-to-br dark:from-orange-950/40 dark:to-surface-raised">
           <div className="mb-1 text-5xl">🔥</div>
-          <div className="text-4xl font-black text-orange-400">{progress.streak}</div>
-          <div className="mb-3 text-sm font-medium text-orange-300/80">
-            {progress.streak === 1 ? "day streak" : "day streak"}
+          <div className="font-mono text-4xl font-black text-orange-600 dark:text-orange-400">
+            {progress.streak}
           </div>
-          <p className="text-sm text-slate-300">{getStreakEncouragement(progress.streak)}</p>
+          <div className="mb-3 font-mono text-sm font-medium text-orange-500 dark:text-orange-300/80">
+            commit streak
+          </div>
+          <p className="text-sm text-fg-secondary">{getStreakEncouragement(progress.streak)}</p>
         </div>
 
-        {/* Stats row */}
         <div className="mb-8 grid w-full grid-cols-3 gap-3">
-          <StatCard label="Level" value={`${level}`} color="text-emerald-400" icon="⭐" />
-          <StatCard label="Total XP" value={`${progress.xp}`} color="text-indigo-400" icon="💎" />
           <StatCard
-            label="Quizzes"
+            label="Level"
+            value={`${level}`}
+            color="text-emerald-600 dark:text-emerald-400"
+            icon="$"
+          />
+          <StatCard
+            label="Total XP"
+            value={`${progress.xp}`}
+            color="text-indigo-600 dark:text-indigo-400"
+            icon="+"
+          />
+          <StatCard
+            label="Commits"
             value={`${Object.keys(progress.completedLessons).length}`}
-            color="text-amber-400"
-            icon="📝"
+            color="text-amber-600 dark:text-amber-400"
+            icon="#"
           />
         </div>
 
-        {/* XP progress bar */}
         <div className="mb-8 w-full">
-          <div className="mb-1 flex justify-between text-xs text-slate-500">
+          <div className="mb-1 flex justify-between font-mono text-xs text-fg-muted">
             <span>Level {level}</span>
             <span>
-              {xpInLevel} / {XP_PER_LEVEL} XP to next level
+              {xpInLevel} / {XP_PER_LEVEL} XP
             </span>
           </div>
-          <div className="h-3 w-full overflow-hidden rounded-full bg-slate-700">
+          <div className="h-3 w-full overflow-hidden rounded-full bg-surface-inset">
             <div
               className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500"
               style={{ width: `${xpPct}%` }}
@@ -71,21 +87,21 @@ export function Dashboard({ progress, onChangeTopic }: DashboardProps) {
           </div>
         </div>
 
-        {/* Today's status */}
-        <div className="mb-8 w-full rounded-2xl border-2 border-emerald-500/30 bg-emerald-950/20 p-6 text-center">
+        <div className="mb-8 w-full rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-6 text-center dark:border-emerald-500/30 dark:bg-emerald-950/20">
           <div className="mb-2 text-4xl">✅</div>
-          <h2 className="mb-1 text-xl font-bold text-emerald-400">Today&apos;s quiz complete!</h2>
-          <p className="text-sm text-slate-400">
-            Come back tomorrow for a new set of questions. Consistency is the key to mastery!
+          <h2 className="mb-1 font-mono text-xl font-bold text-emerald-700 dark:text-emerald-400">
+            All tests passing.
+          </h2>
+          <p className="font-mono text-sm text-fg-muted">
+            {"> "}Process exited. Next build scheduled for tomorrow.
           </p>
         </div>
 
-        {/* Change topic */}
         <button
           onClick={onChangeTopic}
-          className="w-full rounded-2xl border-2 border-slate-700 py-3 text-sm font-medium text-slate-400 transition-all hover:border-slate-500 hover:text-slate-200"
+          className="w-full rounded-2xl border-2 border-line-strong py-3 font-mono text-sm font-medium text-fg-muted transition-all hover:border-fg-muted hover:text-fg-secondary"
         >
-          Change study track
+          {">"} git checkout [branch]
         </button>
       </div>
     </div>
@@ -104,10 +120,10 @@ function StatCard({
   icon: string;
 }) {
   return (
-    <div className="flex flex-col items-center gap-1 rounded-2xl border border-slate-700 bg-slate-800 p-4">
-      <span className="text-lg">{icon}</span>
-      <span className={`text-xl font-black ${color}`}>{value}</span>
-      <span className="text-xs text-slate-500">{label}</span>
+    <div className="flex flex-col items-center gap-1 rounded-2xl border border-line bg-surface-raised p-4">
+      <span className="font-mono text-lg text-fg-muted">{icon}</span>
+      <span className={`font-mono text-xl font-black ${color}`}>{value}</span>
+      <span className="text-xs text-fg-muted">{label}</span>
     </div>
   );
 }

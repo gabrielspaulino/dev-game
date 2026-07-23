@@ -71,37 +71,39 @@ export function DailyQuiz({ trackId, onComplete }: DailyQuizProps) {
   const progress = (questionIdx / questions.length) * 100;
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-900">
-      {/* Quiz top bar */}
-      <div className="border-b border-slate-800 px-4 py-4">
+    <div className="flex min-h-screen flex-col bg-surface">
+      <div className="border-b border-line px-4 py-4">
         <div className="mx-auto flex max-w-2xl items-center gap-4">
-          <div className={`text-sm font-bold uppercase tracking-widest ${track.textClass}`}>
-            Daily Quiz
+          <div
+            className={`font-mono text-sm font-bold uppercase tracking-widest ${track.textClass}`}
+          >
+            {"// daily_challenge"}
           </div>
-          <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-700">
+          <div className="h-3 flex-1 overflow-hidden rounded-full bg-surface-inset">
             <div
               className={`h-full rounded-full transition-all duration-500 ${track.bgClass}`}
               style={{ width: `${progress}%` }}
             />
           </div>
-          <span className="text-sm text-slate-400">
+          <span className="font-mono text-sm text-fg-muted">
             {questionIdx + 1}/{questions.length}
           </span>
         </div>
       </div>
 
-      {/* Question area */}
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center px-4 py-8">
-        <p className={`mb-6 text-sm font-bold uppercase tracking-widest ${track.textClass}`}>
+        <p
+          className={`mb-6 font-mono text-sm font-bold uppercase tracking-widest ${track.textClass}`}
+        >
           Question {questionIdx + 1} of {questions.length}
         </p>
 
-        <h2 className="mb-6 text-center text-xl font-bold leading-snug text-white">
+        <h2 className="mb-6 text-center text-xl font-bold leading-snug text-fg">
           {currentQuestion.prompt}
         </h2>
 
         {currentQuestion.code && (
-          <pre className="mb-6 w-full overflow-x-auto rounded-xl border border-slate-700 bg-slate-800 p-4 font-mono text-sm leading-relaxed text-emerald-300">
+          <pre className="mb-6 w-full overflow-x-auto rounded-xl border border-line bg-surface-raised p-4 font-mono text-sm leading-relaxed text-emerald-600 dark:text-emerald-300">
             {currentQuestion.code}
           </pre>
         )}
@@ -109,18 +111,20 @@ export function DailyQuiz({ trackId, onComplete }: DailyQuizProps) {
         <div className="grid w-full gap-3">
           {currentQuestion.options.map((option, idx) => {
             let stateClass =
-              "border-slate-700 bg-slate-800 text-slate-200 hover:border-slate-500 hover:bg-slate-700";
+              "border-line-strong bg-surface-raised text-fg-secondary hover:border-fg-muted hover:bg-surface-inset";
 
             if (answerState !== "unanswered") {
               if (idx === currentQuestion.correctIndex) {
-                stateClass = "border-emerald-500 bg-emerald-900/40 text-emerald-200";
+                stateClass =
+                  "border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200";
               } else if (idx === selectedOption && answerState === "incorrect") {
-                stateClass = "border-red-500 bg-red-900/40 text-red-200";
+                stateClass =
+                  "border-red-500 bg-red-50 text-red-800 dark:bg-red-900/40 dark:text-red-200";
               } else {
-                stateClass = "border-slate-700 bg-slate-800/50 text-slate-500";
+                stateClass = "border-line bg-surface-raised/50 text-fg-faint";
               }
             } else if (selectedOption === idx) {
-              stateClass = `border-2 ${track.borderClass} bg-slate-800 text-white`;
+              stateClass = `border-2 ${track.borderClass} bg-surface-raised text-fg`;
             }
 
             return (
@@ -130,7 +134,7 @@ export function DailyQuiz({ trackId, onComplete }: DailyQuizProps) {
                 onClick={() => setSelectedOption(idx)}
                 className={`w-full rounded-2xl border-2 p-4 text-left font-medium transition-all duration-150 active:scale-[0.98] disabled:cursor-default ${stateClass}`}
               >
-                <span className="mr-3 inline-flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-bold opacity-60">
+                <span className="mr-3 inline-flex h-7 w-7 items-center justify-center rounded-full border border-current font-mono text-xs font-bold opacity-60">
                   {idx + 1}
                 </span>
                 {option}
@@ -143,51 +147,54 @@ export function DailyQuiz({ trackId, onComplete }: DailyQuizProps) {
           <div
             className={`mt-6 w-full rounded-2xl border-2 p-4 ${
               answerState === "correct"
-                ? "border-emerald-500 bg-emerald-900/30"
-                : "border-red-500 bg-red-900/30"
+                ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30"
+                : "border-red-500 bg-red-50 dark:bg-red-900/30"
             }`}
           >
             <p
-              className={`mb-1 font-bold ${
-                answerState === "correct" ? "text-emerald-400" : "text-red-400"
+              className={`mb-1 font-mono font-bold ${
+                answerState === "correct"
+                  ? "text-emerald-700 dark:text-emerald-400"
+                  : "text-red-700 dark:text-red-400"
               }`}
             >
-              {answerState === "correct" ? "Correct!" : "Not quite"}
+              {answerState === "correct" ? "// PASS" : "// FAIL"}
             </p>
-            <p className="text-sm leading-relaxed text-slate-300">{currentQuestion.explanation}</p>
+            <p className="text-sm leading-relaxed text-fg-secondary">
+              {currentQuestion.explanation}
+            </p>
           </div>
         )}
       </div>
 
-      {/* Bottom action */}
-      <div className="sticky bottom-0 border-t border-slate-800 bg-slate-900/95 px-4 py-4">
+      <div className="sticky bottom-0 border-t border-line bg-surface-overlay px-4 py-4">
         <div className="mx-auto max-w-2xl">
           {answerState === "unanswered" ? (
             <button
               disabled={selectedOption === null}
               onClick={handleCheck}
-              className={`w-full rounded-2xl py-4 text-lg font-bold transition-all active:scale-[0.98] ${
+              className={`w-full rounded-2xl py-4 font-mono text-lg font-bold transition-all active:scale-[0.98] ${
                 selectedOption === null
-                  ? "cursor-not-allowed bg-slate-700 text-slate-500"
+                  ? "cursor-not-allowed bg-surface-inset text-fg-faint"
                   : `${track.bgClass} text-white shadow-lg hover:opacity-90`
               }`}
             >
-              Check
+              {"> check"}
             </button>
           ) : (
             <button
               onClick={handleContinue}
-              className={`w-full rounded-2xl py-4 text-lg font-bold shadow-lg transition-all active:scale-[0.98] ${
+              className={`w-full rounded-2xl py-4 font-mono text-lg font-bold shadow-lg transition-all active:scale-[0.98] ${
                 answerState === "correct"
                   ? "bg-emerald-500 text-white hover:bg-emerald-400"
                   : "bg-red-500 text-white hover:bg-red-400"
               }`}
             >
-              {questionIdx + 1 >= questions.length ? "Finish" : "Continue"}
+              {questionIdx + 1 >= questions.length ? "> finish" : "> next"}
             </button>
           )}
-          <p className="mt-2 text-center text-xs text-slate-600">
-            Press Enter to {answerState === "unanswered" ? "check" : "continue"} · 1–
+          <p className="mt-2 text-center font-mono text-xs text-fg-faint">
+            ↵ to {answerState === "unanswered" ? "check" : "continue"} · 1–
             {currentQuestion.options.length} to select
           </p>
         </div>
