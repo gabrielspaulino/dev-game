@@ -18,7 +18,7 @@ session_xp = correct_answers × XP_PER_CORRECT_ANSWER
 Default values (subject to tuning):
 
 - `XP_PER_CORRECT_ANSWER` = 10
-- `XP_PERFECT_BONUS` = 50
+- `XP_PERFECT_BONUS` = 25 (daily quiz) / 50 (full sessions, planned)
 
 ### How XP is recorded
 
@@ -74,7 +74,34 @@ If no time zone is set, UTC is used.
 
 A second request to complete the same session on the same day must not increment the streak twice. The `Streak` record includes a `last_session_date` column. The streak service compares this with today's date before updating.
 
-## Daily Sessions
+## Study Track Selection
+
+Users choose a study track on first visit. Available tracks:
+
+- **Systems Design** — distributed systems, caching, load balancing, databases
+- **Java** — OOP, collections, streams, concurrency, design patterns
+- **JavaScript** — closures, async/await, prototypes, event loop, ES6+
+
+The selected track determines which question pool the daily quiz draws from. Users can change their track at any time from the dashboard.
+
+## Daily Quiz
+
+### When a quiz is considered complete
+
+A daily quiz is complete when:
+
+1. The user has answered all questions in the quiz (5 questions per day).
+2. XP has been awarded and the streak updated.
+
+### Daily limits
+
+One quiz per user per calendar day. Completing the quiz displays the dashboard with streak encouragement until the next day.
+
+### Question selection
+
+Questions are selected deterministically from the track's pool using the current date as a seed. This ensures consistent daily quizzes that change each day.
+
+## Daily Sessions (Planned — Server-Side)
 
 ### When a session is considered complete
 
