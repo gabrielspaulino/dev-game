@@ -8,16 +8,16 @@ This document defines all gamification rules. Business logic that implements the
 
 XP is awarded per correct answer and on activity completion. All values are defined in `XpPolicyConfig` (`src/modules/gamification/domain/xp-policy.ts`).
 
-| Action | XP |
-| --- | --- |
-| Correct answer (regular) | 5 |
-| Correct answer (difficulty ≥ 4) | 8 |
-| Lesson completion | 20 |
-| Daily session completion | 25 |
-| Module challenge completion | 50 |
-| Course completion | 200 |
-| Perfect lesson bonus | 15 |
-| Weak-skill review bonus | 10 |
+| Action                          | XP  |
+| ------------------------------- | --- |
+| Correct answer (regular)        | 5   |
+| Correct answer (difficulty ≥ 4) | 8   |
+| Lesson completion               | 20  |
+| Daily session completion        | 25  |
+| Module challenge completion     | 50  |
+| Course completion               | 200 |
+| Perfect lesson bonus            | 15  |
+| Weak-skill review bonus         | 10  |
 
 **Modifiers:**
 
@@ -109,11 +109,11 @@ Questions are selected deterministically from the track's pool using the current
 
 Focus Points gate expensive actions (advanced lessons, retry challenges, hints, skipping mandatory questions). Defined in `FocusPointsConfig` (`src/modules/gamification/domain/focus-points.ts`).
 
-| Parameter | Default |
-| --- | --- |
-| Maximum | 5 |
-| Regen interval | 3 hours |
-| Regen amount | 1 per interval |
+| Parameter      | Default        |
+| -------------- | -------------- |
+| Maximum        | 5              |
+| Regen interval | 3 hours        |
+| Regen amount   | 1 per interval |
 
 Regeneration is lazy — computed on access, not via background timers.
 
@@ -125,13 +125,13 @@ Completing a review session with ≥ 4/5 correct recovers 1 Focus Point, up to 3
 
 Defined in `DailyLimitsConfig` (`src/modules/gamification/domain/daily-limits.ts`).
 
-| Activity | Limit |
-| --- | --- |
-| Daily sessions | 1 |
-| New lessons | 2 |
-| Challenge attempts | 2 |
-| Reviews | Unlimited |
-| Practice | Unlimited |
+| Activity           | Limit     |
+| ------------------ | --------- |
+| Daily sessions     | 1         |
+| New lessons        | 2         |
+| Challenge attempts | 2         |
+| Reviews            | Unlimited |
+| Practice           | Unlimited |
 
 ## Sessions
 
@@ -145,10 +145,10 @@ Defined in `DailyLimitsConfig` (`src/modules/gamification/domain/daily-limits.ts
 
 ### Session size
 
-| Type | Questions |
-| --- | --- |
-| Daily session | 10 |
-| Lesson | 5–8 |
+| Type          | Questions |
+| ------------- | --------- |
+| Daily session | 10        |
+| Lesson        | 5–8       |
 
 ### Session expiry
 

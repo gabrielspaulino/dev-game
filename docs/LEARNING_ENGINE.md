@@ -37,6 +37,7 @@ Questions have a `difficulty` value from 1 (introductory) to 5 (expert).
 ### Mastery updates
 
 **Correct answer:**
+
 ```
 gain = baseGain + difficulty × difficultyGainMultiplier
 if hint used: gain *= (1 - hintPenaltyPercent / 100)
@@ -45,12 +46,14 @@ mastery = min(100, mastery + round(gain))
 ```
 
 **Incorrect answer:**
+
 ```
 loss = baseLoss + difficulty × difficultyLossMultiplier
 mastery = max(0, mastery - round(loss))
 ```
 
 Default values:
+
 - `baseGain` = 5, `baseLoss` = 3
 - `difficultyGainMultiplier` = 0.5, `difficultyLossMultiplier` = 0.3
 - `hintPenaltyPercent` = 30, `challengeBonusPercent` = 25
@@ -58,18 +61,19 @@ Default values:
 ### Recency decay
 
 Mastery decays when skills are not reviewed:
+
 - `recencyDecayPerDay` = 0.5
 - `maxRecencyDecay` = 15
 
 ### Mastery bands
 
-| Mastery | Label       |
-| ------- | ----------- |
-| 0–29    | Beginner    |
-| 30–49   | Developing  |
-| 50–69   | Competent   |
-| 70–84   | Proficient  |
-| 85–100  | Advanced    |
+| Mastery | Label      |
+| ------- | ---------- |
+| 0–29    | Beginner   |
+| 30–49   | Developing |
+| 50–69   | Competent  |
+| 70–84   | Proficient |
+| 85–100  | Advanced   |
 
 ## Session Assembly
 
