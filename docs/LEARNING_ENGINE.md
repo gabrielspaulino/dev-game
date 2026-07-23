@@ -32,28 +32,48 @@ Questions have a `difficulty` value from 1 (introductory) to 5 (expert).
 
 ## Mastery Calculation
 
-`UserSkillProgress.mastery` is a score from 0 to 100.
+`UserSkillProgress.mastery` is a score from 0 to 100. Defined in `MasteryConfig` (`src/modules/progress/domain/mastery.ts`).
 
-### Mastery updates (Stage 5)
+### Mastery updates
 
-| Event            | Effect                                       |
-| ---------------- | -------------------------------------------- |
-| Correct answer   | `mastery = min(100, mastery + MASTERY_GAIN)` |
-| Incorrect answer | `mastery = max(0, mastery - MASTERY_LOSS)`   |
+**Correct answer:**
 
-Default constants (configurable, not hardcoded):
+```
+gain = baseGain + difficulty × difficultyGainMultiplier
+if hint used: gain *= (1 - hintPenaltyPercent / 100)
+if challenge: gain *= (1 + challengeBonusPercent / 100)
+mastery = min(100, mastery + round(gain))
+```
 
-- `MASTERY_GAIN` = 5
-- `MASTERY_LOSS` = 3
+**Incorrect answer:**
 
-### Mastery tiers
+```
+loss = baseLoss + difficulty × difficultyLossMultiplier
+mastery = max(0, mastery - round(loss))
+```
+
+Default values:
+
+- `baseGain` = 5, `baseLoss` = 3
+- `difficultyGainMultiplier` = 0.5, `difficultyLossMultiplier` = 0.3
+- `hintPenaltyPercent` = 30, `challengeBonusPercent` = 25
+
+### Recency decay
+
+Mastery decays when skills are not reviewed:
+
+- `recencyDecayPerDay` = 0.5
+- `maxRecencyDecay` = 15
+
+### Mastery bands
 
 | Mastery | Label      |
 | ------- | ---------- |
-| 0–30    | Novice     |
-| 31–60   | Developing |
-| 61–85   | Proficient |
-| 86–100  | Expert     |
+| 0–29    | Beginner   |
+| 30–49   | Developing |
+| 50–69   | Competent  |
+| 70–84   | Proficient |
+| 85–100  | Advanced   |
 
 ## Session Assembly
 
@@ -95,14 +115,19 @@ The placement test is a short assessment (10–20 questions across all skills an
 
 ## Spaced Repetition
 
-Questions that the user answered incorrectly, or that have low mastery, are prioritized in the "Review" category.
+Review scheduling uses expanding/contracting intervals, defined in `ReviewScheduleConfig` (`src/modules/progress/domain/review-scheduler.ts`).
 
-The review scheduling algorithm in the MVP is simple:
+### Default intervals
 
-1. Questions with the lowest mastery score are reviewed first.
-2. Questions not seen in the longest time are reviewed next within the same mastery tier.
+`[0, 1, 3, 7, 21]` days — the index advances on correct answers and retreats on incorrect ones.
 
-A more sophisticated SRS algorithm (SM-2 or similar) can be implemented later by replacing the `QuestionSelector` without changing the domain.
+### Interval adjustment
+
+- **Correct:** advance index + 1, then use `extendFactor` (×1.5) once past the last interval
+- **Incorrect:** retreat index - 1, then use `shortenFactor` (×0.5) for custom intervals
+- **Min interval:** 1 day, **Max interval:** 60 days
+
+Each `ReviewItem` tracks `consecutiveCorrect` and `consecutiveIncorrect` for adaptive scheduling.
 
 ## Deterministic Tests
 
