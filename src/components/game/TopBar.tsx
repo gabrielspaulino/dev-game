@@ -2,6 +2,7 @@
 
 import type { UserProgress } from "@/lib/types";
 import { MAX_HEARTS } from "@/lib/progress";
+import { FireIcon, HeartIcon } from "@/components/Icons";
 
 interface TopBarProps {
   progress: UserProgress;
@@ -18,9 +19,7 @@ export function TopBar({ progress }: TopBarProps) {
     <header className="sticky top-0 z-50 border-b border-line bg-surface-overlay backdrop-blur">
       <div className="mx-auto flex h-16 max-w-3xl items-center justify-between gap-4 px-4">
         <div className="flex min-w-[60px] items-center gap-1.5">
-          <span className="text-2xl" role="img" aria-label="streak">
-            🔥
-          </span>
+          <FireIcon className="h-6 w-6 text-orange-500" />
           <span className="font-mono text-lg font-bold text-orange-600 dark:text-orange-400">
             {progress.streak}
           </span>
@@ -43,16 +42,13 @@ export function TopBar({ progress }: TopBarProps) {
 
         <div className="flex min-w-[80px] items-center justify-end gap-0.5">
           {Array.from({ length: MAX_HEARTS }).map((_, i) => (
-            <span
+            <HeartIcon
               key={i}
-              className={`text-xl transition-all ${
-                i < progress.hearts ? "opacity-100" : "opacity-20 grayscale"
+              filled={i < progress.hearts}
+              className={`h-5 w-5 transition-all ${
+                i < progress.hearts ? "text-fg" : "text-fg-faint"
               }`}
-              role="img"
-              aria-label={i < progress.hearts ? "heart" : "lost heart"}
-            >
-              ❤️
-            </span>
+            />
           ))}
         </div>
       </div>

@@ -5,7 +5,7 @@ export const TOPICS: Topic[] = [
     id: "javascript",
     title: "JavaScript",
     description: "Master the language of the web",
-    icon: "🟨",
+    icon: "js",
     color: "amber",
     bgClass: "bg-amber-500",
     borderClass: "border-amber-500",
@@ -14,7 +14,7 @@ export const TOPICS: Topic[] = [
       {
         id: "js-variables",
         title: "Variables & Types",
-        icon: "📦",
+        icon: "package",
         xpReward: 20,
         questions: [
           {
@@ -74,7 +74,7 @@ export const TOPICS: Topic[] = [
       {
         id: "js-functions",
         title: "Functions & Scope",
-        icon: "⚙️",
+        icon: "gear",
         xpReward: 20,
         questions: [
           {
@@ -149,7 +149,7 @@ console.log(i);`,
       {
         id: "js-arrays",
         title: "Arrays & Objects",
-        icon: "🗂️",
+        icon: "folder",
         xpReward: 25,
         questions: [
           {
@@ -227,7 +227,7 @@ console.log(i);`,
     id: "git",
     title: "Git",
     description: "Version control like a pro",
-    icon: "🌿",
+    icon: "git",
     color: "orange",
     bgClass: "bg-orange-500",
     borderClass: "border-orange-500",
@@ -236,7 +236,7 @@ console.log(i);`,
       {
         id: "git-basics",
         title: "Core Commands",
-        icon: "🔧",
+        icon: "wrench",
         xpReward: 20,
         questions: [
           {
@@ -310,7 +310,7 @@ console.log(i);`,
       {
         id: "git-branching",
         title: "Branching",
-        icon: "🌿",
+        icon: "branch",
         xpReward: 20,
         questions: [
           {
@@ -388,7 +388,7 @@ console.log(i);`,
       {
         id: "git-remote",
         title: "Working with Remotes",
-        icon: "☁️",
+        icon: "cloud",
         xpReward: 25,
         questions: [
           {
@@ -470,7 +470,7 @@ console.log(i);`,
     id: "python",
     title: "Python",
     description: "Simple syntax, infinite power",
-    icon: "🐍",
+    icon: "python",
     color: "blue",
     bgClass: "bg-blue-500",
     borderClass: "border-blue-500",
@@ -479,7 +479,7 @@ console.log(i);`,
       {
         id: "py-syntax",
         title: "Syntax & Types",
-        icon: "📝",
+        icon: "document",
         xpReward: 20,
         questions: [
           {
@@ -544,7 +544,7 @@ console.log(i);`,
       {
         id: "py-collections",
         title: "Lists & Dicts",
-        icon: "📚",
+        icon: "books",
         xpReward: 20,
         questions: [
           {
@@ -613,7 +613,7 @@ console.log(i);`,
       {
         id: "py-functions",
         title: "Functions & OOP",
-        icon: "🏗️",
+        icon: "build",
         xpReward: 25,
         questions: [
           {
@@ -698,7 +698,7 @@ print(greet("Alice"))`,
     id: "sql",
     title: "SQL",
     description: "Speak fluently to databases",
-    icon: "🗄️",
+    icon: "sql",
     color: "violet",
     bgClass: "bg-violet-500",
     borderClass: "border-violet-500",
@@ -707,7 +707,7 @@ print(greet("Alice"))`,
       {
         id: "sql-select",
         title: "SELECT & Filtering",
-        icon: "🔍",
+        icon: "search",
         xpReward: 20,
         questions: [
           {
@@ -776,7 +776,7 @@ print(greet("Alice"))`,
       {
         id: "sql-joins",
         title: "JOINs",
-        icon: "🔗",
+        icon: "link",
         xpReward: 25,
         questions: [
           {
@@ -854,7 +854,7 @@ print(greet("Alice"))`,
       {
         id: "sql-aggregates",
         title: "Aggregations",
-        icon: "📊",
+        icon: "chart",
         xpReward: 25,
         questions: [
           {

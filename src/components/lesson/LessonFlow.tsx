@@ -6,6 +6,7 @@ import type { Lesson, Topic, AnswerState } from "@/lib/types";
 import { loadProgress, completeLesson } from "@/lib/progress";
 import { ResultScreen } from "./ResultScreen";
 import { MAX_HEARTS } from "@/lib/progress";
+import { HeartIcon } from "@/components/Icons";
 
 interface LessonFlowProps {
   topic: Topic;
@@ -117,12 +118,11 @@ export function LessonFlow({ topic, lesson }: LessonFlowProps) {
 
         <div className="flex gap-0.5">
           {Array.from({ length: MAX_HEARTS }).map((_, i) => (
-            <span
+            <HeartIcon
               key={i}
-              className={`text-base transition-all ${i < hearts ? "opacity-100" : "opacity-20 grayscale"}`}
-            >
-              ❤️
-            </span>
+              filled={i < hearts}
+              className={`h-4 w-4 transition-all ${i < hearts ? "text-fg" : "text-fg-faint"}`}
+            />
           ))}
         </div>
       </div>

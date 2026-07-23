@@ -4,6 +4,7 @@ import type { UserProgress } from "@/lib/types";
 import { getStreakEncouragement } from "@/lib/progress";
 import { getStudyTrack } from "@/lib/daily-quiz-data";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Icon, FireIcon, CheckCircleIcon } from "@/components/Icons";
 
 interface DashboardProps {
   progress: UserProgress;
@@ -30,8 +31,11 @@ export function Dashboard({ progress, onChangeTopic }: DashboardProps) {
           </span>
           <div className="flex items-center gap-3">
             {track && (
-              <span className={`font-mono text-sm font-medium ${track.textClass}`}>
-                {track.icon} {track.title}
+              <span
+                className={`flex items-center gap-1.5 font-mono text-sm font-medium ${track.textClass}`}
+              >
+                <Icon name={track.icon} className="inline h-4 w-4" />
+                {track.title}
               </span>
             )}
             <ThemeToggle />
@@ -41,7 +45,7 @@ export function Dashboard({ progress, onChangeTopic }: DashboardProps) {
 
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col items-center px-4 py-8">
         <div className="mb-8 w-full rounded-2xl border-2 border-orange-300 bg-orange-50 p-6 text-center dark:border-orange-500/30 dark:bg-gradient-to-br dark:from-orange-950/40 dark:to-surface-raised">
-          <div className="mb-1 text-5xl">🔥</div>
+          <FireIcon className="mx-auto mb-1 h-12 w-12 text-orange-500" />
           <div className="font-mono text-4xl font-black text-orange-600 dark:text-orange-400">
             {progress.streak}
           </div>
@@ -88,7 +92,7 @@ export function Dashboard({ progress, onChangeTopic }: DashboardProps) {
         </div>
 
         <div className="mb-8 w-full rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-6 text-center dark:border-emerald-500/30 dark:bg-emerald-950/20">
-          <div className="mb-2 text-4xl">✅</div>
+          <CheckCircleIcon className="mx-auto mb-2 h-10 w-10 text-emerald-600 dark:text-emerald-400" />
           <h2 className="mb-1 font-mono text-xl font-bold text-emerald-700 dark:text-emerald-400">
             All tests passing.
           </h2>

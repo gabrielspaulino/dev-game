@@ -72,12 +72,12 @@ export function completeDailyQuiz(progress: UserProgress, xpEarned: number): Use
 }
 
 export function getStreakEncouragement(streak: number): string {
-  if (streak === 0) return "Start your daily learning streak today! 🚀";
-  if (streak === 1) return "Day 1 complete! Keep the momentum going tomorrow! 🔥";
-  if (streak < 3) return `${streak}-day streak! You're building a powerful habit! 💪`;
-  if (streak < 7) return `${streak}-day streak! You're on fire! 🔥 Keep learning!`;
-  if (streak < 30) return `Unstoppable! ${streak} days of continuous learning! 🏆`;
-  return `Legendary Engineer! ${streak}-day streak! ⚡`;
+  if (streak === 0) return "Start your daily commit streak today.";
+  if (streak === 1) return "Day 1 shipped. Keep the momentum going.";
+  if (streak < 3) return `${streak}-day streak. Building a solid habit.`;
+  if (streak < 7) return `${streak}-day streak. You're on fire. Keep pushing.`;
+  if (streak < 30) return `${streak} days of continuous commits. Unstoppable.`;
+  return `Legendary streak: ${streak} days. You're a machine.`;
 }
 
 export function completeLesson(
