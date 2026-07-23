@@ -8,37 +8,37 @@ The data model is designed for a modular monolith deployed on PostgreSQL. Domain
 
 ### Enum Types
 
-| Enum               | Values                                                                                           |
-| ------------------ | ------------------------------------------------------------------------------------------------ |
-| difficulty          | EASY, MEDIUM, HARD, EXPERT                                                                       |
-| reasoning_level     | RECOGNIZE, APPLY, ANALYZE, COMBINE                                                               |
-| question_type       | SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_FALSE, CODE_OUTPUT, BUG_IDENTIFICATION, ORDERING, CODE_COMPLETION, ARCHITECTURE_SCENARIO |
-| question_status     | DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED                                                            |
-| criticality         | NORMAL, IMPORTANT, CRITICAL                                                                      |
-| skill_role          | PRIMARY, SECONDARY, CONTEXT                                                                      |
-| selection_reason    | NEW_CONTENT, CURRENT_TOPIC, SPACED_REVIEW, WEAK_SKILL, PREREQUISITE_CHECK, CHALLENGE, FINAL_ASSESSMENT |
-| lesson_question_role| INTRODUCTION, REGULAR, REVIEW, CHALLENGE, FINAL_ASSESSMENT                                       |
-| session_type        | daily, lesson, review, challenge, final_assessment                                               |
-| session_status      | ACTIVE, COMPLETED, EXPIRED, ABANDONED                                                            |
+| Enum                 | Values                                                                                                                        |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| difficulty           | EASY, MEDIUM, HARD, EXPERT                                                                                                    |
+| reasoning_level      | RECOGNIZE, APPLY, ANALYZE, COMBINE                                                                                            |
+| question_type        | SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_FALSE, CODE_OUTPUT, BUG_IDENTIFICATION, ORDERING, CODE_COMPLETION, ARCHITECTURE_SCENARIO |
+| question_status      | DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED                                                                                         |
+| criticality          | NORMAL, IMPORTANT, CRITICAL                                                                                                   |
+| skill_role           | PRIMARY, SECONDARY, CONTEXT                                                                                                   |
+| selection_reason     | NEW_CONTENT, CURRENT_TOPIC, SPACED_REVIEW, WEAK_SKILL, PREREQUISITE_CHECK, CHALLENGE, FINAL_ASSESSMENT                        |
+| lesson_question_role | INTRODUCTION, REGULAR, REVIEW, CHALLENGE, FINAL_ASSESSMENT                                                                    |
+| session_type         | daily, lesson, review, challenge, final_assessment                                                                            |
+| session_status       | ACTIVE, COMPLETED, EXPIRED, ABANDONED                                                                                         |
 
 ### Tables
 
-| Table                    | Purpose                                      | Key Columns                                         |
-| ------------------------ | -------------------------------------------- | --------------------------------------------------- |
-| users                    | Stub user table (FK target)                  | id, email, role                                     |
-| skills                   | Hierarchical skill tree                      | id, parent_skill_id, code, name, category           |
-| question_families        | Groups variant wordings of same concept      | id, code, name                                      |
-| lessons                  | Stub lesson table (FK target)                | id, title, module_id                                |
-| questions                | Question metadata and classification         | id, slug, primary_skill_id, difficulty, status       |
-| question_versions        | Immutable version snapshots of question text | id, question_id, version_number, prompt, correct_answer |
-| question_options         | Answer options for a question version        | id, question_version_id, option_key, content        |
-| question_skills          | Many-to-many questions ↔ skills              | question_id, skill_id, role, weight                 |
-| question_prerequisites   | Minimum mastery required to attempt          | question_id, skill_id, minimum_mastery              |
-| lesson_questions         | Questions assigned to a lesson               | lesson_id, question_id, role, weight                |
-| quiz_sessions            | User quiz session lifecycle                  | id, user_id, session_type, status, session_date     |
-| quiz_session_questions   | Questions selected for a session             | id, session_id, question_id, selection_reason       |
-| quiz_answers             | User answer submissions (server-evaluated)   | id, session_question_id, user_id, is_correct, score |
-| user_question_history    | Per-user per-question attempt tracking       | user_id, question_id, total_attempts, next_eligible_at |
+| Table                  | Purpose                                      | Key Columns                                             |
+| ---------------------- | -------------------------------------------- | ------------------------------------------------------- |
+| users                  | Stub user table (FK target)                  | id, email, role                                         |
+| skills                 | Hierarchical skill tree                      | id, parent_skill_id, code, name, category               |
+| question_families      | Groups variant wordings of same concept      | id, code, name                                          |
+| lessons                | Stub lesson table (FK target)                | id, title, module_id                                    |
+| questions              | Question metadata and classification         | id, slug, primary_skill_id, difficulty, status          |
+| question_versions      | Immutable version snapshots of question text | id, question_id, version_number, prompt, correct_answer |
+| question_options       | Answer options for a question version        | id, question_version_id, option_key, content            |
+| question_skills        | Many-to-many questions ↔ skills              | question_id, skill_id, role, weight                     |
+| question_prerequisites | Minimum mastery required to attempt          | question_id, skill_id, minimum_mastery                  |
+| lesson_questions       | Questions assigned to a lesson               | lesson_id, question_id, role, weight                    |
+| quiz_sessions          | User quiz session lifecycle                  | id, user_id, session_type, status, session_date         |
+| quiz_session_questions | Questions selected for a session             | id, session_id, question_id, selection_reason           |
+| quiz_answers           | User answer submissions (server-evaluated)   | id, session_question_id, user_id, is_correct, score     |
+| user_question_history  | Per-user per-question attempt tracking       | user_id, question_id, total_attempts, next_eligible_at  |
 
 ### Key Design Decisions
 

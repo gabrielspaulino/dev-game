@@ -28,27 +28,27 @@ Each skill has a unique `code`, a `category`, and an `is_active` flag. Questions
 
 ### Question Types
 
-| Type                  | Evaluation                       |
-| --------------------- | -------------------------------- |
-| SINGLE_CHOICE         | Exactly one correct option       |
-| MULTIPLE_CHOICE       | Set comparison of selected IDs   |
-| TRUE_FALSE            | Single correct option            |
-| CODE_OUTPUT           | Single correct option            |
-| BUG_IDENTIFICATION    | Single correct option            |
-| ORDERING              | Exact sequence match             |
-| CODE_COMPLETION       | Single correct option            |
-| ARCHITECTURE_SCENARIO | Single correct option            |
+| Type                  | Evaluation                     |
+| --------------------- | ------------------------------ |
+| SINGLE_CHOICE         | Exactly one correct option     |
+| MULTIPLE_CHOICE       | Set comparison of selected IDs |
+| TRUE_FALSE            | Single correct option          |
+| CODE_OUTPUT           | Single correct option          |
+| BUG_IDENTIFICATION    | Single correct option          |
+| ORDERING              | Exact sequence match           |
+| CODE_COMPLETION       | Single correct option          |
+| ARCHITECTURE_SCENARIO | Single correct option          |
 
 ### Difficulty vs Reasoning Level
 
 These are independent axes:
 
-| Difficulty | Numeric | Description                |
-| ---------- | ------- | -------------------------- |
-| EASY       | 1       | Introductory concepts      |
-| MEDIUM     | 2       | Working knowledge          |
-| HARD       | 3       | Advanced application       |
-| EXPERT     | 4       | Expert-level challenges    |
+| Difficulty | Numeric | Description             |
+| ---------- | ------- | ----------------------- |
+| EASY       | 1       | Introductory concepts   |
+| MEDIUM     | 2       | Working knowledge       |
+| HARD       | 3       | Advanced application    |
+| EXPERT     | 4       | Expert-level challenges |
 
 | Reasoning Level | Description                          |
 | --------------- | ------------------------------------ |
@@ -62,6 +62,7 @@ A question can be EASY+ANALYZE or HARD+RECOGNIZE — they measure different thin
 ### Immutable Versions
 
 Questions use immutable versioning:
+
 - Each edit creates a new `question_version` with an incremented `version_number`.
 - `questions.current_version_number` points to the latest version.
 - `correct_answer` is stored in `question_versions` and never exposed to the client.
@@ -146,6 +147,7 @@ Fetches published questions by skill or lesson. Returns `QuestionCandidate` obje
 ### 3. Eligibility Filtering (`eligibility.ts`)
 
 Removes candidates that are:
+
 - Recently answered (within cooldown period)
 - Before their `next_eligible_at` spaced-repetition date
 - Exceeding max attempts within the cooldown window
@@ -154,13 +156,13 @@ Removes candidates that are:
 
 Scores each candidate on five weighted dimensions:
 
-| Dimension        | Weight | Score 1.0 when...                        |
-| ---------------- | ------ | ----------------------------------------- |
+| Dimension        | Weight | Score 1.0 when...                          |
+| ---------------- | ------ | ------------------------------------------ |
 | Difficulty match | 0.30   | Candidate matches user's target difficulty |
-| Recency          | 0.20   | Never seen or not seen in 21+ days        |
-| Novelty          | 0.25   | Never attempted                           |
-| Skill priority   | 0.15   | Matches a focus skill                     |
-| Criticality      | 0.10   | Marked CRITICAL                           |
+| Recency          | 0.20   | Never seen or not seen in 21+ days         |
+| Novelty          | 0.25   | Never attempted                            |
+| Skill priority   | 0.15   | Matches a focus skill                      |
+| Criticality      | 0.10   | Marked CRITICAL                            |
 
 Each candidate also gets a `selectionReason` (NEW_CONTENT, SPACED_REVIEW, WEAK_SKILL, CHALLENGE, etc.).
 
@@ -181,6 +183,7 @@ Creates the `quiz_session` and `quiz_session_questions` records. Pins each quest
 ### Orchestrator (`question-selection-service.ts`)
 
 `QuestionSelectionService.assembleSession(plan, now)` ties the pipeline together. It depends on four ports (all injected):
+
 - `QuestionCandidateRepository`
 - `UserMasteryRepository`
 - `UserHistoryRepository`
@@ -205,6 +208,7 @@ Each `ReviewItem` tracks `consecutiveCorrect` and `consecutiveIncorrect` for ada
 ## Server-Side Answer Evaluation
 
 The client must never be trusted with:
+
 - Whether the answer is correct
 - The score
 - Mastery changes

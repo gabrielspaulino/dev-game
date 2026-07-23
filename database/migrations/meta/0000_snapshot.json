@@ -91,12 +91,8 @@
           "name": "lesson_questions_lesson_id_lessons_id_fk",
           "tableFrom": "lesson_questions",
           "tableTo": "lessons",
-          "columnsFrom": [
-            "lesson_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lesson_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -104,12 +100,8 @@
           "name": "lesson_questions_question_id_questions_id_fk",
           "tableFrom": "lesson_questions",
           "tableTo": "questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -117,10 +109,7 @@
       "compositePrimaryKeys": {
         "lesson_questions_lesson_id_question_id_pk": {
           "name": "lesson_questions_lesson_id_question_id_pk",
-          "columns": [
-            "lesson_id",
-            "question_id"
-          ]
+          "columns": ["lesson_id", "question_id"]
         }
       },
       "uniqueConstraints": {},
@@ -225,9 +214,7 @@
         "question_families_code_unique": {
           "name": "question_families_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       },
       "policies": {},
@@ -339,12 +326,8 @@
           "name": "question_options_question_version_id_question_versions_id_fk",
           "tableFrom": "question_options",
           "tableTo": "question_versions",
-          "columnsFrom": [
-            "question_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -385,12 +368,8 @@
           "name": "question_prerequisites_question_id_questions_id_fk",
           "tableFrom": "question_prerequisites",
           "tableTo": "questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -398,12 +377,8 @@
           "name": "question_prerequisites_skill_id_skills_id_fk",
           "tableFrom": "question_prerequisites",
           "tableTo": "skills",
-          "columnsFrom": [
-            "skill_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["skill_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -411,10 +386,7 @@
       "compositePrimaryKeys": {
         "question_prerequisites_question_id_skill_id_pk": {
           "name": "question_prerequisites_question_id_skill_id_pk",
-          "columns": [
-            "question_id",
-            "skill_id"
-          ]
+          "columns": ["question_id", "skill_id"]
         }
       },
       "uniqueConstraints": {},
@@ -492,12 +464,8 @@
           "name": "question_skills_question_id_questions_id_fk",
           "tableFrom": "question_skills",
           "tableTo": "questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -505,12 +473,8 @@
           "name": "question_skills_skill_id_skills_id_fk",
           "tableFrom": "question_skills",
           "tableTo": "skills",
-          "columnsFrom": [
-            "skill_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["skill_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -518,10 +482,7 @@
       "compositePrimaryKeys": {
         "question_skills_question_id_skill_id_pk": {
           "name": "question_skills_question_id_skill_id_pk",
-          "columns": [
-            "question_id",
-            "skill_id"
-          ]
+          "columns": ["question_id", "skill_id"]
         }
       },
       "uniqueConstraints": {},
@@ -670,12 +631,8 @@
           "name": "question_versions_question_id_questions_id_fk",
           "tableFrom": "question_versions",
           "tableTo": "questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -683,12 +640,8 @@
           "name": "question_versions_created_by_users_id_fk",
           "tableFrom": "question_versions",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -948,12 +901,8 @@
           "name": "questions_question_family_id_question_families_id_fk",
           "tableFrom": "questions",
           "tableTo": "question_families",
-          "columnsFrom": [
-            "question_family_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_family_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -961,12 +910,8 @@
           "name": "questions_primary_skill_id_skills_id_fk",
           "tableFrom": "questions",
           "tableTo": "skills",
-          "columnsFrom": [
-            "primary_skill_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["primary_skill_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -974,12 +919,8 @@
           "name": "questions_created_by_users_id_fk",
           "tableFrom": "questions",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -989,9 +930,7 @@
         "questions_slug_unique": {
           "name": "questions_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -1129,12 +1068,8 @@
           "name": "quiz_answers_session_question_id_quiz_session_questions_id_fk",
           "tableFrom": "quiz_answers",
           "tableTo": "quiz_session_questions",
-          "columnsFrom": [
-            "session_question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["session_question_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1142,12 +1077,8 @@
           "name": "quiz_answers_user_id_users_id_fk",
           "tableFrom": "quiz_answers",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1157,9 +1088,7 @@
         "quiz_answers_idempotency_key_unique": {
           "name": "quiz_answers_idempotency_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "idempotency_key"
-          ]
+          "columns": ["idempotency_key"]
         }
       },
       "policies": {},
@@ -1312,12 +1241,8 @@
           "name": "quiz_session_questions_session_id_quiz_sessions_id_fk",
           "tableFrom": "quiz_session_questions",
           "tableTo": "quiz_sessions",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["session_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1325,12 +1250,8 @@
           "name": "quiz_session_questions_question_id_questions_id_fk",
           "tableFrom": "quiz_session_questions",
           "tableTo": "questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1338,12 +1259,8 @@
           "name": "quiz_session_questions_question_version_id_question_versions_id_fk",
           "tableFrom": "quiz_session_questions",
           "tableTo": "question_versions",
-          "columnsFrom": [
-            "question_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1351,12 +1268,8 @@
           "name": "quiz_session_questions_target_skill_id_skills_id_fk",
           "tableFrom": "quiz_session_questions",
           "tableTo": "skills",
-          "columnsFrom": [
-            "target_skill_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["target_skill_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1493,12 +1406,8 @@
           "name": "quiz_sessions_user_id_users_id_fk",
           "tableFrom": "quiz_sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1506,12 +1415,8 @@
           "name": "quiz_sessions_lesson_id_lessons_id_fk",
           "tableFrom": "quiz_sessions",
           "tableTo": "lessons",
-          "columnsFrom": [
-            "lesson_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lesson_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1637,12 +1542,8 @@
           "name": "skills_parent_skill_id_skills_id_fk",
           "tableFrom": "skills",
           "tableTo": "skills",
-          "columnsFrom": [
-            "parent_skill_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_skill_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1652,9 +1553,7 @@
         "skills_code_unique": {
           "name": "skills_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       },
       "policies": {},
@@ -1787,12 +1686,8 @@
           "name": "user_question_history_user_id_users_id_fk",
           "tableFrom": "user_question_history",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1800,12 +1695,8 @@
           "name": "user_question_history_question_id_questions_id_fk",
           "tableFrom": "user_question_history",
           "tableTo": "questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1813,12 +1704,8 @@
           "name": "user_question_history_last_version_id_question_versions_id_fk",
           "tableFrom": "user_question_history",
           "tableTo": "question_versions",
-          "columnsFrom": [
-            "last_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["last_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1826,10 +1713,7 @@
       "compositePrimaryKeys": {
         "user_question_history_user_id_question_id_pk": {
           "name": "user_question_history_user_id_question_id_pk",
-          "columns": [
-            "user_id",
-            "question_id"
-          ]
+          "columns": ["user_id", "question_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1883,9 +1767,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -1897,42 +1779,22 @@
     "public.criticality": {
       "name": "criticality",
       "schema": "public",
-      "values": [
-        "NORMAL",
-        "IMPORTANT",
-        "CRITICAL"
-      ]
+      "values": ["NORMAL", "IMPORTANT", "CRITICAL"]
     },
     "public.difficulty": {
       "name": "difficulty",
       "schema": "public",
-      "values": [
-        "EASY",
-        "MEDIUM",
-        "HARD",
-        "EXPERT"
-      ]
+      "values": ["EASY", "MEDIUM", "HARD", "EXPERT"]
     },
     "public.lesson_question_role": {
       "name": "lesson_question_role",
       "schema": "public",
-      "values": [
-        "INTRODUCTION",
-        "REGULAR",
-        "REVIEW",
-        "CHALLENGE",
-        "FINAL_ASSESSMENT"
-      ]
+      "values": ["INTRODUCTION", "REGULAR", "REVIEW", "CHALLENGE", "FINAL_ASSESSMENT"]
     },
     "public.question_status": {
       "name": "question_status",
       "schema": "public",
-      "values": [
-        "DRAFT",
-        "IN_REVIEW",
-        "PUBLISHED",
-        "ARCHIVED"
-      ]
+      "values": ["DRAFT", "IN_REVIEW", "PUBLISHED", "ARCHIVED"]
     },
     "public.question_type": {
       "name": "question_type",
@@ -1951,12 +1813,7 @@
     "public.reasoning_level": {
       "name": "reasoning_level",
       "schema": "public",
-      "values": [
-        "RECOGNIZE",
-        "APPLY",
-        "ANALYZE",
-        "COMBINE"
-      ]
+      "values": ["RECOGNIZE", "APPLY", "ANALYZE", "COMBINE"]
     },
     "public.selection_reason": {
       "name": "selection_reason",
@@ -1974,32 +1831,17 @@
     "public.session_status": {
       "name": "session_status",
       "schema": "public",
-      "values": [
-        "ACTIVE",
-        "COMPLETED",
-        "EXPIRED",
-        "ABANDONED"
-      ]
+      "values": ["ACTIVE", "COMPLETED", "EXPIRED", "ABANDONED"]
     },
     "public.session_type": {
       "name": "session_type",
       "schema": "public",
-      "values": [
-        "daily",
-        "lesson",
-        "review",
-        "challenge",
-        "final_assessment"
-      ]
+      "values": ["daily", "lesson", "review", "challenge", "final_assessment"]
     },
     "public.skill_role": {
       "name": "skill_role",
       "schema": "public",
-      "values": [
-        "PRIMARY",
-        "SECONDARY",
-        "CONTEXT"
-      ]
+      "values": ["PRIMARY", "SECONDARY", "CONTEXT"]
     }
   },
   "schemas": {},
