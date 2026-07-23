@@ -20,14 +20,16 @@ The schema grows incrementally. Entities are introduced per stage.
 | QuestionOption        | 2     | questions    |
 | QuestionSkill         | 2     | questions    |
 | PlacementTest         | 2     | learning     |
-| DailySession          | 3     | sessions     |
-| SessionQuestion       | 3     | sessions     |
-| UserAnswer            | 3     | sessions     |
+| Session               | 3     | sessions     |
+| SessionAnswer         | 3     | sessions     |
 | ExperienceTransaction | 4     | gamification |
 | Streak                | 4     | gamification |
+| FocusPoints           | 4     | gamification |
+| DailyUsage            | 4     | gamification |
 | Achievement           | 4     | gamification |
 | UserAchievement       | 4     | gamification |
 | UserSkillProgress     | 5     | progress     |
+| ReviewItem            | 5     | progress     |
 
 ## Stage 0 Schema
 

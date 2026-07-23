@@ -6,19 +6,23 @@ This document defines all gamification rules. Business logic that implements the
 
 ### How XP is awarded
 
-XP is awarded when a daily session is completed.
+XP is awarded per correct answer and on activity completion. All values are defined in `XpPolicyConfig` (`src/modules/gamification/domain/xp-policy.ts`).
 
-**Base formula (configurable, Stage 4):**
+| Action | XP |
+| --- | --- |
+| Correct answer (regular) | 5 |
+| Correct answer (difficulty ≥ 4) | 8 |
+| Lesson completion | 20 |
+| Daily session completion | 25 |
+| Module challenge completion | 50 |
+| Course completion | 200 |
+| Perfect lesson bonus | 15 |
+| Weak-skill review bonus | 10 |
 
-```
-session_xp = correct_answers × XP_PER_CORRECT_ANSWER
-           + (is_perfect_session ? XP_PERFECT_BONUS : 0)
-```
+**Modifiers:**
 
-Default values (subject to tuning):
-
-- `XP_PER_CORRECT_ANSWER` = 10
-- `XP_PERFECT_BONUS` = 25 (daily quiz) / 50 (full sessions, planned)
+- **No-hint bonus:** +20% of base answer XP when no hint was used
+- **Review XP multiplier:** ×0.5 for review questions (prevents XP farming)
 
 ### How XP is recorded
 
@@ -101,31 +105,95 @@ One quiz per user per calendar day. Completing the quiz displays the dashboard w
 
 Questions are selected deterministically from the track's pool using the current date as a seed. This ensures consistent daily quizzes that change each day.
 
-## Daily Sessions (Planned — Server-Side)
+## Focus Points
+
+Focus Points gate expensive actions (advanced lessons, retry challenges, hints, skipping mandatory questions). Defined in `FocusPointsConfig` (`src/modules/gamification/domain/focus-points.ts`).
+
+| Parameter | Default |
+| --- | --- |
+| Maximum | 5 |
+| Regen interval | 3 hours |
+| Regen amount | 1 per interval |
+
+Regeneration is lazy — computed on access, not via background timers.
+
+### Recovery from reviews
+
+Completing a review session with ≥ 4/5 correct recovers 1 Focus Point, up to 3 recoveries per day.
+
+## Daily Limits (Free Tier)
+
+Defined in `DailyLimitsConfig` (`src/modules/gamification/domain/daily-limits.ts`).
+
+| Activity | Limit |
+| --- | --- |
+| Daily sessions | 1 |
+| New lessons | 2 |
+| Challenge attempts | 2 |
+| Reviews | Unlimited |
+| Practice | Unlimited |
+
+## Sessions
+
+### Session types
+
+`daily`, `lesson`, `review`, `challenge`, `final_assessment`
+
+### Session statuses
+
+`ACTIVE` → `COMPLETED` or `EXPIRED` or `ABANDONED`
+
+### Session size
+
+| Type | Questions |
+| --- | --- |
+| Daily session | 10 |
+| Lesson | 5–8 |
+
+### Session expiry
+
+Sessions expire after 7 days of inactivity.
 
 ### When a session is considered complete
 
-A daily session is complete when:
+A session is complete when all questions have been answered and the completion endpoint is called.
 
-1. The user has answered all questions in the session.
-2. The application has processed the answers server-side.
-3. The `complete` endpoint has been called and has succeeded.
+## Question Types
 
-### Daily limits
+Six question types are supported (`src/modules/questions/domain/question.ts`):
 
-One session per user per calendar day (in the user's time zone). Attempting to create a second session returns the existing one.
+- `multiple-choice` — single correct answer
+- `multiple-correct` — multiple correct answers
+- `code-output` — predict code output
+- `bug-identification` — find the bug
+- `architecture-scenario` — system design decisions
+- `ordering` — arrange items in correct order
 
-### Session retries
-
-An incomplete session can be resumed. Answers are recorded as the user submits them. The session is complete only when all questions have been answered and the completion endpoint is called.
+Difficulty ranges from 1 (introductory) to 5 (expert). Questions with difficulty ≥ 4 are "difficult" and earn higher XP.
 
 ## Correctness Calculation
 
-Correctness is always calculated server-side. The server knows the correct option(s) for each question. The client must never send a `correct: true` field.
+Correctness is always calculated server-side (`src/modules/questions/domain/answer-evaluation.ts`). The server knows the correct option(s) for each question. The client must never send a `correct: true` field.
 
 ## Progress Effect
 
 A correct answer increases mastery for the associated skill. An incorrect answer decreases mastery (within bounds). The exact delta is defined in `docs/LEARNING_ENGINE.md`.
+
+## Lesson Completion
+
+Lessons have a state machine: `NOT_STARTED` → `IN_PROGRESS` → `COMPLETED` or `COMPLETED_REVIEW_REQUIRED` → `MASTERED`.
+
+- Score ≥ 70% with no critical skill failures → `COMPLETED`
+- Score < 70% or critical skill failure → `COMPLETED_REVIEW_REQUIRED` (targeted review generated)
+- `COMPLETED_REVIEW_REQUIRED` can transition back to `IN_PROGRESS` for retry
+
+## Module Completion
+
+A module is complete when all mandatory lessons are completed, average skill mastery ≥ 70, no skill below 50 mastery, and module challenge score ≥ 75%.
+
+## Course Completion
+
+A course is complete when all mandatory modules are completed, average skill mastery ≥ 70, no skill below 50 mastery, and final assessment score ≥ 75%. Mastery status requires average skill mastery ≥ 85.
 
 ## Concurrency Behavior
 
