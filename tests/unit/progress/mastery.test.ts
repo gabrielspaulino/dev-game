@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   getMasteryBand,
+  getTargetDifficulty,
   calculateMasteryGain,
   calculateMasteryLoss,
   applyMasteryChange,
@@ -41,26 +42,44 @@ describe("Mastery", () => {
     });
   });
 
+  describe("getTargetDifficulty", () => {
+    it("returns EASY for beginner mastery", () => {
+      expect(getTargetDifficulty(15)).toBe("EASY");
+    });
+
+    it("returns MEDIUM for developing mastery", () => {
+      expect(getTargetDifficulty(35)).toBe("MEDIUM");
+    });
+
+    it("returns HARD for competent mastery", () => {
+      expect(getTargetDifficulty(60)).toBe("HARD");
+    });
+
+    it("returns EXPERT for proficient+ mastery", () => {
+      expect(getTargetDifficulty(85)).toBe("EXPERT");
+    });
+  });
+
   describe("calculateMasteryGain", () => {
     it("applies base gain plus difficulty bonus", () => {
-      const gain = calculateMasteryGain(DEFAULT_MASTERY_CONFIG, 3, false, false);
+      const gain = calculateMasteryGain(DEFAULT_MASTERY_CONFIG, "HARD", false, false);
       expect(gain).toBe(Math.round(5 + 3 * 0.5));
     });
 
     it("applies hint penalty", () => {
-      const gain = calculateMasteryGain(DEFAULT_MASTERY_CONFIG, 1, true, false);
+      const gain = calculateMasteryGain(DEFAULT_MASTERY_CONFIG, "EASY", true, false);
       const base = 5 + 1 * 0.5;
       expect(gain).toBe(Math.round(base * 0.7));
     });
 
     it("applies challenge bonus", () => {
-      const gain = calculateMasteryGain(DEFAULT_MASTERY_CONFIG, 1, false, true);
+      const gain = calculateMasteryGain(DEFAULT_MASTERY_CONFIG, "EASY", false, true);
       const base = 5 + 1 * 0.5;
       expect(gain).toBe(Math.round(base * 1.25));
     });
 
     it("applies both hint penalty and challenge bonus", () => {
-      const gain = calculateMasteryGain(DEFAULT_MASTERY_CONFIG, 2, true, true);
+      const gain = calculateMasteryGain(DEFAULT_MASTERY_CONFIG, "MEDIUM", true, true);
       const base = 5 + 2 * 0.5;
       const withHint = base * 0.7;
       const withChallenge = withHint * 1.25;
@@ -70,29 +89,29 @@ describe("Mastery", () => {
 
   describe("calculateMasteryLoss", () => {
     it("applies base loss plus difficulty penalty", () => {
-      const loss = calculateMasteryLoss(DEFAULT_MASTERY_CONFIG, 3);
+      const loss = calculateMasteryLoss(DEFAULT_MASTERY_CONFIG, "HARD");
       expect(loss).toBe(Math.round(3 + 3 * 0.3));
     });
   });
 
   describe("applyMasteryChange", () => {
     it("increases mastery for correct answer", () => {
-      const result = applyMasteryChange(50, true, DEFAULT_MASTERY_CONFIG, 3, false, false);
+      const result = applyMasteryChange(50, true, DEFAULT_MASTERY_CONFIG, "HARD", false, false);
       expect(result).toBeGreaterThan(50);
     });
 
     it("decreases mastery for incorrect answer", () => {
-      const result = applyMasteryChange(50, false, DEFAULT_MASTERY_CONFIG, 3, false, false);
+      const result = applyMasteryChange(50, false, DEFAULT_MASTERY_CONFIG, "HARD", false, false);
       expect(result).toBeLessThan(50);
     });
 
     it("never exceeds 100", () => {
-      const result = applyMasteryChange(99, true, DEFAULT_MASTERY_CONFIG, 5, false, true);
+      const result = applyMasteryChange(99, true, DEFAULT_MASTERY_CONFIG, "EXPERT", false, true);
       expect(result).toBe(MASTERY_MAX);
     });
 
     it("never goes below 0", () => {
-      const result = applyMasteryChange(1, false, DEFAULT_MASTERY_CONFIG, 5, false, false);
+      const result = applyMasteryChange(1, false, DEFAULT_MASTERY_CONFIG, "EXPERT", false, false);
       expect(result).toBe(MASTERY_MIN);
     });
   });

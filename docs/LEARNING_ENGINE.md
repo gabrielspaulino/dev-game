@@ -8,38 +8,93 @@ Before any learning begins, users select a study track. The current client-side 
 - **Java** — 15 questions covering OOP, collections, concurrency, and patterns
 - **JavaScript** — 15 questions covering closures, async, prototypes, and ES6+
 
-Each track has a pool of questions. The daily quiz draws 5 questions per day using a deterministic date-based seed (ensuring the same quiz for the same day, but different questions each day). Selection is stored in `localStorage` and can be changed from the dashboard.
+Each track has a pool of questions. The daily quiz draws 5 questions per day using a deterministic date-based seed. Selection is stored in `localStorage` and can be changed from the dashboard.
 
-This client-side model will be replaced by server-side study tracks when Stages 2–3 are implemented.
+This client-side model will be replaced by the server-side selection pipeline as the backend matures.
 
-## Skill Representation
+## Skill Hierarchy
 
-Each `Skill` belongs to a `Lesson`, which belongs to a `LearningModule`, which belongs to a `LearningPath`.
+Skills form a tree via `parent_skill_id`:
 
 ```
-LearningPath → LearningModule → Lesson → Skill
+Category (e.g., "JavaScript")
+  └── Skill (e.g., "Closures")
+        └── Sub-skill (e.g., "Lexical Scope")
 ```
 
-A `Skill` has a `difficulty` rating (1–5) and is associated with questions through the `QuestionSkill` join table.
+Each skill has a unique `code`, a `category`, and an `is_active` flag. Questions are linked to skills through the `question_skills` join table, with roles (PRIMARY, SECONDARY, CONTEXT) and weights.
 
-## Questions and Skills
+## Questions and Versioning
 
-A `Question` may test multiple skills (many-to-many via `QuestionSkill`). When a question is answered, mastery is updated for all associated skills.
+### Question Types
 
-## Difficulty Levels
+| Type                  | Evaluation                       |
+| --------------------- | -------------------------------- |
+| SINGLE_CHOICE         | Exactly one correct option       |
+| MULTIPLE_CHOICE       | Set comparison of selected IDs   |
+| TRUE_FALSE            | Single correct option            |
+| CODE_OUTPUT           | Single correct option            |
+| BUG_IDENTIFICATION    | Single correct option            |
+| ORDERING              | Exact sequence match             |
+| CODE_COMPLETION       | Single correct option            |
+| ARCHITECTURE_SCENARIO | Single correct option            |
 
-Questions have a `difficulty` value from 1 (introductory) to 5 (expert).
+### Difficulty vs Reasoning Level
+
+These are independent axes:
+
+| Difficulty | Numeric | Description                |
+| ---------- | ------- | -------------------------- |
+| EASY       | 1       | Introductory concepts      |
+| MEDIUM     | 2       | Working knowledge          |
+| HARD       | 3       | Advanced application       |
+| EXPERT     | 4       | Expert-level challenges    |
+
+| Reasoning Level | Description                          |
+| --------------- | ------------------------------------ |
+| RECOGNIZE       | Recall or identify a fact            |
+| APPLY           | Use knowledge in a standard context  |
+| ANALYZE         | Break down and reason about behavior |
+| COMBINE         | Synthesize multiple concepts         |
+
+A question can be EASY+ANALYZE or HARD+RECOGNIZE — they measure different things.
+
+### Immutable Versions
+
+Questions use immutable versioning:
+- Each edit creates a new `question_version` with an incremented `version_number`.
+- `questions.current_version_number` points to the latest version.
+- `correct_answer` is stored in `question_versions` and never exposed to the client.
+- Sessions pin the exact version seen by the user via `quiz_session_questions.question_version_id`.
+
+### Question Families
+
+`question_families` groups questions that test the same concept with different wording. This enables variant rotation and prevents the same concept from appearing twice in a session.
 
 ## Mastery Calculation
 
-`UserSkillProgress.mastery` is a score from 0 to 100. Defined in `MasteryConfig` (`src/modules/progress/domain/mastery.ts`).
+`mastery` is a per-skill score from 0 to 100. Defined in `MasteryConfig` (`src/modules/progress/domain/mastery.ts`).
+
+### Per-Skill Difficulty Adaptation
+
+Mastery bands map to target difficulty for question selection:
+
+| Mastery | Band       | Target Difficulty |
+| ------- | ---------- | ----------------- |
+| 0–29    | Beginner   | EASY              |
+| 30–49   | Developing | MEDIUM            |
+| 50–69   | Competent  | HARD              |
+| 70–84   | Proficient | EXPERT            |
+| 85–100  | Advanced   | EXPERT            |
+
+The selection pipeline uses `getTargetDifficulty(mastery)` to match candidates.
 
 ### Mastery updates
 
 **Correct answer:**
 
 ```
-gain = baseGain + difficulty × difficultyGainMultiplier
+gain = baseGain + numericDifficulty × difficultyGainMultiplier
 if hint used: gain *= (1 - hintPenaltyPercent / 100)
 if challenge: gain *= (1 + challengeBonusPercent / 100)
 mastery = min(100, mastery + round(gain))
@@ -48,7 +103,7 @@ mastery = min(100, mastery + round(gain))
 **Incorrect answer:**
 
 ```
-loss = baseLoss + difficulty × difficultyLossMultiplier
+loss = baseLoss + numericDifficulty × difficultyLossMultiplier
 mastery = max(0, mastery - round(loss))
 ```
 
@@ -65,53 +120,71 @@ Mastery decays when skills are not reviewed:
 - `recencyDecayPerDay` = 0.5
 - `maxRecencyDecay` = 15
 
-### Mastery bands
+## Selection Pipeline
 
-| Mastery | Label      |
-| ------- | ---------- |
-| 0–29    | Beginner   |
-| 30–49   | Developing |
-| 50–69   | Competent  |
-| 70–84   | Proficient |
-| 85–100  | Advanced   |
+The question selection pipeline assembles sessions through six stages:
 
-## Session Assembly
+```
+SessionPlanner → CandidateQuery → EligibilityFilter → Ranking → DiversitySelection → SessionPersistence
+```
 
-Daily sessions are assembled from the question bank using a configurable mix policy.
+### 1. Session Planner (`session-planner.ts`)
 
-### Question mix (configurable, not scattered in code)
+Creates a `SessionPlan` with the target question count and mix policy:
 
-| Category      | Target % | Source                                                        |
-| ------------- | -------- | ------------------------------------------------------------- |
-| Review        | 40%      | Questions the user has seen, with low or declining mastery    |
-| Current level | 30%      | Questions matching the user's current skill level             |
-| New content   | 20%      | Questions the user has not seen before                        |
-| Challenge     | 10%      | Questions one difficulty level above the user's current level |
+| Category      | Target % | Source                                              |
+| ------------- | -------- | --------------------------------------------------- |
+| Review        | 40%      | Questions due for spaced review                     |
+| Current level | 30%      | Questions matching user's current mastery band      |
+| New content   | 20%      | Questions the user has never seen                   |
+| Challenge     | 10%      | Questions above the user's current difficulty level |
 
-These percentages are centralized in a single `SessionAssemblyPolicy` configuration object. Changing them requires only editing the config, not hunting through multiple files.
+### 2. Candidate Query (`ports.ts` → `QuestionCandidateRepository`)
 
-### Question selection
+Fetches published questions by skill or lesson. Returns `QuestionCandidate` objects with metadata needed for ranking.
 
-Within each category, questions are selected using a controlled `QuestionSelector` port. The production implementation shuffles and samples. Tests use a deterministic implementation (no randomness).
+### 3. Eligibility Filtering (`eligibility.ts`)
 
-### Constraints
+Removes candidates that are:
+- Recently answered (within cooldown period)
+- Before their `next_eligible_at` spaced-repetition date
+- Exceeding max attempts within the cooldown window
 
-- A question must not appear twice in the same session.
-- The same question must not appear in two consecutive days of sessions.
-- Sessions are assembled and persisted before the user sees any questions. Questions do not change after the session starts.
+### 4. Candidate Ranking (`ranking.ts`)
 
-### Duplicate session prevention
+Scores each candidate on five weighted dimensions:
 
-At most one active session per user per calendar day. A second creation request returns the existing session. Protected by a `UNIQUE(user_id, session_date)` constraint.
+| Dimension        | Weight | Score 1.0 when...                        |
+| ---------------- | ------ | ----------------------------------------- |
+| Difficulty match | 0.30   | Candidate matches user's target difficulty |
+| Recency          | 0.20   | Never seen or not seen in 21+ days        |
+| Novelty          | 0.25   | Never attempted                           |
+| Skill priority   | 0.15   | Matches a focus skill                     |
+| Criticality      | 0.10   | Marked CRITICAL                           |
 
-## Placement Test
+Each candidate also gets a `selectionReason` (NEW_CONTENT, SPACED_REVIEW, WEAK_SKILL, CHALLENGE, etc.).
 
-The placement test is a short assessment (10–20 questions across all skills and difficulty levels) that establishes an initial mastery score for each skill.
+### 5. Diversity Selection (`diversity.ts`)
 
-- Questions are selected to cover all skills in the chosen learning path.
-- The user's answers update `UserSkillProgress.mastery` for each skill.
-- The placement test skips skills the user already has evidence for.
-- After the placement test, the first daily session is assembled based on the results.
+Selects the top-scored candidates while enforcing diversity:
+
+| Constraint          | Default Limit |
+| ------------------- | ------------- |
+| Max same skill      | 3             |
+| Max same difficulty | 4             |
+| Max same type       | 3             |
+
+### 6. Session Persistence (`ports.ts` → `SessionPersistencePort`)
+
+Creates the `quiz_session` and `quiz_session_questions` records. Pins each question to its current version.
+
+### Orchestrator (`question-selection-service.ts`)
+
+`QuestionSelectionService.assembleSession(plan, now)` ties the pipeline together. It depends on four ports (all injected):
+- `QuestionCandidateRepository`
+- `UserMasteryRepository`
+- `UserHistoryRepository`
+- `SessionPersistencePort`
 
 ## Spaced Repetition
 
@@ -123,22 +196,33 @@ Review scheduling uses expanding/contracting intervals, defined in `ReviewSchedu
 
 ### Interval adjustment
 
-- **Correct:** advance index + 1, then use `extendFactor` (×1.5) once past the last interval
-- **Incorrect:** retreat index - 1, then use `shortenFactor` (×0.5) for custom intervals
+- **Correct:** advance index + 1, then use `extendFactor` (x1.5) once past the last interval
+- **Incorrect:** retreat index - 1, then use `shortenFactor` (x0.5) for custom intervals
 - **Min interval:** 1 day, **Max interval:** 60 days
 
-Each `ReviewItem` tracks `consecutiveCorrect` and `consecutiveIncorrect` for adaptive scheduling.
+Each `ReviewItem` tracks `consecutiveCorrect` and `consecutiveIncorrect` for adaptive scheduling. The `user_question_history.next_eligible_at` column stores the next review date.
+
+## Server-Side Answer Evaluation
+
+The client must never be trusted with:
+- Whether the answer is correct
+- The score
+- Mastery changes
+- XP
+- Completion status
+
+These values are calculated server-side using `question_versions.correct_answer`. The `evaluateAnswer()` function in `answer-evaluation.ts` receives the correct answer from the server, never from the client.
 
 ## Deterministic Tests
 
-The session assembly algorithm is fully deterministic in tests. Inject a `FixedClock` and a deterministic `QuestionSelector` (one that returns questions in a fixed order) to produce reproducible results.
+The selection pipeline is fully deterministic in tests. All randomness is avoided — ranking produces a stable sort by score, and diversity selection iterates in rank order.
 
 ## Algorithm Evolution
 
-The learning engine is encapsulated behind the `SessionAssembler` application service and the `QuestionSelector` port. Improving the algorithm requires only:
+The learning engine is encapsulated behind ports. Improving the algorithm requires only:
 
-1. Writing a new `QuestionSelector` implementation.
-2. Updating the assembly policy.
+1. Writing a new implementation of the relevant port.
+2. Updating the config or weights.
 3. Adding tests for the new behavior.
 
 The domain and persistence layers are unaffected.
