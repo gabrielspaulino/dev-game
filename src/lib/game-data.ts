@@ -9,7 +9,7 @@ export const TOPICS: Topic[] = [
     color: "amber",
     bgClass: "bg-amber-500",
     borderClass: "border-amber-500",
-    textClass: "text-amber-400",
+    textClass: "text-amber-600 dark:text-amber-400",
     lessons: [
       {
         id: "js-variables",
@@ -231,7 +231,7 @@ console.log(i);`,
     color: "orange",
     bgClass: "bg-orange-500",
     borderClass: "border-orange-500",
-    textClass: "text-orange-400",
+    textClass: "text-orange-600 dark:text-orange-400",
     lessons: [
       {
         id: "git-basics",
@@ -474,7 +474,7 @@ console.log(i);`,
     color: "blue",
     bgClass: "bg-blue-500",
     borderClass: "border-blue-500",
-    textClass: "text-blue-400",
+    textClass: "text-blue-600 dark:text-blue-400",
     lessons: [
       {
         id: "py-syntax",
@@ -702,7 +702,7 @@ print(greet("Alice"))`,
     color: "violet",
     bgClass: "bg-violet-500",
     borderClass: "border-violet-500",
-    textClass: "text-violet-400",
+    textClass: "text-violet-600 dark:text-violet-400",
     lessons: [
       {
         id: "sql-select",

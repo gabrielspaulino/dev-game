@@ -102,8 +102,11 @@ export function HomeContent() {
 
 function LoadingSkeleton() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-900">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-emerald-400" />
+    <div className="flex min-h-screen flex-col items-center justify-center bg-surface">
+      <div className="font-mono text-lg text-fg-muted">
+        <span className="text-emerald-500">$</span> loading
+        <span className="animate-blink">_</span>
+      </div>
     </div>
   );
 }
