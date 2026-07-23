@@ -5,6 +5,7 @@ import Link from "next/link";
 import { TOPICS } from "@/lib/game-data";
 import { loadProgress } from "@/lib/progress";
 import type { UserProgress } from "@/lib/types";
+import { Icon, TrophyIcon, LockIcon } from "@/components/Icons";
 
 const STAGGER = ["ml-4", "ml-20", "ml-36", "ml-20", "ml-4"];
 
@@ -37,7 +38,7 @@ export function SkillTree() {
               }`}
             >
               <div className="flex items-center gap-3">
-                <span className="text-4xl">{topic.icon}</span>
+                <Icon name={topic.icon} className="h-9 w-9 text-fg-secondary" />
                 <div>
                   <div
                     className={`font-mono text-xs font-bold uppercase tracking-widest ${
@@ -86,8 +87,8 @@ export function SkillTree() {
             {topic.lessons.every((l) => progress.completedLessons[l.id]) && (
               <div className="mt-6 flex justify-center">
                 <div className="flex flex-col items-center gap-1">
-                  <span className="text-4xl">🏆</span>
-                  <span className="font-mono text-xs font-medium text-yellow-600 dark:text-yellow-400">
+                  <TrophyIcon className="h-9 w-9 text-fg-secondary" />
+                  <span className="font-mono text-xs font-medium text-fg-secondary">
                     Module shipped!
                   </span>
                 </div>
@@ -144,9 +145,9 @@ function LessonNode({ topic, lesson, isDone, isUnlocked, isCurrent, topicId }: L
         {isDone ? (
           <span className="text-white">✓</span>
         ) : isUnlocked ? (
-          <span>{lesson.icon}</span>
+          <Icon name={lesson.icon} className="h-6 w-6" />
         ) : (
-          <span>🔒</span>
+          <LockIcon className="h-6 w-6" />
         )}
       </div>
     </div>

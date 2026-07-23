@@ -2,6 +2,7 @@
 
 import { getStudyTrack } from "@/lib/daily-quiz-data";
 import { getStreakEncouragement } from "@/lib/progress";
+import { TrophyIcon, TargetIcon, BoltIcon, FireIcon } from "@/components/Icons";
 
 interface QuizResultScreenProps {
   trackId: string;
@@ -26,8 +27,14 @@ export function QuizResultScreen({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-surface p-6 text-center">
-      <div className="animate-bounce-once mb-4 text-8xl">
-        {isPerfect ? "🏆" : accuracy >= 60 ? "🎯" : "💪"}
+      <div className="animate-bounce-once mb-4">
+        {isPerfect ? (
+          <TrophyIcon className="h-24 w-24 text-fg" />
+        ) : accuracy >= 60 ? (
+          <TargetIcon className="h-24 w-24 text-fg" />
+        ) : (
+          <BoltIcon className="h-24 w-24 text-fg" />
+        )}
       </div>
 
       <h1 className="mb-1 font-mono text-3xl font-black text-fg">
@@ -38,7 +45,7 @@ export function QuizResultScreen({
       </p>
 
       <div className="mb-6 flex items-center gap-2 rounded-full bg-orange-50 px-5 py-2 dark:bg-orange-950/40">
-        <span className="text-2xl">🔥</span>
+        <FireIcon className="h-7 w-7 text-orange-500" />
         <span className="font-mono text-lg font-bold text-orange-600 dark:text-orange-400">
           {streak}-day streak
         </span>

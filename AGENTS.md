@@ -171,7 +171,19 @@ A task is complete only when:
 
 ---
 
-## 12. Key Documents
+## 12. Icon Convention
+
+- **Never use emojis in the UI.** Use minimalistic SVG icons from `src/components/Icons.tsx` instead.
+- All icons use `stroke="currentColor"` so they automatically adapt to dark/light mode (black on white, white on black).
+- Icons are rendered as inline SVGs with a consistent style: `viewBox="0 0 24 24"`, `fill="none"`, `strokeWidth="2"`, `strokeLinecap="round"`, `strokeLinejoin="round"`.
+- For data-driven icons (topics, lessons, tracks), store a string key (e.g. `"js"`, `"git"`, `"package"`) in the data and render with `<Icon name={key} className="..." />`.
+- For direct usage in components (hearts, fire, trophy, etc.), import the named component (e.g. `<HeartIcon />`, `<FireIcon />`).
+- When adding a new icon: add it as a named export in `Icons.tsx`, register it in `ICON_MAP`, and use `currentColor` for all colors.
+- Icon sizing is controlled via Tailwind classes (`h-6 w-6`, `h-9 w-9`, etc.), not via `text-*` font-size classes.
+
+---
+
+## 13. Key Documents
 
 | Document                  | Purpose                                      |
 | ------------------------- | -------------------------------------------- |

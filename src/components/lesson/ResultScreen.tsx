@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { TrophyIcon, TargetIcon, BoltIcon } from "@/components/Icons";
 
 interface ResultScreenProps {
   xpEarned: number;
@@ -24,8 +25,14 @@ export function ResultScreen({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-surface p-6 text-center">
-      <div className="animate-bounce-once mb-6 text-8xl">
-        {isPerfect ? "🏆" : accuracy >= 60 ? "🎯" : "💪"}
+      <div className="animate-bounce-once mb-6">
+        {isPerfect ? (
+          <TrophyIcon className="h-24 w-24 text-fg" />
+        ) : accuracy >= 60 ? (
+          <TargetIcon className="h-24 w-24 text-fg" />
+        ) : (
+          <BoltIcon className="h-24 w-24 text-fg" />
+        )}
       </div>
 
       <h1 className="mb-2 font-mono text-3xl font-black text-fg">

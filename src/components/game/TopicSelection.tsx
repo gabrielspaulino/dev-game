@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { STUDY_TRACKS } from "@/lib/daily-quiz-data";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Icon } from "@/components/Icons";
 
 interface TopicSelectionProps {
   onSelect: (trackId: string) => void;
@@ -38,7 +39,7 @@ export function TopicSelection({ onSelect }: TopicSelectionProps) {
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <span className="text-4xl">{track.icon}</span>
+                  <Icon name={track.icon} className="h-9 w-9 text-fg-secondary" />
                   <div className="flex-1">
                     <div
                       className={`text-lg font-bold ${
