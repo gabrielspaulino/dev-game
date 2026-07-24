@@ -24,7 +24,11 @@ export async function getTrackStats(): Promise<TrackStats[]> {
     .groupBy(skills.category)
     .orderBy(skills.category);
 
-  return rows.map((r) => ({ category: r.category, questionCount: r.count, skillCount: r.skillCount }));
+  return rows.map((r) => ({
+    category: r.category,
+    questionCount: r.count,
+    skillCount: r.skillCount,
+  }));
 }
 
 export async function fetchQuizQuestions(
