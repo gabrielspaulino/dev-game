@@ -99,13 +99,7 @@ export function RoadmapScreen({ progress, trackStats, onStartQuiz }: RoadmapScre
 
         {trackStats.length === 0 && (
           <div className="rounded-2xl border border-line bg-surface-raised p-8 text-center">
-            <p className="font-mono text-fg-muted">
-              No questions in the database yet. Run{" "}
-              <code className="rounded bg-surface-inset px-1.5 py-0.5 text-emerald-600 dark:text-emerald-400">
-                npm run db:seed
-              </code>{" "}
-              to get started.
-            </p>
+            <p className="font-mono text-fg-muted">No questions available yet.</p>
           </div>
         )}
       </div>
