@@ -38,7 +38,7 @@ const QUESTION_TYPES = [
 
 interface QuestionInput {
   slug: string;
-  skill: { code: string; name: string; category: string };
+  skillCode: string;
   difficulty: (typeof DIFFICULTIES)[number];
   reasoningLevel: (typeof REASONING_LEVELS)[number];
   questionType?: (typeof QUESTION_TYPES)[number];
@@ -66,16 +66,8 @@ function validate(data: unknown): QuestionInput[] {
     }
 
     if (typeof q.slug !== "string" || !q.slug) errors.push(`${prefix}.slug: required string`);
-    if (!q.skill || typeof q.skill !== "object") {
-      errors.push(`${prefix}.skill: required object with { code, name, category }`);
-    } else {
-      if (typeof q.skill.code !== "string" || !q.skill.code)
-        errors.push(`${prefix}.skill.code: required string`);
-      if (typeof q.skill.name !== "string" || !q.skill.name)
-        errors.push(`${prefix}.skill.name: required string`);
-      if (typeof q.skill.category !== "string" || !q.skill.category)
-        errors.push(`${prefix}.skill.category: required string`);
-    }
+    if (typeof q.skillCode !== "string" || !q.skillCode)
+      errors.push(`${prefix}.skillCode: required string (must match an existing skill code)`);
     if (!DIFFICULTIES.includes(q.difficulty))
       errors.push(`${prefix}.difficulty: must be one of ${DIFFICULTIES.join(", ")}`);
     if (!REASONING_LEVELS.includes(q.reasoningLevel))
@@ -113,7 +105,21 @@ const OPTION_KEYS = ["A", "B", "C", "D", "E", "F"];
 async function importQuestions(items: QuestionInput[]) {
   console.log(`Importing ${items.length} questions...`);
 
-  const skillCache = new Map<string, string>();
+  const allSkills = await db.select({ id: skills.id, code: skills.code }).from(skills);
+  const skillMap = new Map(allSkills.map((s) => [s.code, s.id]));
+
+  console.log(`  ${skillMap.size} skills available: ${[...skillMap.keys()].join(", ")}`);
+
+  const unknownCodes = [...new Set(items.map((q) => q.skillCode))].filter(
+    (code) => !skillMap.has(code),
+  );
+  if (unknownCodes.length > 0) {
+    throw new Error(
+      `Unknown skill codes: ${unknownCodes.join(", ")}\n` +
+        `Available codes: ${[...skillMap.keys()].join(", ")}`,
+    );
+  }
+
   let inserted = 0;
   let skipped = 0;
 
@@ -127,33 +133,13 @@ async function importQuestions(items: QuestionInput[]) {
       continue;
     }
 
-    let skillId = skillCache.get(q.skill.code);
-    if (!skillId) {
-      const existingSkill = await db
-        .select({ id: skills.id })
-        .from(skills)
-        .where(eq(skills.code, q.skill.code));
-      if (existingSkill.length > 0) {
-        skillId = existingSkill[0]!.id;
-      } else {
-        const [newSkill] = await db
-          .insert(skills)
-          .values({
-            code: q.skill.code,
-            name: q.skill.name,
-            category: q.skill.category,
-          })
-          .returning({ id: skills.id });
-        skillId = newSkill!.id;
-      }
-      skillCache.set(q.skill.code, skillId);
-    }
+    const skillId = skillMap.get(q.skillCode)!;
 
     const [question] = await db
       .insert(questions)
       .values({
         slug: q.slug,
-        primarySkillId: skillId,
+        primarySkillId: skillId!,
         questionType: q.questionType ?? "SINGLE_CHOICE",
         difficulty: q.difficulty,
         reasoningLevel: q.reasoningLevel,

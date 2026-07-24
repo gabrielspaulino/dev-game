@@ -1,41 +1,28 @@
 [
   {
-    "slug": "react-1-jsx",
-    "skill": {
-      "code": "react-basics",
-      "name": "JSX & Components",
-      "category": "React"
-    },
+    "slug": "js-example-typeof",
+    "skillCode": "js-variables",
     "difficulty": "EASY",
     "reasoningLevel": "RECOGNIZE",
-    "prompt": "What does JSX stand for?",
-    "options": [
-      "JavaScript XML",
-      "JavaScript Extension",
-      "Java Syntax Extension",
-      "JSON XML Syntax"
-    ],
-    "correctIndex": 0,
-    "explanation": "JSX stands for JavaScript XML. It lets you write HTML-like syntax inside JavaScript, which React transforms into function calls."
+    "prompt": "What does `typeof undefined` return?",
+    "options": ["null", "undefined", "object", "string"],
+    "correctIndex": 1,
+    "explanation": "`typeof undefined` returns the string 'undefined'."
   },
   {
-    "slug": "react-2-usestate",
-    "skill": {
-      "code": "react-hooks",
-      "name": "Hooks",
-      "category": "React"
-    },
+    "slug": "sql-example-count",
+    "skillCode": "sql-aggregates",
     "difficulty": "MEDIUM",
     "reasoningLevel": "APPLY",
-    "prompt": "What does `useState` return?",
-    "code": "const [count, setCount] = useState(0);",
+    "prompt": "What does this query return?",
+    "code": "SELECT COUNT(*) FROM users WHERE active = true;",
     "options": [
-      "A single value",
-      "An array with the current state and a setter function",
-      "An object with `value` and `update` keys",
-      "A promise that resolves to the state"
+      "All active users' data",
+      "The number of active users",
+      "A boolean indicating if active users exist",
+      "The first active user"
     ],
     "correctIndex": 1,
-    "explanation": "`useState` returns a two-element array: the current state value and a function to update it."
+    "explanation": "COUNT(*) returns the total number of rows matching the WHERE condition."
   }
 ]
