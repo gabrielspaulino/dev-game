@@ -13,7 +13,7 @@ const TRACK_MAP: Record<string, TrackStyle> = {
     id: "JavaScript",
     title: "JavaScript",
     description: "Master the language of the web",
-    icon: "javascript",
+    icon: "js",
     bgClass: "bg-amber-500",
     borderClass: "border-amber-500",
     textClass: "text-amber-600 dark:text-amber-400",

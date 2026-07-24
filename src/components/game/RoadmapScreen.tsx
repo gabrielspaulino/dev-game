@@ -15,6 +15,7 @@ interface RoadmapScreenProps {
 }
 
 const XP_PER_LEVEL = 100;
+export const QUESTIONS_PER_TRACK = 10;
 
 export function RoadmapScreen({ progress, trackStats, onStartQuiz }: RoadmapScreenProps) {
   const level = Math.floor(progress.xp / XP_PER_LEVEL) + 1;
@@ -80,15 +81,13 @@ export function RoadmapScreen({ progress, trackStats, onStartQuiz }: RoadmapScre
           {trackStats.map((stat) => {
             const style = getTrackStyle(stat.category);
             const answered = (progress.answeredSlugs[stat.category] ?? []).length;
-            const pct =
-              stat.questionCount > 0 ? Math.round((answered / stat.questionCount) * 100) : 0;
+            const target = stat.skillCount * QUESTIONS_PER_TRACK;
+            const pct = target > 0 ? Math.min(100, Math.round((answered / target) * 100)) : 0;
 
             return (
               <TrackCard
                 key={stat.category}
                 style={style}
-                totalQuestions={stat.questionCount}
-                answeredCount={answered}
                 progressPct={pct}
                 isSelected={progress.selectedTopicId === stat.category}
                 onStart={() => onStartQuiz(stat.category)}
@@ -109,15 +108,11 @@ export function RoadmapScreen({ progress, trackStats, onStartQuiz }: RoadmapScre
 
 function TrackCard({
   style,
-  totalQuestions,
-  answeredCount,
   progressPct,
   isSelected,
   onStart,
 }: {
   style: TrackStyle;
-  totalQuestions: number;
-  answeredCount: number;
   progressPct: number;
   isSelected: boolean;
   onStart: () => void;
@@ -148,9 +143,7 @@ function TrackCard({
                 style={{ width: `${progressPct}%` }}
               />
             </div>
-            <span className="font-mono text-xs text-fg-faint">
-              {answeredCount}/{totalQuestions}
-            </span>
+            <span className="font-mono text-xs text-fg-faint">{progressPct}%</span>
           </div>
         </div>
         <span className={`font-mono text-sm font-bold ${style.textClass}`}>&gt;</span>

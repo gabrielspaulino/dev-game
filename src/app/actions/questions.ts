@@ -8,6 +8,7 @@ import type { Question } from "@/lib/types";
 export interface TrackStats {
   category: string;
   questionCount: number;
+  skillCount: number;
 }
 
 export async function getTrackStats(): Promise<TrackStats[]> {
@@ -15,6 +16,7 @@ export async function getTrackStats(): Promise<TrackStats[]> {
     .select({
       category: skills.category,
       count: sql<number>`count(distinct ${questions.id})::int`,
+      skillCount: sql<number>`count(distinct ${skills.id})::int`,
     })
     .from(questions)
     .innerJoin(skills, eq(questions.primarySkillId, skills.id))
@@ -22,7 +24,7 @@ export async function getTrackStats(): Promise<TrackStats[]> {
     .groupBy(skills.category)
     .orderBy(skills.category);
 
-  return rows.map((r) => ({ category: r.category, questionCount: r.count }));
+  return rows.map((r) => ({ category: r.category, questionCount: r.count, skillCount: r.skillCount }));
 }
 
 export async function fetchQuizQuestions(
