@@ -15,6 +15,7 @@ export const DEFAULT_PROGRESS: UserProgress = {
   dailyQuizCompletedDate: null,
   answeredSlugs: {},
   quizzesCompletedToday: 0,
+  questionsAnsweredToday: 0,
 };
 
 export function loadProgress(): UserProgress {
@@ -70,6 +71,12 @@ export function completeQuiz(
   const quizzesToday =
     progress.dailyQuizCompletedDate === today ? progress.quizzesCompletedToday + 1 : 1;
 
+  const newQuestions = mergedSlugs.length - existingSlugs.length;
+  const questionsToday =
+    progress.dailyQuizCompletedDate === today
+      ? progress.questionsAnsweredToday + newQuestions
+      : newQuestions;
+
   const updated: UserProgress = {
     ...progress,
     xp: newXp,
@@ -77,6 +84,7 @@ export function completeQuiz(
     lastPlayedDate: today,
     dailyQuizCompletedDate: today,
     quizzesCompletedToday: quizzesToday,
+    questionsAnsweredToday: questionsToday,
     answeredSlugs: { ...progress.answeredSlugs, [category]: mergedSlugs },
   };
   saveProgress(updated);

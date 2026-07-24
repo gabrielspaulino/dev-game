@@ -55,6 +55,7 @@ const SKILLS: SeedSkill[] = [
   { code: "java-collections", name: "Collections & Streams", category: "Java" },
   { code: "java-oop", name: "OOP & Design Patterns", category: "Java" },
   { code: "java-concurrency", name: "Concurrency & Resources", category: "Java" },
+  { code: "java-spring", name: "Spring Framework", category: "Java" },
 ];
 
 const QUESTIONS: SeedQuestion[] = [
