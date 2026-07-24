@@ -44,8 +44,9 @@ interface QuestionInput {
   questionType?: (typeof QUESTION_TYPES)[number];
   prompt: string;
   code?: string;
-  options: string[];
-  correctIndex: number;
+  options?: string[];
+  correctIndex?: number;
+  acceptedAnswers?: string[];
   explanation: string;
 }
 
@@ -77,16 +78,32 @@ function validate(data: unknown): QuestionInput[] {
     if (typeof q.prompt !== "string" || !q.prompt) errors.push(`${prefix}.prompt: required string`);
     if (q.code !== undefined && typeof q.code !== "string")
       errors.push(`${prefix}.code: must be a string if provided`);
-    if (!Array.isArray(q.options) || q.options.length < 2 || q.options.length > 6)
-      errors.push(`${prefix}.options: required array with 2-6 items`);
-    else if (q.options.some((o: unknown) => typeof o !== "string"))
-      errors.push(`${prefix}.options: all items must be strings`);
-    if (typeof q.correctIndex !== "number" || q.correctIndex < 0)
-      errors.push(`${prefix}.correctIndex: required non-negative number`);
-    else if (Array.isArray(q.options) && q.correctIndex >= q.options.length)
-      errors.push(
-        `${prefix}.correctIndex: ${q.correctIndex} is out of bounds (options has ${q.options.length} items)`,
-      );
+
+    const hasOptions = q.options !== undefined;
+    const hasAccepted = q.acceptedAnswers !== undefined;
+
+    if (!hasOptions && !hasAccepted) {
+      errors.push(`${prefix}: must have either "options"+"correctIndex" or "acceptedAnswers"`);
+    } else if (hasOptions && hasAccepted) {
+      errors.push(`${prefix}: cannot have both "options" and "acceptedAnswers"`);
+    } else if (hasOptions) {
+      if (!Array.isArray(q.options) || q.options.length < 2 || q.options.length > 6)
+        errors.push(`${prefix}.options: required array with 2-6 items`);
+      else if (q.options.some((o: unknown) => typeof o !== "string"))
+        errors.push(`${prefix}.options: all items must be strings`);
+      if (typeof q.correctIndex !== "number" || q.correctIndex < 0)
+        errors.push(`${prefix}.correctIndex: required non-negative number`);
+      else if (Array.isArray(q.options) && q.correctIndex >= q.options.length)
+        errors.push(
+          `${prefix}.correctIndex: ${q.correctIndex} is out of bounds (options has ${q.options.length} items)`,
+        );
+    } else {
+      if (!Array.isArray(q.acceptedAnswers) || q.acceptedAnswers.length === 0)
+        errors.push(`${prefix}.acceptedAnswers: required non-empty array of strings`);
+      else if (q.acceptedAnswers.some((a: unknown) => typeof a !== "string"))
+        errors.push(`${prefix}.acceptedAnswers: all items must be strings`);
+    }
+
     if (typeof q.explanation !== "string" || !q.explanation)
       errors.push(`${prefix}.explanation: required string`);
   }
@@ -148,6 +165,11 @@ async function importQuestions(items: QuestionInput[]) {
       })
       .returning({ id: questions.id });
 
+    const isTyping = q.acceptedAnswers !== undefined;
+    const correctAnswer = isTyping
+      ? { text: q.acceptedAnswers }
+      : { ids: [OPTION_KEYS[q.correctIndex!]!] };
+
     const [version] = await db
       .insert(questionVersions)
       .values({
@@ -155,19 +177,21 @@ async function importQuestions(items: QuestionInput[]) {
         versionNumber: 1,
         prompt: q.prompt,
         content: q.code ? { code: q.code } : {},
-        correctAnswer: { ids: [OPTION_KEYS[q.correctIndex]!] },
+        correctAnswer,
         generalExplanation: q.explanation,
       })
       .returning({ id: questionVersions.id });
 
-    await db.insert(questionOptions).values(
-      q.options.map((text, i) => ({
-        questionVersionId: version!.id,
-        optionKey: OPTION_KEYS[i]!,
-        content: text,
-        displayOrder: i + 1,
-      })),
-    );
+    if (!isTyping) {
+      await db.insert(questionOptions).values(
+        q.options!.map((text, i) => ({
+          questionVersionId: version!.id,
+          optionKey: OPTION_KEYS[i]!,
+          content: text,
+          displayOrder: i + 1,
+        })),
+      );
+    }
 
     inserted++;
   }

@@ -29,6 +29,7 @@ export function LessonFlow({ topic, lesson }: LessonFlowProps) {
   }, []);
 
   const currentQuestion = lesson.questions[questionIdx]!;
+  if (currentQuestion.type === "typing") throw new Error("Lessons do not support typing questions");
   const progress = (questionIdx / lesson.questions.length) * 100;
 
   const handleCheck = useCallback(() => {

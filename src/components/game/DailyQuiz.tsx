@@ -13,23 +13,42 @@ interface DailyQuizProps {
   onComplete: (xpEarned: number, correctCount: number, totalQuestions: number) => void;
 }
 
+function checkTypingAnswer(input: string, accepted: string[]): boolean {
+  const normalized = input.trim().toLowerCase();
+  return accepted.some((a) => a.trim().toLowerCase() === normalized);
+}
+
 export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps) {
   const [questionIdx, setQuestionIdx] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [typedAnswer, setTypedAnswer] = useState("");
   const [answerState, setAnswerState] = useState<AnswerState>("unanswered");
   const [correctCount, setCorrectCount] = useState(0);
 
   const currentQuestion: Question | undefined = questions[questionIdx];
+  const isTyping = currentQuestion?.type === "typing";
+
+  const canCheck = isTyping ? typedAnswer.trim().length > 0 : selectedOption !== null;
 
   const handleCheck = useCallback(() => {
-    if (selectedOption === null || !currentQuestion) return;
-    if (selectedOption === currentQuestion.correctIndex) {
-      setAnswerState("correct");
-      setCorrectCount((c) => c + 1);
+    if (!currentQuestion || !canCheck) return;
+
+    if (currentQuestion.type === "typing") {
+      if (checkTypingAnswer(typedAnswer, currentQuestion.acceptedAnswers)) {
+        setAnswerState("correct");
+        setCorrectCount((c) => c + 1);
+      } else {
+        setAnswerState("incorrect");
+      }
     } else {
-      setAnswerState("incorrect");
+      if (selectedOption === currentQuestion.correctIndex) {
+        setAnswerState("correct");
+        setCorrectCount((c) => c + 1);
+      } else {
+        setAnswerState("incorrect");
+      }
     }
-  }, [selectedOption, currentQuestion]);
+  }, [selectedOption, typedAnswer, currentQuestion, canCheck]);
 
   const handleContinue = useCallback(() => {
     if (questionIdx + 1 >= questions.length) {
@@ -40,6 +59,7 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
     } else {
       setQuestionIdx((i) => i + 1);
       setSelectedOption(null);
+      setTypedAnswer("");
       setAnswerState("unanswered");
     }
   }, [questionIdx, questions.length, correctCount, onComplete]);
@@ -50,7 +70,7 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
         if (answerState === "unanswered") handleCheck();
         else handleContinue();
       }
-      if (answerState === "unanswered" && currentQuestion) {
+      if (answerState === "unanswered" && currentQuestion && currentQuestion.type !== "typing") {
         const num = parseInt(e.key);
         if (num >= 1 && num <= currentQuestion.options.length) {
           setSelectedOption(num - 1);
@@ -104,40 +124,65 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
           </pre>
         )}
 
-        <div className="grid w-full gap-3">
-          {currentQuestion.options.map((option, idx) => {
-            let stateClass =
-              "border-line-strong bg-surface-raised text-fg-secondary hover:border-fg-muted hover:bg-surface-inset";
+        {currentQuestion.type === "typing" ? (
+          <div className="w-full">
+            <input
+              type="text"
+              value={typedAnswer}
+              onChange={(e) => setTypedAnswer(e.target.value)}
+              disabled={answerState !== "unanswered"}
+              placeholder="Type your answer..."
+              autoFocus
+              className={`w-full rounded-2xl border-2 bg-surface-raised p-4 font-mono text-fg outline-none transition-all placeholder:text-fg-faint ${
+                answerState === "unanswered"
+                  ? `border-line-strong focus:${trackStyle.borderClass}`
+                  : answerState === "correct"
+                    ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/40"
+                    : "border-red-500 bg-red-50 dark:bg-red-900/40"
+              }`}
+            />
+            {answerState === "incorrect" && (
+              <p className="mt-2 font-mono text-sm text-fg-muted">
+                Accepted: {currentQuestion.acceptedAnswers.join(", ")}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="grid w-full gap-3">
+            {currentQuestion.options.map((option, idx) => {
+              let stateClass =
+                "border-line-strong bg-surface-raised text-fg-secondary hover:border-fg-muted hover:bg-surface-inset";
 
-            if (answerState !== "unanswered") {
-              if (idx === currentQuestion.correctIndex) {
-                stateClass =
-                  "border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200";
-              } else if (idx === selectedOption && answerState === "incorrect") {
-                stateClass =
-                  "border-red-500 bg-red-50 text-red-800 dark:bg-red-900/40 dark:text-red-200";
-              } else {
-                stateClass = "border-line bg-surface-raised/50 text-fg-faint";
+              if (answerState !== "unanswered") {
+                if (idx === currentQuestion.correctIndex) {
+                  stateClass =
+                    "border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200";
+                } else if (idx === selectedOption && answerState === "incorrect") {
+                  stateClass =
+                    "border-red-500 bg-red-50 text-red-800 dark:bg-red-900/40 dark:text-red-200";
+                } else {
+                  stateClass = "border-line bg-surface-raised/50 text-fg-faint";
+                }
+              } else if (selectedOption === idx) {
+                stateClass = `border-2 ${trackStyle.borderClass} bg-surface-raised text-fg`;
               }
-            } else if (selectedOption === idx) {
-              stateClass = `border-2 ${trackStyle.borderClass} bg-surface-raised text-fg`;
-            }
 
-            return (
-              <button
-                key={idx}
-                disabled={answerState !== "unanswered"}
-                onClick={() => setSelectedOption(idx)}
-                className={`w-full rounded-2xl border-2 p-4 text-left font-medium transition-all duration-150 active:scale-[0.98] disabled:cursor-default ${stateClass}`}
-              >
-                <span className="mr-3 inline-flex h-7 w-7 items-center justify-center rounded-full border border-current font-mono text-xs font-bold opacity-60">
-                  {idx + 1}
-                </span>
-                {option}
-              </button>
-            );
-          })}
-        </div>
+              return (
+                <button
+                  key={idx}
+                  disabled={answerState !== "unanswered"}
+                  onClick={() => setSelectedOption(idx)}
+                  className={`w-full rounded-2xl border-2 p-4 text-left font-medium transition-all duration-150 active:scale-[0.98] disabled:cursor-default ${stateClass}`}
+                >
+                  <span className="mr-3 inline-flex h-7 w-7 items-center justify-center rounded-full border border-current font-mono text-xs font-bold opacity-60">
+                    {idx + 1}
+                  </span>
+                  {option}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {answerState !== "unanswered" && (
           <div
@@ -167,10 +212,10 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
         <div className="mx-auto max-w-2xl">
           {answerState === "unanswered" ? (
             <button
-              disabled={selectedOption === null}
+              disabled={!canCheck}
               onClick={handleCheck}
               className={`w-full rounded-2xl py-4 font-mono text-lg font-bold transition-all active:scale-[0.98] ${
-                selectedOption === null
+                !canCheck
                   ? "cursor-not-allowed bg-surface-inset text-fg-faint"
                   : `${trackStyle.bgClass} text-white shadow-lg hover:opacity-90`
               }`}
@@ -190,8 +235,10 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
             </button>
           )}
           <p className="mt-2 text-center font-mono text-xs text-fg-faint">
-            ↵ to {answerState === "unanswered" ? "check" : "continue"} · 1–
-            {currentQuestion.options.length} to select
+            ↵ to {answerState === "unanswered" ? "check" : "continue"}
+            {!isTyping &&
+              "options" in currentQuestion &&
+              ` · 1–${currentQuestion.options.length} to select`}
           </p>
         </div>
       </div>
