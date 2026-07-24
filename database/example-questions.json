@@ -1,0 +1,41 @@
+[
+  {
+    "slug": "react-1-jsx",
+    "skill": {
+      "code": "react-basics",
+      "name": "JSX & Components",
+      "category": "React"
+    },
+    "difficulty": "EASY",
+    "reasoningLevel": "RECOGNIZE",
+    "prompt": "What does JSX stand for?",
+    "options": [
+      "JavaScript XML",
+      "JavaScript Extension",
+      "Java Syntax Extension",
+      "JSON XML Syntax"
+    ],
+    "correctIndex": 0,
+    "explanation": "JSX stands for JavaScript XML. It lets you write HTML-like syntax inside JavaScript, which React transforms into function calls."
+  },
+  {
+    "slug": "react-2-usestate",
+    "skill": {
+      "code": "react-hooks",
+      "name": "Hooks",
+      "category": "React"
+    },
+    "difficulty": "MEDIUM",
+    "reasoningLevel": "APPLY",
+    "prompt": "What does `useState` return?",
+    "code": "const [count, setCount] = useState(0);",
+    "options": [
+      "A single value",
+      "An array with the current state and a setter function",
+      "An object with `value` and `update` keys",
+      "A promise that resolves to the state"
+    ],
+    "correctIndex": 1,
+    "explanation": "`useState` returns a two-element array: the current state value and a function to update it."
+  }
+]

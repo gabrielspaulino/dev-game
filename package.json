@@ -26,6 +26,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx database/seed.ts",
+    "db:import": "tsx database/import-questions.ts",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
   },
