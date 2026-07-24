@@ -40,6 +40,7 @@ export interface UserProgress {
   dailyQuizCompletedDate: string | null;
   answeredSlugs: Record<string, string[]>;
   quizzesCompletedToday: number;
+  questionsAnsweredToday: number;
 }
 
 export type AnswerState = "unanswered" | "correct" | "incorrect";

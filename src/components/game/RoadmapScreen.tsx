@@ -6,7 +6,7 @@ import type { TrackStats } from "@/app/actions/questions";
 import { getTrackStyle } from "@/lib/track-styles";
 import { getStreakEncouragement } from "@/lib/progress";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Icon, FireIcon } from "@/components/Icons";
+import { Icon, FireIcon, CheckCircleIcon } from "@/components/Icons";
 
 interface RoadmapScreenProps {
   progress: UserProgress;
@@ -15,12 +15,17 @@ interface RoadmapScreenProps {
 }
 
 const XP_PER_LEVEL = 100;
-export const QUESTIONS_PER_TRACK = 10;
+export const QUESTIONS_PER_TOPIC = 50;
+export const DAILY_GOAL = 10;
 
 export function RoadmapScreen({ progress, trackStats, onStartQuiz }: RoadmapScreenProps) {
   const level = Math.floor(progress.xp / XP_PER_LEVEL) + 1;
   const xpInLevel = progress.xp % XP_PER_LEVEL;
   const xpPct = (xpInLevel / XP_PER_LEVEL) * 100;
+
+  const today = new Date().toISOString().slice(0, 10);
+  const questionsToday =
+    progress.dailyQuizCompletedDate === today ? progress.questionsAnsweredToday : 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-surface">
@@ -72,6 +77,8 @@ export function RoadmapScreen({ progress, trackStats, onStartQuiz }: RoadmapScre
           </p>
         )}
 
+        <DailyGoal questionsAnsweredToday={questionsToday} />
+
         <h2 className="mb-1 font-mono text-lg font-bold text-fg">{"// choose_your_stack"}</h2>
         <p className="mb-4 text-sm text-fg-muted">
           Pick a theme and start a quiz with random questions.
@@ -81,8 +88,7 @@ export function RoadmapScreen({ progress, trackStats, onStartQuiz }: RoadmapScre
           {trackStats.map((stat) => {
             const style = getTrackStyle(stat.category);
             const answered = (progress.answeredSlugs[stat.category] ?? []).length;
-            const target = stat.skillCount * QUESTIONS_PER_TRACK;
-            const pct = target > 0 ? Math.min(100, Math.round((answered / target) * 100)) : 0;
+            const pct = Math.min(100, Math.round((answered / QUESTIONS_PER_TOPIC) * 100));
 
             return (
               <TrackCard
@@ -149,5 +155,38 @@ function TrackCard({
         <span className={`font-mono text-sm font-bold ${style.textClass}`}>&gt;</span>
       </div>
     </button>
+  );
+}
+
+function DailyGoal({ questionsAnsweredToday }: { questionsAnsweredToday: number }) {
+  const completed = Math.min(questionsAnsweredToday, DAILY_GOAL);
+  const goalReached = questionsAnsweredToday >= DAILY_GOAL;
+  const pct = Math.round((completed / DAILY_GOAL) * 100);
+
+  return (
+    <div className="mb-6 rounded-2xl border border-line bg-surface-raised p-4">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="font-mono text-sm font-bold text-fg">{"// daily_goal"}</span>
+        <div className="flex items-center gap-1.5">
+          {goalReached && <CheckCircleIcon className="h-4 w-4 text-emerald-500" />}
+          <span
+            className={`font-mono text-sm font-bold ${goalReached ? "text-emerald-600 dark:text-emerald-400" : "text-fg-muted"}`}
+          >
+            {questionsAnsweredToday}/{DAILY_GOAL}
+          </span>
+        </div>
+      </div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-surface-inset">
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${goalReached ? "bg-emerald-500" : "bg-amber-500"}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <p className="mt-2 font-mono text-xs text-fg-faint">
+        {goalReached
+          ? "Goal reached! Keep going or come back tomorrow."
+          : `Answer ${DAILY_GOAL - questionsAnsweredToday} more to hit today's goal.`}
+      </p>
+    </div>
   );
 }
