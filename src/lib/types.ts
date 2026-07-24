@@ -40,6 +40,15 @@ export interface Topic {
   lessons: Lesson[];
 }
 
+export type DifficultyTier = "EASY" | "MEDIUM" | "HARD";
+
+export interface TierStats {
+  answered: number;
+  correct: number;
+}
+
+export type CategoryDifficultyStats = Record<DifficultyTier, TierStats>;
+
 export interface UserProgress {
   xp: number;
   streak: number;
@@ -51,6 +60,7 @@ export interface UserProgress {
   answeredSlugs: Record<string, string[]>;
   quizzesCompletedToday: number;
   questionsAnsweredToday: number;
+  difficultyStats: Record<string, CategoryDifficultyStats>;
 }
 
 export type AnswerState = "unanswered" | "correct" | "incorrect";

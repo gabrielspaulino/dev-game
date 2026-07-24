@@ -5,11 +5,13 @@ import type { UserProgress, Question } from "@/lib/types";
 import type { TrackStyle } from "@/lib/track-styles";
 import type { TrackStats } from "@/app/actions/questions";
 import { getTrackStyle } from "@/lib/track-styles";
+import type { DifficultyTier } from "@/lib/types";
 import {
   loadProgress,
   completeQuiz,
   getAnsweredSlugs,
   selectTopic,
+  getCurrentDifficulty,
   DEFAULT_PROGRESS,
 } from "@/lib/progress";
 import { fetchQuizQuestions } from "@/app/actions/questions";
@@ -19,12 +21,13 @@ import { QuizResultScreen } from "./QuizResultScreen";
 
 type Screen = "loading" | "roadmap" | "quiz" | "result" | "error";
 
-const QUIZ_SIZE = 5;
+const QUIZ_SIZE = 10;
 
 interface QuizState {
   questions: Question[];
   category: string;
   trackStyle: TrackStyle;
+  difficulty: DifficultyTier;
 }
 
 interface QuizResult {
@@ -61,11 +64,12 @@ export function HomeContent({ trackStats }: HomeContentProps) {
       const updated = selectTopic(current, category);
       setProgress(updated);
 
+      const difficulty = getCurrentDifficulty(updated, category);
       const excludeSlugs = getAnsweredSlugs(updated, category);
-      let questions = await fetchQuizQuestions(category, QUIZ_SIZE, excludeSlugs);
+      let questions = await fetchQuizQuestions(category, QUIZ_SIZE, excludeSlugs, difficulty);
 
       if (questions.length === 0) {
-        questions = await fetchQuizQuestions(category, QUIZ_SIZE, []);
+        questions = await fetchQuizQuestions(category, QUIZ_SIZE, [], difficulty);
       }
 
       if (questions.length === 0) {
@@ -74,7 +78,7 @@ export function HomeContent({ trackStats }: HomeContentProps) {
       }
 
       const trackStyle = getTrackStyle(category);
-      setQuiz({ questions, category, trackStyle });
+      setQuiz({ questions, category, trackStyle, difficulty });
       setScreen("quiz");
     } catch {
       setErrorMsg("Could not load questions. Check your connection and try again.");
@@ -89,7 +93,14 @@ export function HomeContent({ trackStats }: HomeContentProps) {
       if (!quiz) return;
       const slugs = quiz.questions.map((q) => q.id);
       const current = loadProgress();
-      const updated = completeQuiz(current, xpEarned, quiz.category, slugs);
+      const updated = completeQuiz(
+        current,
+        xpEarned,
+        quiz.category,
+        slugs,
+        quiz.difficulty,
+        correctCount,
+      );
       setProgress(updated);
       setQuizResult({
         xpEarned,

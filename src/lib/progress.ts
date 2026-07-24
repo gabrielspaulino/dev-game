@@ -1,9 +1,11 @@
 "use client";
 
-import type { UserProgress } from "./types";
+import type { UserProgress, DifficultyTier, CategoryDifficultyStats } from "./types";
 
 const STORAGE_KEY = "devgame_progress";
 const MAX_HEARTS = 5;
+const TIER_SIZE = 17;
+const ADVANCE_THRESHOLD = 0.8;
 
 export const DEFAULT_PROGRESS: UserProgress = {
   xp: 0,
@@ -16,6 +18,7 @@ export const DEFAULT_PROGRESS: UserProgress = {
   answeredSlugs: {},
   quizzesCompletedToday: 0,
   questionsAnsweredToday: 0,
+  difficultyStats: {},
 };
 
 export function loadProgress(): UserProgress {
@@ -52,6 +55,8 @@ export function completeQuiz(
   xpEarned: number,
   category: string,
   slugs: string[],
+  difficulty: DifficultyTier,
+  correctCount: number,
 ): UserProgress {
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
@@ -77,6 +82,16 @@ export function completeQuiz(
       ? progress.questionsAnsweredToday + newQuestions
       : newQuestions;
 
+  const prevStats = progress.difficultyStats[category] ?? defaultCategoryStats();
+  const tierStats = prevStats[difficulty];
+  const updatedCategoryStats: CategoryDifficultyStats = {
+    ...prevStats,
+    [difficulty]: {
+      answered: tierStats.answered + slugs.length,
+      correct: tierStats.correct + correctCount,
+    },
+  };
+
   const updated: UserProgress = {
     ...progress,
     xp: newXp,
@@ -86,9 +101,40 @@ export function completeQuiz(
     quizzesCompletedToday: quizzesToday,
     questionsAnsweredToday: questionsToday,
     answeredSlugs: { ...progress.answeredSlugs, [category]: mergedSlugs },
+    difficultyStats: { ...progress.difficultyStats, [category]: updatedCategoryStats },
   };
   saveProgress(updated);
   return updated;
+}
+
+function defaultCategoryStats(): CategoryDifficultyStats {
+  return {
+    EASY: { answered: 0, correct: 0 },
+    MEDIUM: { answered: 0, correct: 0 },
+    HARD: { answered: 0, correct: 0 },
+  };
+}
+
+export function getCurrentDifficulty(progress: UserProgress, category: string): DifficultyTier {
+  const stats = progress.difficultyStats[category] ?? defaultCategoryStats();
+  const easy = stats.EASY;
+  const medium = stats.MEDIUM;
+
+  if (
+    easy.answered >= TIER_SIZE &&
+    easy.answered > 0 &&
+    easy.correct / easy.answered >= ADVANCE_THRESHOLD
+  ) {
+    if (
+      medium.answered >= TIER_SIZE &&
+      medium.answered > 0 &&
+      medium.correct / medium.answered >= ADVANCE_THRESHOLD
+    ) {
+      return "HARD";
+    }
+    return "MEDIUM";
+  }
+  return "EASY";
 }
 
 export function getAnsweredSlugs(progress: UserProgress, category: string): string[] {
