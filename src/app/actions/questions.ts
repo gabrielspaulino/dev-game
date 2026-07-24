@@ -3,7 +3,7 @@
 import { getDb } from "@/lib/db";
 import { skills, questions, questionVersions, questionOptions } from "@db/schema";
 import { eq, and, inArray, notInArray, sql } from "drizzle-orm";
-import type { Question } from "@/lib/types";
+import type { Question, DifficultyTier } from "@/lib/types";
 
 export interface TrackStats {
   category: string;
@@ -33,8 +33,9 @@ export async function getTrackStats(): Promise<TrackStats[]> {
 
 export async function fetchQuizQuestions(
   category: string,
-  count: number = 5,
+  count: number = 10,
   excludeSlugs: string[] = [],
+  difficulty?: DifficultyTier,
 ): Promise<Question[]> {
   const db = getDb();
 
@@ -48,6 +49,9 @@ export async function fetchQuizQuestions(
   const skillIds = categorySkillIds.map((s) => s.id);
 
   const filters = [inArray(questions.primarySkillId, skillIds), eq(questions.status, "PUBLISHED")];
+  if (difficulty) {
+    filters.push(eq(questions.difficulty, difficulty));
+  }
   if (excludeSlugs.length > 0) {
     filters.push(notInArray(questions.slug, excludeSlugs));
   }
