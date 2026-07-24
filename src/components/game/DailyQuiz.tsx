@@ -2,23 +2,18 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { Question, AnswerState } from "@/lib/types";
-import {
-  getDailyQuizQuestions,
-  getStudyTrack,
-  XP_PER_CORRECT,
-  XP_PERFECT_BONUS,
-} from "@/lib/daily-quiz-data";
+import type { TrackStyle } from "@/lib/track-styles";
+
+export const XP_PER_CORRECT = 10;
+export const XP_PERFECT_BONUS = 25;
 
 interface DailyQuizProps {
-  trackId: string;
+  questions: Question[];
+  trackStyle: TrackStyle;
   onComplete: (xpEarned: number, correctCount: number, totalQuestions: number) => void;
 }
 
-export function DailyQuiz({ trackId, onComplete }: DailyQuizProps) {
-  const today = new Date().toISOString().slice(0, 10);
-  const questions = getDailyQuizQuestions(trackId, today);
-  const track = getStudyTrack(trackId);
-
+export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps) {
   const [questionIdx, setQuestionIdx] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [answerState, setAnswerState] = useState<AnswerState>("unanswered");
@@ -66,7 +61,7 @@ export function DailyQuiz({ trackId, onComplete }: DailyQuizProps) {
     return () => window.removeEventListener("keydown", handler);
   }, [answerState, handleCheck, handleContinue, currentQuestion]);
 
-  if (!track || !currentQuestion) return null;
+  if (!currentQuestion) return null;
 
   const progress = (questionIdx / questions.length) * 100;
 
@@ -75,13 +70,14 @@ export function DailyQuiz({ trackId, onComplete }: DailyQuizProps) {
       <div className="border-b border-line px-4 py-4">
         <div className="mx-auto flex max-w-2xl items-center gap-4">
           <div
-            className={`font-mono text-sm font-bold uppercase tracking-widest ${track.textClass}`}
+            className={`font-mono text-sm font-bold uppercase tracking-widest ${trackStyle.textClass}`}
           >
-            {"// daily_challenge"}
+            {"// "}
+            {trackStyle.title.toLowerCase().replace(/\s+/g, "_")}
           </div>
           <div className="h-3 flex-1 overflow-hidden rounded-full bg-surface-inset">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${track.bgClass}`}
+              className={`h-full rounded-full transition-all duration-500 ${trackStyle.bgClass}`}
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -93,7 +89,7 @@ export function DailyQuiz({ trackId, onComplete }: DailyQuizProps) {
 
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center px-4 py-8">
         <p
-          className={`mb-6 font-mono text-sm font-bold uppercase tracking-widest ${track.textClass}`}
+          className={`mb-6 font-mono text-sm font-bold uppercase tracking-widest ${trackStyle.textClass}`}
         >
           Question {questionIdx + 1} of {questions.length}
         </p>
@@ -124,7 +120,7 @@ export function DailyQuiz({ trackId, onComplete }: DailyQuizProps) {
                 stateClass = "border-line bg-surface-raised/50 text-fg-faint";
               }
             } else if (selectedOption === idx) {
-              stateClass = `border-2 ${track.borderClass} bg-surface-raised text-fg`;
+              stateClass = `border-2 ${trackStyle.borderClass} bg-surface-raised text-fg`;
             }
 
             return (
@@ -176,7 +172,7 @@ export function DailyQuiz({ trackId, onComplete }: DailyQuizProps) {
               className={`w-full rounded-2xl py-4 font-mono text-lg font-bold transition-all active:scale-[0.98] ${
                 selectedOption === null
                   ? "cursor-not-allowed bg-surface-inset text-fg-faint"
-                  : `${track.bgClass} text-white shadow-lg hover:opacity-90`
+                  : `${trackStyle.bgClass} text-white shadow-lg hover:opacity-90`
               }`}
             >
               {"> check"}

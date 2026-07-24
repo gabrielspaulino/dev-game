@@ -13,6 +13,8 @@ export const DEFAULT_PROGRESS: UserProgress = {
   completedLessons: {},
   selectedTopicId: null,
   dailyQuizCompletedDate: null,
+  answeredSlugs: {},
+  quizzesCompletedToday: 0,
 };
 
 export function loadProgress(): UserProgress {
@@ -44,21 +46,29 @@ export function selectTopic(progress: UserProgress, topicId: string): UserProgre
   return updated;
 }
 
-export function completeDailyQuiz(progress: UserProgress, xpEarned: number): UserProgress {
+export function completeQuiz(
+  progress: UserProgress,
+  xpEarned: number,
+  category: string,
+  slugs: string[],
+): UserProgress {
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
 
-  const isAlreadyDoneToday = progress.dailyQuizCompletedDate === today;
-  const newXp = progress.xp + (isAlreadyDoneToday ? 0 : xpEarned);
+  const newXp = progress.xp + xpEarned;
 
   let newStreak = progress.streak;
-  if (!isAlreadyDoneToday) {
-    if (progress.lastPlayedDate === yesterday) {
-      newStreak = progress.streak + 1;
-    } else if (progress.lastPlayedDate !== today) {
-      newStreak = 1;
-    }
+  if (progress.lastPlayedDate === yesterday) {
+    newStreak = progress.streak + 1;
+  } else if (progress.lastPlayedDate !== today) {
+    newStreak = 1;
   }
+
+  const existingSlugs = progress.answeredSlugs[category] ?? [];
+  const mergedSlugs = [...new Set([...existingSlugs, ...slugs])];
+
+  const quizzesToday =
+    progress.dailyQuizCompletedDate === today ? progress.quizzesCompletedToday + 1 : 1;
 
   const updated: UserProgress = {
     ...progress,
@@ -66,9 +76,15 @@ export function completeDailyQuiz(progress: UserProgress, xpEarned: number): Use
     streak: newStreak,
     lastPlayedDate: today,
     dailyQuizCompletedDate: today,
+    quizzesCompletedToday: quizzesToday,
+    answeredSlugs: { ...progress.answeredSlugs, [category]: mergedSlugs },
   };
   saveProgress(updated);
   return updated;
+}
+
+export function getAnsweredSlugs(progress: UserProgress, category: string): string[] {
+  return progress.answeredSlugs[category] ?? [];
 }
 
 export function getStreakEncouragement(streak: number): string {

@@ -35,9 +35,11 @@ export interface UserProgress {
   streak: number;
   hearts: number;
   lastPlayedDate: string | null;
-  completedLessons: Record<string, true>; // lessonId → true
-  selectedTopicId: string | null; // e.g. "systems-design", "java", "javascript"
-  dailyQuizCompletedDate: string | null; // "YYYY-MM-DD" when daily quiz was completed
+  completedLessons: Record<string, true>;
+  selectedTopicId: string | null;
+  dailyQuizCompletedDate: string | null;
+  answeredSlugs: Record<string, string[]>;
+  quizzesCompletedToday: number;
 }
 
 export type AnswerState = "unanswered" | "correct" | "incorrect";

@@ -1,11 +1,11 @@
 "use client";
 
-import { getStudyTrack } from "@/lib/daily-quiz-data";
+import type { TrackStyle } from "@/lib/track-styles";
 import { getStreakEncouragement } from "@/lib/progress";
 import { TrophyIcon, TargetIcon, BoltIcon, FireIcon } from "@/components/Icons";
 
 interface QuizResultScreenProps {
-  trackId: string;
+  trackStyle: TrackStyle;
   xpEarned: number;
   correctCount: number;
   totalQuestions: number;
@@ -14,14 +14,13 @@ interface QuizResultScreenProps {
 }
 
 export function QuizResultScreen({
-  trackId,
+  trackStyle,
   xpEarned,
   correctCount,
   totalQuestions,
   streak,
   onContinue,
 }: QuizResultScreenProps) {
-  const track = getStudyTrack(trackId);
   const accuracy = Math.round((correctCount / totalQuestions) * 100);
   const isPerfect = correctCount === totalQuestions;
 
@@ -40,8 +39,8 @@ export function QuizResultScreen({
       <h1 className="mb-1 font-mono text-3xl font-black text-fg">
         {isPerfect ? "Zero bugs!" : accuracy >= 60 ? "Build succeeded!" : "Debug harder!"}
       </h1>
-      <p className={`mb-6 font-mono text-sm font-medium ${track?.textClass ?? "text-fg-muted"}`}>
-        {track?.title} {"// daily_challenge"}
+      <p className={`mb-6 font-mono text-sm font-medium ${trackStyle.textClass}`}>
+        {trackStyle.title}
       </p>
 
       <div className="mb-6 flex items-center gap-2 rounded-full bg-orange-50 px-5 py-2 dark:bg-orange-950/40">
