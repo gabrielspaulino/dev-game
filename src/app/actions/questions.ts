@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { skills, questions, questionVersions, questionOptions } from "@db/schema";
 import { eq, and, inArray, notInArray, desc, sql } from "drizzle-orm";
 import type { Question } from "@/lib/types";
@@ -11,7 +11,7 @@ export interface TrackStats {
 }
 
 export async function getTrackStats(): Promise<TrackStats[]> {
-  const rows = await db
+  const rows = await getDb()
     .select({
       category: skills.category,
       count: sql<number>`count(distinct ${questions.id})::int`,
@@ -30,7 +30,7 @@ export async function fetchQuizQuestions(
   count: number = 5,
   excludeSlugs: string[] = [],
 ): Promise<Question[]> {
-  const categorySkillIds = await db
+  const categorySkillIds = await getDb()
     .select({ id: skills.id })
     .from(skills)
     .where(eq(skills.category, category));
@@ -44,7 +44,7 @@ export async function fetchQuizQuestions(
     filters.push(notInArray(questions.slug, excludeSlugs));
   }
 
-  const questionRows = await db
+  const questionRows = await getDb()
     .select({
       id: questions.id,
       slug: questions.slug,
@@ -59,7 +59,7 @@ export async function fetchQuizQuestions(
   const result: Question[] = [];
 
   for (const q of questionRows) {
-    const [version] = await db
+    const [version] = await getDb()
       .select({
         id: questionVersions.id,
         prompt: questionVersions.prompt,
@@ -74,7 +74,7 @@ export async function fetchQuizQuestions(
 
     if (!version) continue;
 
-    const opts = await db
+    const opts = await getDb()
       .select({
         optionKey: questionOptions.optionKey,
         content: questionOptions.content,
