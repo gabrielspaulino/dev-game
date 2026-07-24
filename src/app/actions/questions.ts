@@ -2,7 +2,7 @@
 
 import { getDb } from "@/lib/db";
 import { skills, questions, questionVersions, questionOptions } from "@db/schema";
-import { eq, and, inArray, notInArray, desc, sql } from "drizzle-orm";
+import { eq, and, inArray, notInArray, sql } from "drizzle-orm";
 import type { Question } from "@/lib/types";
 
 export interface TrackStats {
@@ -36,25 +36,24 @@ export async function fetchQuizQuestions(
   count: number = 5,
   excludeSlugs: string[] = [],
 ): Promise<Question[]> {
-  const categorySkillIds = await getDb()
+  const db = getDb();
+
+  const categorySkillIds = await db
     .select({ id: skills.id })
     .from(skills)
     .where(eq(skills.category, category));
 
   if (categorySkillIds.length === 0) return [];
 
-  const ids = categorySkillIds.map((s) => s.id);
+  const skillIds = categorySkillIds.map((s) => s.id);
 
-  const filters = [inArray(questions.primarySkillId, ids), eq(questions.status, "PUBLISHED")];
+  const filters = [inArray(questions.primarySkillId, skillIds), eq(questions.status, "PUBLISHED")];
   if (excludeSlugs.length > 0) {
     filters.push(notInArray(questions.slug, excludeSlugs));
   }
 
-  const questionRows = await getDb()
-    .select({
-      id: questions.id,
-      slug: questions.slug,
-    })
+  const questionRows = await db
+    .select({ id: questions.id, slug: questions.slug })
     .from(questions)
     .where(and(...filters))
     .orderBy(sql`RANDOM()`)
@@ -62,46 +61,85 @@ export async function fetchQuizQuestions(
 
   if (questionRows.length === 0) return [];
 
+  const questionIds = questionRows.map((q) => q.id);
+
+  const allVersions = await db
+    .select({
+      questionId: questionVersions.questionId,
+      id: questionVersions.id,
+      prompt: questionVersions.prompt,
+      content: questionVersions.content,
+      correctAnswer: questionVersions.correctAnswer,
+      explanation: questionVersions.generalExplanation,
+      versionNumber: questionVersions.versionNumber,
+    })
+    .from(questionVersions)
+    .where(inArray(questionVersions.questionId, questionIds));
+
+  const latestVersionByQuestion = new Map<string, (typeof allVersions)[number]>();
+  for (const v of allVersions) {
+    const existing = latestVersionByQuestion.get(v.questionId);
+    if (!existing || v.versionNumber > existing.versionNumber) {
+      latestVersionByQuestion.set(v.questionId, v);
+    }
+  }
+
+  const versionIds = [...latestVersionByQuestion.values()].map((v) => v.id);
+
+  const allOptions =
+    versionIds.length > 0
+      ? await db
+          .select({
+            questionVersionId: questionOptions.questionVersionId,
+            optionKey: questionOptions.optionKey,
+            content: questionOptions.content,
+            displayOrder: questionOptions.displayOrder,
+          })
+          .from(questionOptions)
+          .where(inArray(questionOptions.questionVersionId, versionIds))
+          .orderBy(questionOptions.displayOrder)
+      : [];
+
+  const optionsByVersion = new Map<string, typeof allOptions>();
+  for (const opt of allOptions) {
+    const list = optionsByVersion.get(opt.questionVersionId) ?? [];
+    list.push(opt);
+    optionsByVersion.set(opt.questionVersionId, list);
+  }
+
   const result: Question[] = [];
 
   for (const q of questionRows) {
-    const [version] = await getDb()
-      .select({
-        id: questionVersions.id,
-        prompt: questionVersions.prompt,
-        content: questionVersions.content,
-        correctAnswer: questionVersions.correctAnswer,
-        explanation: questionVersions.generalExplanation,
-      })
-      .from(questionVersions)
-      .where(eq(questionVersions.questionId, q.id))
-      .orderBy(desc(questionVersions.versionNumber))
-      .limit(1);
-
+    const version = latestVersionByQuestion.get(q.id);
     if (!version) continue;
 
-    const opts = await getDb()
-      .select({
-        optionKey: questionOptions.optionKey,
-        content: questionOptions.content,
-      })
-      .from(questionOptions)
-      .where(eq(questionOptions.questionVersionId, version.id))
-      .orderBy(questionOptions.displayOrder);
-
-    const correctKey = (version.correctAnswer as { ids: string[] }).ids[0]!;
-    const correctIndex = opts.findIndex((o) => o.optionKey === correctKey);
+    const opts = optionsByVersion.get(version.id) ?? [];
     const code = (version.content as { code?: string })?.code;
+    const answer = version.correctAnswer as { ids?: string[]; text?: string[] };
 
-    result.push({
-      id: q.slug,
-      type: "multiple-choice",
-      prompt: version.prompt,
-      code: code || undefined,
-      options: opts.map((o) => o.content),
-      correctIndex: correctIndex >= 0 ? correctIndex : 0,
-      explanation: version.explanation,
-    });
+    if (opts.length === 0 && answer.text) {
+      result.push({
+        id: q.slug,
+        type: "typing",
+        prompt: version.prompt,
+        code: code || undefined,
+        acceptedAnswers: answer.text,
+        explanation: version.explanation,
+      });
+    } else {
+      const correctKey = answer.ids?.[0] ?? "";
+      const correctIndex = opts.findIndex((o) => o.optionKey === correctKey);
+
+      result.push({
+        id: q.slug,
+        type: "multiple-choice",
+        prompt: version.prompt,
+        code: code || undefined,
+        options: opts.map((o) => o.content),
+        correctIndex: correctIndex >= 0 ? correctIndex : 0,
+        explanation: version.explanation,
+      });
+    }
   }
 
   return result;

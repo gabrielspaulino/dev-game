@@ -1,14 +1,24 @@
-export type QuestionType = "multiple-choice" | "true-false";
+export type QuestionType = "multiple-choice" | "true-false" | "typing";
 
-export interface Question {
+interface BaseQuestion {
   id: string;
-  type: QuestionType;
   prompt: string;
-  code?: string; // optional code snippet
-  options: string[];
-  correctIndex: number;
+  code?: string;
   explanation: string;
 }
+
+interface MultipleChoiceQuestion extends BaseQuestion {
+  type: "multiple-choice" | "true-false";
+  options: string[];
+  correctIndex: number;
+}
+
+interface TypingQuestion extends BaseQuestion {
+  type: "typing";
+  acceptedAnswers: string[];
+}
+
+export type Question = MultipleChoiceQuestion | TypingQuestion;
 
 export interface Lesson {
   id: string;
