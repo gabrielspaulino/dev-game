@@ -143,8 +143,6 @@ export function RoadmapScreen({ progress, skillStats, onStartQuiz }: RoadmapScre
                 category={entry.category}
                 style={entry.style}
                 progressPct={pct}
-                answered={answered}
-                total={total}
                 slotLabel={slotLabel}
                 isSelected={progress.selectedTopicId === entry.category}
                 onStart={() => onStartQuiz(entry.category)}
@@ -167,8 +165,6 @@ function CategoryCard({
   category,
   style,
   progressPct,
-  answered,
-  total,
   slotLabel,
   isSelected,
   onStart,
@@ -176,8 +172,6 @@ function CategoryCard({
   category: string;
   style: TrackStyle;
   progressPct: number;
-  answered: number;
-  total: number;
   slotLabel: string | null;
   isSelected: boolean;
   onStart: () => void;
@@ -208,9 +202,7 @@ function CategoryCard({
                 style={{ width: `${progressPct}%` }}
               />
             </div>
-            <span className="font-mono text-xs text-fg-faint">
-              {answered}/{total}
-            </span>
+            <span className="font-mono text-xs text-fg-faint">{progressPct}%</span>
           </div>
         </div>
         <span className={`font-mono text-sm font-bold ${style.textClass}`}>&gt;</span>
