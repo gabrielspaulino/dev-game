@@ -4,12 +4,7 @@ import type { UserProgress } from "@/lib/types";
 import type { TrackStyle } from "@/lib/track-styles";
 import type { SkillStats } from "@/app/actions/questions";
 import { getTrackStyle, CATEGORY_ORDER, SKILL_ORDER } from "@/lib/track-styles";
-import {
-  getStreakEncouragement,
-  getCategoryProgress,
-  getCategoryTotal,
-  getCurrentSlot,
-} from "@/lib/progress";
+import { getStreakEncouragement, getCategoryProgress, getCategoryTotal } from "@/lib/progress";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Icon, FireIcon, CheckCircleIcon } from "@/components/Icons";
 
@@ -45,21 +40,6 @@ function buildCategories(skillStats: SkillStats[]): CategoryEntry[] {
       style: getTrackStyle(category),
       hasQuestions: categoriesWithQuestions.has(category),
     }));
-}
-
-function getSlotLabel(
-  progress: UserProgress,
-  category: string,
-  skillStats: SkillStats[],
-): string | null {
-  const slot = getCurrentSlot(progress, category);
-  if (!slot) return null;
-
-  const skillName = skillStats.find((s) => s.skillCode === slot.skillCode)?.skillName;
-  if (!skillName) return null;
-
-  const diffLabel = slot.difficulty.charAt(0) + slot.difficulty.slice(1).toLowerCase();
-  return `${skillName} · ${diffLabel}`;
 }
 
 export function RoadmapScreen({ progress, skillStats, onStartQuiz }: RoadmapScreenProps) {
@@ -135,15 +115,12 @@ export function RoadmapScreen({ progress, skillStats, onStartQuiz }: RoadmapScre
             const answered = getCategoryProgress(progress, entry.category);
             const total = getCategoryTotal(entry.category);
             const pct = total > 0 ? Math.min(100, Math.round((answered / total) * 100)) : 0;
-            const slotLabel = getSlotLabel(progress, entry.category, skillStats);
-
             return (
               <CategoryCard
                 key={entry.category}
                 category={entry.category}
                 style={entry.style}
                 progressPct={pct}
-                slotLabel={slotLabel}
                 isSelected={progress.selectedTopicId === entry.category}
                 onStart={() => onStartQuiz(entry.category)}
               />
@@ -165,14 +142,12 @@ function CategoryCard({
   category,
   style,
   progressPct,
-  slotLabel,
   isSelected,
   onStart,
 }: {
   category: string;
   style: TrackStyle;
   progressPct: number;
-  slotLabel: string | null;
   isSelected: boolean;
   onStart: () => void;
 }) {
@@ -194,7 +169,6 @@ function CategoryCard({
               <span className={`font-mono text-xs font-medium ${style.textClass}`}>current</span>
             )}
           </div>
-          {slotLabel && <span className="font-mono text-xs text-fg-faint">{slotLabel}</span>}
           <div className="mt-1.5 flex items-center gap-3">
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-inset">
               <div
