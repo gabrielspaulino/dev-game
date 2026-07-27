@@ -52,7 +52,11 @@ const SKILLS: SeedSkill[] = [
   { code: "sd-data", name: "Data & Storage Patterns", category: "Systems Design" },
   { code: "sd-patterns", name: "Architecture Patterns", category: "Systems Design" },
   { code: "sd-networking", name: "Networking", category: "Systems Design" },
-  { code: "sd-asynchronous-communication", name: "Asynchronous Communication", category: "Systems Design" },
+  {
+    code: "sd-asynchronous-communication",
+    name: "Asynchronous Communication",
+    category: "Systems Design",
+  },
   { code: "sd-security", name: "Security", category: "Systems Design" },
   { code: "java-core", name: "Core Language", category: "Java" },
   { code: "java-collections", name: "Collections & Streams", category: "Java" },

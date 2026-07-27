@@ -233,7 +233,15 @@ The client must never send: correctness, score, mastery changes, XP, or completi
 
 ---
 
-## 14. Key Documents
+## 14. GitHub CLI
+
+- `gh auth` is **not configured** on this machine.
+- Do not attempt `gh pr create`, `gh issue`, or other `gh` commands — they will fail with exit code 4.
+- Instead, provide the user with the manual PR creation URL: `https://github.com/gabrielspaulino/dev-game/compare/main...<branch>?expand=1`
+
+---
+
+## 15. Key Documents
 
 | Document                  | Purpose                                      |
 | ------------------------- | -------------------------------------------- |
