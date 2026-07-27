@@ -10,48 +10,61 @@ export default function AppleIcon() {
         width: "100%",
         height: "100%",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         background: "#0f172a",
         borderRadius: 38,
+        gap: 0,
       }}
     >
-      <svg viewBox="0 0 512 512" width="140" height="140">
-        <g transform="translate(256,240)">
-          <polygon
-            points="-120,60 0,100 120,60 0,20"
-            fill="#334155"
-            stroke="#10b981"
-            strokeWidth="6"
-            strokeLinejoin="round"
-          />
-          <polygon
-            points="-120,20 0,60 120,20 0,-20"
-            fill="#1e293b"
-            stroke="#10b981"
-            strokeWidth="6"
-            strokeLinejoin="round"
-          />
-          <polygon
-            points="-120,-20 0,20 120,-20 0,-60"
-            fill="#0f172a"
-            stroke="#10b981"
-            strokeWidth="6"
-            strokeLinejoin="round"
-          />
-          <text
-            x="0"
-            y="-90"
-            textAnchor="middle"
-            fontFamily="monospace"
-            fontWeight="bold"
-            fontSize="72"
-            fill="#10b981"
-          >
-            {">_"}
-          </text>
-        </g>
-      </svg>
+      <span
+        style={{
+          fontFamily: "monospace",
+          fontWeight: 700,
+          fontSize: 48,
+          color: "#10b981",
+          marginBottom: 8,
+        }}
+      >
+        {">_"}
+      </span>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 4,
+        }}
+      >
+        <div
+          style={{
+            width: 80,
+            height: 14,
+            background: "#0f172a",
+            border: "2px solid #10b981",
+            borderRadius: 3,
+          }}
+        />
+        <div
+          style={{
+            width: 100,
+            height: 14,
+            background: "#1e293b",
+            border: "2px solid #10b981",
+            borderRadius: 3,
+          }}
+        />
+        <div
+          style={{
+            width: 120,
+            height: 14,
+            background: "#334155",
+            border: "2px solid #10b981",
+            borderRadius: 3,
+          }}
+        />
+      </div>
     </div>,
     { ...size },
   );
