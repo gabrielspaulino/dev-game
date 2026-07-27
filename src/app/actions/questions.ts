@@ -5,50 +5,56 @@ import { skills, questions, questionVersions, questionOptions } from "@db/schema
 import { eq, and, inArray, notInArray, sql } from "drizzle-orm";
 import type { Question, DifficultyTier } from "@/lib/types";
 
-export interface TrackStats {
+export interface SkillStats {
+  skillCode: string;
+  skillName: string;
   category: string;
   questionCount: number;
-  skillCount: number;
 }
 
-export async function getTrackStats(): Promise<TrackStats[]> {
+export async function getSkillStats(): Promise<SkillStats[]> {
   const rows = await getDb()
     .select({
+      skillCode: skills.code,
+      skillName: skills.name,
       category: skills.category,
-      count: sql<number>`count(distinct ${questions.id})::int`,
-      skillCount: sql<number>`count(distinct ${skills.id})::int`,
+      count: sql<number>`count(${questions.id})::int`,
     })
-    .from(questions)
-    .innerJoin(skills, eq(questions.primarySkillId, skills.id))
-    .where(eq(questions.status, "PUBLISHED"))
-    .groupBy(skills.category)
-    .orderBy(skills.category);
+    .from(skills)
+    .leftJoin(
+      questions,
+      and(eq(questions.primarySkillId, skills.id), eq(questions.status, "PUBLISHED")),
+    )
+    .groupBy(skills.code, skills.name, skills.category)
+    .orderBy(skills.category, skills.code);
 
   return rows.map((r) => ({
+    skillCode: r.skillCode,
+    skillName: r.skillName,
     category: r.category,
     questionCount: r.count,
-    skillCount: r.skillCount,
   }));
 }
 
 export async function fetchQuizQuestions(
-  category: string,
+  skillCode: string,
   count: number = 10,
   excludeSlugs: string[] = [],
   difficulty?: DifficultyTier,
 ): Promise<Question[]> {
   const db = getDb();
 
-  const categorySkillIds = await db
+  const skillRow = await db
     .select({ id: skills.id })
     .from(skills)
-    .where(eq(skills.category, category));
+    .where(eq(skills.code, skillCode));
 
-  if (categorySkillIds.length === 0) return [];
+  if (skillRow.length === 0) return [];
 
-  const skillIds = categorySkillIds.map((s) => s.id);
-
-  const filters = [inArray(questions.primarySkillId, skillIds), eq(questions.status, "PUBLISHED")];
+  const filters = [
+    eq(questions.primarySkillId, skillRow[0]!.id),
+    eq(questions.status, "PUBLISHED"),
+  ];
   if (difficulty) {
     filters.push(eq(questions.difficulty, difficulty));
   }

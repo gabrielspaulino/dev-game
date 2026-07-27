@@ -1,14 +1,14 @@
 import { HomeContent } from "@/components/game/HomeContent";
-import { getTrackStats, type TrackStats } from "@/app/actions/questions";
+import { getSkillStats, type SkillStats } from "@/app/actions/questions";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  let trackStats: TrackStats[];
+  let skillStats: SkillStats[];
   try {
-    trackStats = await getTrackStats();
+    skillStats = await getSkillStats();
   } catch {
-    trackStats = [];
+    skillStats = [];
   }
-  return <HomeContent trackStats={trackStats} />;
+  return <HomeContent skillStats={skillStats} />;
 }

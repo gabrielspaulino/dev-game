@@ -79,6 +79,29 @@ export function getTrackStyle(category: string): TrackStyle {
   return TRACK_MAP[category] ?? { ...DEFAULT_STYLE, id: category, title: category };
 }
 
-export function getAllTrackStyles(): TrackStyle[] {
-  return Object.values(TRACK_MAP);
-}
+export const CATEGORY_ORDER = ["JavaScript", "Git", "Python", "SQL", "Systems Design", "Java"];
+
+export const SKILL_ORDER: Record<string, string[]> = {
+  JavaScript: [
+    "js-variables",
+    "js-operators",
+    "js-functions",
+    "js-closures",
+    "js-arrays",
+    "js-collections",
+    "js-async",
+    "js-prototypes",
+  ],
+  Git: ["git-basics", "git-branching", "git-remote"],
+  Python: ["py-syntax", "py-collections", "py-functions"],
+  SQL: ["sql-select", "sql-joins", "sql-aggregates"],
+  "Systems Design": [
+    "sd-fundamentals",
+    "sd-networking",
+    "sd-data",
+    "sd-asynchronous-communication",
+    "sd-security",
+    "sd-patterns",
+  ],
+  Java: ["java-core", "java-oop", "java-collections", "java-concurrency", "java-spring"],
+};

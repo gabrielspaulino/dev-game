@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import type { UserProgress, Question } from "@/lib/types";
+import type { UserProgress, Question, DifficultyTier } from "@/lib/types";
 import type { TrackStyle } from "@/lib/track-styles";
-import type { TrackStats } from "@/app/actions/questions";
+import type { SkillStats } from "@/app/actions/questions";
 import { getTrackStyle } from "@/lib/track-styles";
-import type { DifficultyTier } from "@/lib/types";
 import {
   loadProgress,
   completeQuiz,
@@ -25,7 +24,7 @@ const QUIZ_SIZE = 10;
 
 interface QuizState {
   questions: Question[];
-  category: string;
+  skillCode: string;
   trackStyle: TrackStyle;
   difficulty: DifficultyTier;
 }
@@ -34,15 +33,15 @@ interface QuizResult {
   xpEarned: number;
   correctCount: number;
   totalQuestions: number;
-  category: string;
+  skillCode: string;
   trackStyle: TrackStyle;
 }
 
 interface HomeContentProps {
-  trackStats: TrackStats[];
+  skillStats: SkillStats[];
 }
 
-export function HomeContent({ trackStats }: HomeContentProps) {
+export function HomeContent({ skillStats }: HomeContentProps) {
   const [screen, setScreen] = useState<Screen>("loading");
   const [progress, setProgress] = useState<UserProgress>(DEFAULT_PROGRESS);
   const [quiz, setQuiz] = useState<QuizState | null>(null);
@@ -56,37 +55,41 @@ export function HomeContent({ trackStats }: HomeContentProps) {
     setScreen("roadmap");
   }, []);
 
-  const handleStartQuiz = useCallback(async (category: string) => {
-    setIsLoadingQuiz(true);
-    setErrorMsg(null);
-    try {
-      const current = loadProgress();
-      const updated = selectTopic(current, category);
-      setProgress(updated);
+  const handleStartQuiz = useCallback(
+    async (skillCode: string) => {
+      setIsLoadingQuiz(true);
+      setErrorMsg(null);
+      try {
+        const current = loadProgress();
+        const updated = selectTopic(current, skillCode);
+        setProgress(updated);
 
-      const difficulty = getCurrentDifficulty(updated, category);
-      const excludeSlugs = getAnsweredSlugs(updated, category);
-      let questions = await fetchQuizQuestions(category, QUIZ_SIZE, excludeSlugs, difficulty);
+        const difficulty = getCurrentDifficulty(updated, skillCode);
+        const excludeSlugs = getAnsweredSlugs(updated, skillCode);
+        let questions = await fetchQuizQuestions(skillCode, QUIZ_SIZE, excludeSlugs, difficulty);
 
-      if (questions.length === 0) {
-        questions = await fetchQuizQuestions(category, QUIZ_SIZE, [], difficulty);
-      }
+        if (questions.length === 0) {
+          questions = await fetchQuizQuestions(skillCode, QUIZ_SIZE, [], difficulty);
+        }
 
-      if (questions.length === 0) {
+        if (questions.length === 0) {
+          setIsLoadingQuiz(false);
+          return;
+        }
+
+        const category = skillStats.find((s) => s.skillCode === skillCode)?.category ?? "";
+        const trackStyle = getTrackStyle(category);
+        setQuiz({ questions, skillCode, trackStyle, difficulty });
+        setScreen("quiz");
+      } catch {
+        setErrorMsg("Could not load questions. Check your connection and try again.");
+        setScreen("error");
+      } finally {
         setIsLoadingQuiz(false);
-        return;
       }
-
-      const trackStyle = getTrackStyle(category);
-      setQuiz({ questions, category, trackStyle, difficulty });
-      setScreen("quiz");
-    } catch {
-      setErrorMsg("Could not load questions. Check your connection and try again.");
-      setScreen("error");
-    } finally {
-      setIsLoadingQuiz(false);
-    }
-  }, []);
+    },
+    [skillStats],
+  );
 
   const handleQuizComplete = useCallback(
     (xpEarned: number, correctCount: number, totalQuestions: number) => {
@@ -96,7 +99,7 @@ export function HomeContent({ trackStats }: HomeContentProps) {
       const updated = completeQuiz(
         current,
         xpEarned,
-        quiz.category,
+        quiz.skillCode,
         slugs,
         quiz.difficulty,
         correctCount,
@@ -106,7 +109,7 @@ export function HomeContent({ trackStats }: HomeContentProps) {
         xpEarned,
         correctCount,
         totalQuestions,
-        category: quiz.category,
+        skillCode: quiz.skillCode,
         trackStyle: quiz.trackStyle,
       });
       setScreen("result");
@@ -157,7 +160,7 @@ export function HomeContent({ trackStats }: HomeContentProps) {
   }
 
   return (
-    <RoadmapScreen progress={progress} trackStats={trackStats} onStartQuiz={handleStartQuiz} />
+    <RoadmapScreen progress={progress} skillStats={skillStats} onStartQuiz={handleStartQuiz} />
   );
 }
 
