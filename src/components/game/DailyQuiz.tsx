@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Question, AnswerState } from "@/lib/types";
 import type { TrackStyle } from "@/lib/track-styles";
+import { AskAI } from "./AskAI";
 
 export const XP_PER_CORRECT = 10;
 export const XP_PERFECT_BONUS = 25;
@@ -80,6 +81,30 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [answerState, handleCheck, handleContinue, currentQuestion]);
+
+  const aiContext = useMemo(() => {
+    if (!currentQuestion || answerState === "unanswered") return null;
+
+    let userAnswer: string;
+    let correctAnswer: string;
+
+    if (currentQuestion.type === "typing") {
+      userAnswer = typedAnswer;
+      correctAnswer = currentQuestion.acceptedAnswers[0] ?? "";
+    } else {
+      userAnswer = selectedOption !== null ? (currentQuestion.options[selectedOption] ?? "") : "";
+      correctAnswer = currentQuestion.options[currentQuestion.correctIndex] ?? "";
+    }
+
+    return {
+      prompt: currentQuestion.prompt,
+      code: currentQuestion.code,
+      explanation: currentQuestion.explanation,
+      userAnswer,
+      correctAnswer,
+      wasCorrect: answerState === "correct",
+    };
+  }, [currentQuestion, answerState, typedAnswer, selectedOption]);
 
   if (!currentQuestion) return null;
 
@@ -206,6 +231,8 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
             </p>
           </div>
         )}
+
+        {aiContext && <AskAI context={aiContext} />}
       </div>
 
       <div className="sticky bottom-0 border-t border-line bg-surface-overlay px-4 py-4">
