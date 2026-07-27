@@ -10,7 +10,7 @@ import {
   completeQuiz,
   getAnsweredSlugs,
   selectTopic,
-  getCurrentDifficulty,
+  getCurrentSlot,
   DEFAULT_PROGRESS,
 } from "@/lib/progress";
 import { fetchQuizQuestions } from "@/app/actions/questions";
@@ -33,7 +33,6 @@ interface QuizResult {
   xpEarned: number;
   correctCount: number;
   totalQuestions: number;
-  skillCode: string;
   trackStyle: TrackStyle;
 }
 
@@ -56,15 +55,21 @@ export function HomeContent({ skillStats }: HomeContentProps) {
   }, []);
 
   const handleStartQuiz = useCallback(
-    async (skillCode: string) => {
+    async (category: string) => {
       setIsLoadingQuiz(true);
       setErrorMsg(null);
       try {
         const current = loadProgress();
-        const updated = selectTopic(current, skillCode);
+        const updated = selectTopic(current, category);
         setProgress(updated);
 
-        const difficulty = getCurrentDifficulty(updated, skillCode);
+        const slot = getCurrentSlot(updated, category);
+        if (!slot) {
+          setIsLoadingQuiz(false);
+          return;
+        }
+
+        const { skillCode, difficulty } = slot;
         const excludeSlugs = getAnsweredSlugs(updated, skillCode);
         let questions = await fetchQuizQuestions(skillCode, QUIZ_SIZE, excludeSlugs, difficulty);
 
@@ -77,7 +82,6 @@ export function HomeContent({ skillStats }: HomeContentProps) {
           return;
         }
 
-        const category = skillStats.find((s) => s.skillCode === skillCode)?.category ?? "";
         const trackStyle = getTrackStyle(category);
         setQuiz({ questions, skillCode, trackStyle, difficulty });
         setScreen("quiz");
@@ -109,7 +113,6 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         xpEarned,
         correctCount,
         totalQuestions,
-        skillCode: quiz.skillCode,
         trackStyle: quiz.trackStyle,
       });
       setScreen("result");

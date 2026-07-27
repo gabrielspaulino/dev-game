@@ -4,52 +4,62 @@ import type { UserProgress } from "@/lib/types";
 import type { TrackStyle } from "@/lib/track-styles";
 import type { SkillStats } from "@/app/actions/questions";
 import { getTrackStyle, CATEGORY_ORDER, SKILL_ORDER } from "@/lib/track-styles";
-import { getStreakEncouragement } from "@/lib/progress";
+import {
+  getStreakEncouragement,
+  getCategoryProgress,
+  getCategoryTotal,
+  getCurrentSlot,
+} from "@/lib/progress";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Icon, FireIcon, CheckCircleIcon } from "@/components/Icons";
 
 interface RoadmapScreenProps {
   progress: UserProgress;
   skillStats: SkillStats[];
-  onStartQuiz: (skillCode: string) => void;
+  onStartQuiz: (category: string) => void;
 }
 
 const XP_PER_LEVEL = 100;
-export const QUESTIONS_PER_SKILL = 20;
 export const DAILY_GOAL = 10;
 
-interface CategoryGroup {
+interface CategoryEntry {
   category: string;
   style: TrackStyle;
-  skills: SkillStats[];
+  hasQuestions: boolean;
 }
 
-function groupAndOrder(skillStats: SkillStats[]): CategoryGroup[] {
-  const byCategory = new Map<string, SkillStats[]>();
-  for (const s of skillStats) {
-    const list = byCategory.get(s.category) ?? [];
-    list.push(s);
-    byCategory.set(s.category, list);
-  }
+function buildCategories(skillStats: SkillStats[]): CategoryEntry[] {
+  const categoriesWithQuestions = new Set(skillStats.map((s) => s.category));
 
-  const categories = [...byCategory.keys()].sort((a, b) => {
-    const ai = CATEGORY_ORDER.indexOf(a);
-    const bi = CATEGORY_ORDER.indexOf(b);
-    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
-  });
+  const allCategories = new Set([...CATEGORY_ORDER, ...categoriesWithQuestions]);
 
-  return categories.map((category) => {
-    const skills = byCategory.get(category)!;
-    const order = SKILL_ORDER[category];
-    if (order) {
-      skills.sort((a, b) => {
-        const ai = order.indexOf(a.skillCode);
-        const bi = order.indexOf(b.skillCode);
-        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
-      });
-    }
-    return { category, style: getTrackStyle(category), skills };
-  });
+  return [...allCategories]
+    .sort((a, b) => {
+      const ai = CATEGORY_ORDER.indexOf(a);
+      const bi = CATEGORY_ORDER.indexOf(b);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    })
+    .filter((c) => SKILL_ORDER[c])
+    .map((category) => ({
+      category,
+      style: getTrackStyle(category),
+      hasQuestions: categoriesWithQuestions.has(category),
+    }));
+}
+
+function getSlotLabel(
+  progress: UserProgress,
+  category: string,
+  skillStats: SkillStats[],
+): string | null {
+  const slot = getCurrentSlot(progress, category);
+  if (!slot) return null;
+
+  const skillName = skillStats.find((s) => s.skillCode === slot.skillCode)?.skillName;
+  if (!skillName) return null;
+
+  const diffLabel = slot.difficulty.charAt(0) + slot.difficulty.slice(1).toLowerCase();
+  return `${skillName} · ${diffLabel}`;
 }
 
 export function RoadmapScreen({ progress, skillStats, onStartQuiz }: RoadmapScreenProps) {
@@ -61,7 +71,7 @@ export function RoadmapScreen({ progress, skillStats, onStartQuiz }: RoadmapScre
   const questionsToday =
     progress.dailyQuizCompletedDate === today ? progress.questionsAnsweredToday : 0;
 
-  const groups = groupAndOrder(skillStats);
+  const categories = buildCategories(skillStats);
 
   return (
     <div className="flex min-h-screen flex-col bg-surface">
@@ -120,15 +130,27 @@ export function RoadmapScreen({ progress, skillStats, onStartQuiz }: RoadmapScre
           Pick a topic and start a quiz with random questions.
         </p>
 
-        <div className="space-y-6">
-          {groups.map((group) => (
-            <CategorySection
-              key={group.category}
-              group={group}
-              progress={progress}
-              onStartQuiz={onStartQuiz}
-            />
-          ))}
+        <div className="space-y-3">
+          {categories.map((entry) => {
+            const answered = getCategoryProgress(progress, entry.category);
+            const total = getCategoryTotal(entry.category);
+            const pct = total > 0 ? Math.min(100, Math.round((answered / total) * 100)) : 0;
+            const slotLabel = getSlotLabel(progress, entry.category, skillStats);
+
+            return (
+              <CategoryCard
+                key={entry.category}
+                category={entry.category}
+                style={entry.style}
+                progressPct={pct}
+                answered={answered}
+                total={total}
+                slotLabel={slotLabel}
+                isSelected={progress.selectedTopicId === entry.category}
+                onStart={() => onStartQuiz(entry.category)}
+              />
+            );
+          })}
         </div>
 
         {skillStats.length === 0 && (
@@ -141,72 +163,44 @@ export function RoadmapScreen({ progress, skillStats, onStartQuiz }: RoadmapScre
   );
 }
 
-function CategorySection({
-  group,
-  progress,
-  onStartQuiz,
-}: {
-  group: CategoryGroup;
-  progress: UserProgress;
-  onStartQuiz: (skillCode: string) => void;
-}) {
-  return (
-    <div>
-      <div className="mb-2 flex items-center gap-2">
-        <Icon name={group.style.icon} className="h-5 w-5 text-fg-secondary" />
-        <h3 className={`font-mono text-sm font-bold ${group.style.textClass}`}>{group.category}</h3>
-      </div>
-      <div className="space-y-2">
-        {group.skills.map((skill) => {
-          const answered = (progress.answeredSlugs[skill.skillCode] ?? []).length;
-          const pct = Math.min(100, Math.round((answered / QUESTIONS_PER_SKILL) * 100));
-
-          return (
-            <SkillCard
-              key={skill.skillCode}
-              skill={skill}
-              style={group.style}
-              progressPct={pct}
-              isSelected={progress.selectedTopicId === skill.skillCode}
-              onStart={() => onStartQuiz(skill.skillCode)}
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function SkillCard({
-  skill,
+function CategoryCard({
+  category,
   style,
   progressPct,
+  answered,
+  total,
+  slotLabel,
   isSelected,
   onStart,
 }: {
-  skill: SkillStats;
+  category: string;
   style: TrackStyle;
   progressPct: number;
+  answered: number;
+  total: number;
+  slotLabel: string | null;
   isSelected: boolean;
   onStart: () => void;
 }) {
   return (
     <button
       onClick={onStart}
-      className={`w-full rounded-xl border-2 px-4 py-3 text-left transition-all duration-150 active:scale-[0.98] ${
+      className={`w-full rounded-xl border-2 px-4 py-4 text-left transition-all duration-150 active:scale-[0.98] ${
         isSelected
           ? `${style.borderClass} bg-surface-raised`
           : "border-line-strong bg-surface-raised hover:border-fg-muted"
       }`}
     >
       <div className="flex items-center gap-3">
+        <Icon name={style.icon} className={`h-6 w-6 ${style.textClass}`} />
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-fg">{skill.skillName}</span>
+            <span className="text-sm font-bold text-fg">{category}</span>
             {isSelected && (
               <span className={`font-mono text-xs font-medium ${style.textClass}`}>current</span>
             )}
           </div>
+          {slotLabel && <span className="font-mono text-xs text-fg-faint">{slotLabel}</span>}
           <div className="mt-1.5 flex items-center gap-3">
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-inset">
               <div
@@ -214,7 +208,9 @@ function SkillCard({
                 style={{ width: `${progressPct}%` }}
               />
             </div>
-            <span className="font-mono text-xs text-fg-faint">{progressPct}%</span>
+            <span className="font-mono text-xs text-fg-faint">
+              {answered}/{total}
+            </span>
           </div>
         </div>
         <span className={`font-mono text-sm font-bold ${style.textClass}`}>&gt;</span>
