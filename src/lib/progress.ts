@@ -1,11 +1,12 @@
 "use client";
 
 import type { UserProgress, DifficultyTier, CategoryDifficultyStats } from "./types";
+import { SKILL_ORDER } from "./track-styles";
 
 const STORAGE_KEY = "devgame_progress";
 const MAX_HEARTS = 5;
-const TIER_SIZE = 17;
-const ADVANCE_THRESHOLD = 0.8;
+export const QUESTIONS_PER_SLOT = 7;
+const DIFFICULTIES: DifficultyTier[] = ["EASY", "MEDIUM", "HARD"];
 
 export const DEFAULT_PROGRESS: UserProgress = {
   xp: 0,
@@ -19,6 +20,7 @@ export const DEFAULT_PROGRESS: UserProgress = {
   quizzesCompletedToday: 0,
   questionsAnsweredToday: 0,
   difficultyStats: {},
+  slotProgress: {},
 };
 
 export function loadProgress(): UserProgress {
@@ -50,10 +52,54 @@ export function selectTopic(progress: UserProgress, topicId: string): UserProgre
   return updated;
 }
 
+function slotKey(skillCode: string, difficulty: DifficultyTier): string {
+  return `${skillCode}:${difficulty}`;
+}
+
+export interface CurrentSlot {
+  skillCode: string;
+  difficulty: DifficultyTier;
+}
+
+export function getCurrentSlot(progress: UserProgress, category: string): CurrentSlot | null {
+  const skills = SKILL_ORDER[category];
+  if (!skills || skills.length === 0) return null;
+
+  for (const difficulty of DIFFICULTIES) {
+    for (const skill of skills) {
+      const count = progress.slotProgress[slotKey(skill, difficulty)] ?? 0;
+      if (count < QUESTIONS_PER_SLOT) {
+        return { skillCode: skill, difficulty };
+      }
+    }
+  }
+
+  return { skillCode: skills[0]!, difficulty: "HARD" };
+}
+
+export function getCategoryProgress(progress: UserProgress, category: string): number {
+  const skills = SKILL_ORDER[category];
+  if (!skills || skills.length === 0) return 0;
+
+  let total = 0;
+  for (const difficulty of DIFFICULTIES) {
+    for (const skill of skills) {
+      total += Math.min(QUESTIONS_PER_SLOT, progress.slotProgress[slotKey(skill, difficulty)] ?? 0);
+    }
+  }
+  return total;
+}
+
+export function getCategoryTotal(category: string): number {
+  const skills = SKILL_ORDER[category];
+  if (!skills) return 0;
+  return skills.length * DIFFICULTIES.length * QUESTIONS_PER_SLOT;
+}
+
 export function completeQuiz(
   progress: UserProgress,
   xpEarned: number,
-  category: string,
+  skillCode: string,
   slugs: string[],
   difficulty: DifficultyTier,
   correctCount: number,
@@ -70,7 +116,7 @@ export function completeQuiz(
     newStreak = 1;
   }
 
-  const existingSlugs = progress.answeredSlugs[category] ?? [];
+  const existingSlugs = progress.answeredSlugs[skillCode] ?? [];
   const mergedSlugs = [...new Set([...existingSlugs, ...slugs])];
 
   const quizzesToday =
@@ -82,7 +128,7 @@ export function completeQuiz(
       ? progress.questionsAnsweredToday + newQuestions
       : newQuestions;
 
-  const prevStats = progress.difficultyStats[category] ?? defaultCategoryStats();
+  const prevStats = progress.difficultyStats[skillCode] ?? defaultCategoryStats();
   const tierStats = prevStats[difficulty];
   const updatedCategoryStats: CategoryDifficultyStats = {
     ...prevStats,
@@ -92,6 +138,9 @@ export function completeQuiz(
     },
   };
 
+  const key = slotKey(skillCode, difficulty);
+  const prevSlot = progress.slotProgress[key] ?? 0;
+
   const updated: UserProgress = {
     ...progress,
     xp: newXp,
@@ -100,8 +149,9 @@ export function completeQuiz(
     dailyQuizCompletedDate: today,
     quizzesCompletedToday: quizzesToday,
     questionsAnsweredToday: questionsToday,
-    answeredSlugs: { ...progress.answeredSlugs, [category]: mergedSlugs },
-    difficultyStats: { ...progress.difficultyStats, [category]: updatedCategoryStats },
+    answeredSlugs: { ...progress.answeredSlugs, [skillCode]: mergedSlugs },
+    difficultyStats: { ...progress.difficultyStats, [skillCode]: updatedCategoryStats },
+    slotProgress: { ...progress.slotProgress, [key]: prevSlot + slugs.length },
   };
   saveProgress(updated);
   return updated;
@@ -115,30 +165,8 @@ function defaultCategoryStats(): CategoryDifficultyStats {
   };
 }
 
-export function getCurrentDifficulty(progress: UserProgress, category: string): DifficultyTier {
-  const stats = progress.difficultyStats[category] ?? defaultCategoryStats();
-  const easy = stats.EASY;
-  const medium = stats.MEDIUM;
-
-  if (
-    easy.answered >= TIER_SIZE &&
-    easy.answered > 0 &&
-    easy.correct / easy.answered >= ADVANCE_THRESHOLD
-  ) {
-    if (
-      medium.answered >= TIER_SIZE &&
-      medium.answered > 0 &&
-      medium.correct / medium.answered >= ADVANCE_THRESHOLD
-    ) {
-      return "HARD";
-    }
-    return "MEDIUM";
-  }
-  return "EASY";
-}
-
-export function getAnsweredSlugs(progress: UserProgress, category: string): string[] {
-  return progress.answeredSlugs[category] ?? [];
+export function getAnsweredSlugs(progress: UserProgress, skillCode: string): string[] {
+  return progress.answeredSlugs[skillCode] ?? [];
 }
 
 export function getStreakEncouragement(streak: number): string {
@@ -162,7 +190,6 @@ export function completeLesson(
   const isAlreadyDone = progress.completedLessons[lessonId];
   const newXp = progress.xp + (isAlreadyDone ? 0 : xpEarned);
 
-  // Streak logic
   let newStreak = progress.streak;
   if (progress.lastPlayedDate === yesterday) {
     newStreak = progress.streak + 1;
@@ -202,7 +229,6 @@ export function isLessonUnlocked(
   if (lessonIndex > 0) {
     return !!progress.completedLessons[lessons[lessonIndex - 1]!.id];
   }
-  // First lesson of a non-first topic: need to complete all lessons of previous topic handled by caller
   return true;
 }
 
