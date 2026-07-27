@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="108" fill="#0f172a"/>
+  <g transform="translate(256,240)">
+    <!-- bottom layer -->
+    <polygon points="-120,60 0,100 120,60 0,20" fill="#334155" stroke="#10b981" stroke-width="6" stroke-linejoin="round"/>
+    <!-- middle layer -->
+    <polygon points="-120,20 0,60 120,20 0,-20" fill="#1e293b" stroke="#10b981" stroke-width="6" stroke-linejoin="round"/>
+    <!-- top layer -->
+    <polygon points="-120,-20 0,20 120,-20 0,-60" fill="#0f172a" stroke="#10b981" stroke-width="6" stroke-linejoin="round"/>
+    <!-- cursor bracket -->
+    <text x="0" y="-90" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="72" fill="#10b981">&gt;_</text>
+  </g>
+</svg>

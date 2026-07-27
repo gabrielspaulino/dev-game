@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: "DevGame — Gamified Learning for Developers",
+  title: "LearningStack — Gamified Learning for Developers",
   description:
     "Level up your software engineering skills with daily practice sessions, streaks, and XP. Inspired by Duolingo, built for developers.",
 };

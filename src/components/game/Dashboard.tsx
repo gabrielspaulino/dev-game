@@ -26,7 +26,7 @@ export function Dashboard({ progress, onChangeTopic }: DashboardProps) {
         <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
           <span className="font-mono text-lg font-bold text-fg">
             <span className="text-fg-muted">&lt;</span>
-            DevGame
+            LearningStack
             <span className="text-fg-muted"> /&gt;</span>
           </span>
           <div className="flex items-center gap-3">
