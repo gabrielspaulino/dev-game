@@ -17,15 +17,15 @@ LearningStack is a responsive web app where developers sharpen their software en
 
 ## Technology Stack
 
-| Layer      | Technology                          |
-| ---------- | ----------------------------------- |
-| Framework  | Next.js 15 (App Router)             |
-| Language   | TypeScript 5 (strict)               |
-| Styling    | Tailwind CSS                        |
-| ORM        | Drizzle ORM                         |
-| Database   | PostgreSQL (Supabase)               |
-| AI         | OpenAI API (gpt-4o-mini)            |
-| Deployment | Vercel                              |
+| Layer      | Technology               |
+| ---------- | ------------------------ |
+| Framework  | Next.js 15 (App Router)  |
+| Language   | TypeScript 5 (strict)    |
+| Styling    | Tailwind CSS             |
+| ORM        | Drizzle ORM              |
+| Database   | PostgreSQL (Supabase)    |
+| AI         | OpenAI API (gpt-4o-mini) |
+| Deployment | Vercel                   |
 
 ## Getting Started
 
@@ -44,6 +44,7 @@ cp .env.example .env.local
 ```
 
 Edit `.env.local` with your database credentials. At minimum, set:
+
 - `DATABASE_URL` — pooled connection string (Supabase transaction pooler, port 6543)
 - `DIRECT_DATABASE_URL` — direct connection string (for migrations and seeding)
 - `OPENAI_API_KEY` — optional, enables the AI assistant feature
@@ -71,20 +72,20 @@ Visit http://localhost:3000.
 
 ## Scripts
 
-| Command              | Description                        |
-| -------------------- | ---------------------------------- |
-| `npm run dev`        | Start development server           |
-| `npm run build`      | Production build                   |
-| `npm run lint`       | Run ESLint                         |
-| `npm run format`     | Format with Prettier               |
-| `npm run typecheck`  | TypeScript type checking           |
-| `npm run test`       | Run unit tests                     |
-| `npm run test:e2e`   | Run end-to-end tests               |
-| `npm run db:generate`| Generate migration from schema     |
-| `npm run db:migrate` | Apply pending migrations           |
-| `npm run db:seed`    | Seed skills and questions          |
-| `npm run db:import`  | Import questions from JSON         |
-| `npm run db:studio`  | Open Drizzle Studio                |
+| Command               | Description                    |
+| --------------------- | ------------------------------ |
+| `npm run dev`         | Start development server       |
+| `npm run build`       | Production build               |
+| `npm run lint`        | Run ESLint                     |
+| `npm run format`      | Format with Prettier           |
+| `npm run typecheck`   | TypeScript type checking       |
+| `npm run test`        | Run unit tests                 |
+| `npm run test:e2e`    | Run end-to-end tests           |
+| `npm run db:generate` | Generate migration from schema |
+| `npm run db:migrate`  | Apply pending migrations       |
+| `npm run db:seed`     | Seed skills and questions      |
+| `npm run db:import`   | Import questions from JSON     |
+| `npm run db:studio`   | Open Drizzle Studio            |
 
 ## How It Works
 
@@ -122,14 +123,14 @@ After answering 7 questions in a slot, the user advances to the next one. Quizze
 
 ## Documentation
 
-| Document                  | Description                         |
-| ------------------------- | ----------------------------------- |
-| `AGENTS.md`               | AI-agent rules for contributors     |
-| `docs/ARCHITECTURE.md`    | System design and module boundaries |
-| `docs/GAME_RULES.md`      | XP, levels, streaks, rewards        |
-| `docs/DATA_MODEL.md`      | Database schema and entities        |
-| `docs/DEPLOYMENT.md`      | Vercel + Supabase deployment guide  |
-| `docs/SECURITY.md`        | Auth and threat model               |
+| Document               | Description                         |
+| ---------------------- | ----------------------------------- |
+| `AGENTS.md`            | AI-agent rules for contributors     |
+| `docs/ARCHITECTURE.md` | System design and module boundaries |
+| `docs/GAME_RULES.md`   | XP, levels, streaks, rewards        |
+| `docs/DATA_MODEL.md`   | Database schema and entities        |
+| `docs/DEPLOYMENT.md`   | Vercel + Supabase deployment guide  |
+| `docs/SECURITY.md`     | Auth and threat model               |
 
 ## License
 
