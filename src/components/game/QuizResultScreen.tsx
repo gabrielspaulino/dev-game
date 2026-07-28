@@ -3,6 +3,7 @@
 import type { TrackStyle } from "@/lib/track-styles";
 import { getStreakEncouragement } from "@/lib/progress";
 import { TrophyIcon, TargetIcon, BoltIcon, FireIcon } from "@/components/Icons";
+import { ShareResult } from "./ShareResult";
 
 interface QuizResultScreenProps {
   trackStyle: TrackStyle;
@@ -67,6 +68,16 @@ export function QuizResultScreen({
           label="Passed"
           value={`${correctCount}/${totalQuestions}`}
           color="text-amber-600 dark:text-amber-400"
+        />
+      </div>
+
+      <div className="mb-6">
+        <p className="mb-3 font-mono text-xs text-fg-muted">{"// share_your_result"}</p>
+        <ShareResult
+          correctCount={correctCount}
+          totalQuestions={totalQuestions}
+          trackTitle={trackStyle.title}
+          streak={streak}
         />
       </div>
 

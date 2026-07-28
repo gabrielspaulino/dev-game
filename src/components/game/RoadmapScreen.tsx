@@ -6,6 +6,7 @@ import type { SkillStats } from "@/app/actions/questions";
 import { getTrackStyle, CATEGORY_ORDER, SKILL_ORDER } from "@/lib/track-styles";
 import { getStreakEncouragement, getCategoryProgress, getCategoryTotal } from "@/lib/progress";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ProfileMenu } from "@/components/ProfileMenu";
 import { Icon, FireIcon, CheckCircleIcon } from "@/components/Icons";
 
 interface RoadmapScreenProps {
@@ -62,7 +63,10 @@ export function RoadmapScreen({ progress, skillStats, onStartQuiz }: RoadmapScre
             LearningStack
             <span className="text-fg-muted"> /&gt;</span>
           </span>
-          <ThemeToggle />
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <ProfileMenu />
+          </div>
         </div>
       </header>
 

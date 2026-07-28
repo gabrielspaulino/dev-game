@@ -14,6 +14,8 @@ import {
   DEFAULT_PROGRESS,
 } from "@/lib/progress";
 import { fetchQuizQuestions } from "@/app/actions/questions";
+import { useAuth } from "@/components/AuthProvider";
+import { saveProgressToServer, loadProgressFromServer } from "@/app/actions/auth";
 import { RoadmapScreen } from "./RoadmapScreen";
 import { DailyQuiz } from "./DailyQuiz";
 import { QuizResultScreen } from "./QuizResultScreen";
@@ -41,6 +43,7 @@ interface HomeContentProps {
 }
 
 export function HomeContent({ skillStats }: HomeContentProps) {
+  const { user } = useAuth();
   const [screen, setScreen] = useState<Screen>("loading");
   const [progress, setProgress] = useState<UserProgress>(DEFAULT_PROGRESS);
   const [quiz, setQuiz] = useState<QuizState | null>(null);
@@ -49,10 +52,25 @@ export function HomeContent({ skillStats }: HomeContentProps) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    const p = loadProgress();
-    setProgress(p);
-    setScreen("roadmap");
-  }, []);
+    async function init() {
+      const local = loadProgress();
+
+      if (user) {
+        const { data } = await loadProgressFromServer();
+        if (data) {
+          const server = { ...DEFAULT_PROGRESS, ...data } as UserProgress;
+          const merged = server.xp >= local.xp ? server : local;
+          setProgress(merged);
+          setScreen("roadmap");
+          return;
+        }
+      }
+
+      setProgress(local);
+      setScreen("roadmap");
+    }
+    init();
+  }, [user]);
 
   const handleStartQuiz = useCallback(
     async (category: string) => {
@@ -109,6 +127,11 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         correctCount,
       );
       setProgress(updated);
+
+      if (user) {
+        saveProgressToServer(JSON.stringify(updated));
+      }
+
       setQuizResult({
         xpEarned,
         correctCount,
@@ -117,7 +140,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
       });
       setScreen("result");
     },
-    [quiz],
+    [quiz, user],
   );
 
   const handleResultContinue = useCallback(() => {
