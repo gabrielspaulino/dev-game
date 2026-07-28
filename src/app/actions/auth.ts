@@ -17,21 +17,6 @@ export async function signUp(email: string, password: string) {
   return { error: null };
 }
 
-export async function resendConfirmation(email: string) {
-  const supabase = await createClient();
-
-  const { error } = await supabase.auth.resend({
-    type: "signup",
-    email,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/auth/callback`,
-    },
-  });
-
-  if (error) return { error: error.message };
-  return { error: null };
-}
-
 export async function signIn(email: string, password: string) {
   const supabase = await createClient();
 

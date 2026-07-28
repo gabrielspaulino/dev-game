@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, signUp, resendConfirmation, saveProgressToServer } from "@/app/actions/auth";
+import { signIn, signUp, saveProgressToServer } from "@/app/actions/auth";
 import { loadProgress } from "@/lib/progress";
 import { useAuth } from "./AuthProvider";
 
@@ -92,29 +92,7 @@ export function AuthModal({ mode: initialMode, onClose }: AuthModalProps) {
           </div>
 
           {error && <p className="font-mono text-xs text-red-500">{error}</p>}
-          {success && (
-            <div className="space-y-2">
-              <p className="font-mono text-xs text-emerald-500">{success}</p>
-              <button
-                type="button"
-                onClick={async () => {
-                  setLoading(true);
-                  setError(null);
-                  const result = await resendConfirmation(email);
-                  setLoading(false);
-                  if (result.error) {
-                    setError(result.error);
-                  } else {
-                    setSuccess("Confirmation email resent. Check your inbox.");
-                  }
-                }}
-                disabled={loading}
-                className="font-mono text-xs text-emerald-500 underline hover:text-emerald-400 disabled:opacity-50"
-              >
-                {">"} resend confirmation email
-              </button>
-            </div>
-          )}
+          {success && <p className="font-mono text-xs text-emerald-500">{success}</p>}
 
           <button
             type="submit"
