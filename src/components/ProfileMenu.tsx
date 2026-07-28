@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 import { AuthModal } from "./AuthModal";
 import { signOut } from "@/app/actions/auth";
-import { UserIcon, LogOutIcon, GearIcon } from "./Icons";
+import { UserIcon, LogOutIcon } from "./Icons";
 
 export function ProfileMenu() {
   const { user, loading, refresh } = useAuth();
   const [open, setOpen] = useState(false);
   const [authModal, setAuthModal] = useState<"login" | "signup" | null>(null);
+  const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,18 +55,14 @@ export function ProfileMenu() {
                 <p className="truncate font-mono text-xs text-fg-muted">{user.email}</p>
               </div>
               <button
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false);
+                  router.push("/profile");
+                }}
                 className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-fg hover:bg-surface-raised"
               >
                 <UserIcon className="h-4 w-4 text-fg-muted" />
                 Profile
-              </button>
-              <button
-                onClick={() => setOpen(false)}
-                className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-fg hover:bg-surface-raised"
-              >
-                <GearIcon className="h-4 w-4 text-fg-muted" />
-                Settings
               </button>
               <button
                 onClick={handleSignOut}
