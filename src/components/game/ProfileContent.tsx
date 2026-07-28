@@ -119,9 +119,7 @@ export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
   const recentDays = getRecentDays(progress);
 
   const categoriesWithQuestions = new Set(skillStats.map((s) => s.category));
-  const categories = CATEGORY_ORDER.filter(
-    (c) => SKILL_ORDER[c] && categoriesWithQuestions.has(c),
-  );
+  const categories = CATEGORY_ORDER.filter((c) => SKILL_ORDER[c] && categoriesWithQuestions.has(c));
 
   return (
     <div className="flex min-h-screen flex-col bg-surface">
@@ -145,9 +143,7 @@ export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-6">
         <h1 className="mb-6 font-mono text-xl font-bold text-fg">{"// profile"}</h1>
 
-        {user && (
-          <p className="mb-4 truncate font-mono text-sm text-fg-muted">{user.email}</p>
-        )}
+        {user && <p className="mb-4 truncate font-mono text-sm text-fg-muted">{user.email}</p>}
 
         <div className="mb-6 grid grid-cols-2 gap-3">
           <StatCard
@@ -228,7 +224,11 @@ export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
                       {answered}/{total} questions
                     </span>
                     {totalAttempted > 0 && <span>{catAccuracy}% accuracy</span>}
-                    <span>{skills.length * DIFFICULTIES.length * QUESTIONS_PER_SLOT === answered ? "Completed" : `${skills.length} skills`}</span>
+                    <span>
+                      {skills.length * DIFFICULTIES.length * QUESTIONS_PER_SLOT === answered
+                        ? "Completed"
+                        : `${skills.length} skills`}
+                    </span>
                   </div>
                 </div>
               );
