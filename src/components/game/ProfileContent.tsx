@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
+import { updateProfile } from "@/app/actions/auth";
 import { getCategoryProgress, getCategoryTotal, QUESTIONS_PER_SLOT } from "@/lib/progress";
 import { getTrackStyle, CATEGORY_ORDER, SKILL_ORDER } from "@/lib/track-styles";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -37,6 +39,13 @@ function getLongestStreak(progress: UserProgress): number {
   return progress.streak;
 }
 
+function formatLocalDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 function getRecentDays(progress: UserProgress): string[] {
   if (!progress.lastPlayedDate) return [];
   const days: string[] = [];
@@ -44,7 +53,7 @@ function getRecentDays(progress: UserProgress): string[] {
   for (let i = 0; i < progress.streak && i < 14; i++) {
     const d = new Date(last);
     d.setDate(d.getDate() - i);
-    days.push(d.toISOString().slice(0, 10));
+    days.push(formatLocalDate(d));
   }
   return days;
 }
@@ -57,7 +66,7 @@ function ActivityGrid({ activeDays }: { activeDays: string[] }) {
   for (let i = 13; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
+    const dateStr = formatLocalDate(d);
     cells.push({ date: dateStr, active: activeSet.has(dateStr) });
   }
 
@@ -77,8 +86,29 @@ function ActivityGrid({ activeDays }: { activeDays: string[] }) {
 }
 
 export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
-  const { user, loading: authLoading, progress } = useAuth();
+  const { user, loading: authLoading, progress, refresh } = useAuth();
   const router = useRouter();
+
+  const [editing, setEditing] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  function startEditing() {
+    setFirstName(user?.user_metadata?.first_name ?? "");
+    setLastName(user?.user_metadata?.last_name ?? "");
+    setEditing(true);
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    const { error } = await updateProfile(firstName, lastName);
+    if (!error) {
+      await refresh();
+      setEditing(false);
+    }
+    setSaving(false);
+  }
 
   if (authLoading || !progress) {
     return (
@@ -123,14 +153,60 @@ export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
 
         {user && (
           <div className="mb-4">
-            {(user.user_metadata?.first_name || user.user_metadata?.last_name) && (
-              <p className="font-mono text-base font-bold text-fg">
-                {[user.user_metadata.first_name, user.user_metadata.last_name]
-                  .filter(Boolean)
-                  .join(" ")}
-              </p>
+            {editing ? (
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="First name"
+                    className="w-full rounded-lg border border-line bg-surface-raised px-3 py-1.5 font-mono text-sm text-fg placeholder:text-fg-faint focus:border-emerald-500 focus:outline-none"
+                  />
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Last name"
+                    className="w-full rounded-lg border border-line bg-surface-raised px-3 py-1.5 font-mono text-sm text-fg placeholder:text-fg-faint focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="rounded-lg bg-emerald-500 px-3 py-1 font-mono text-xs font-bold text-white transition-all hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
+                  >
+                    {saving ? "Saving..." : "Save"}
+                  </button>
+                  <button
+                    onClick={() => setEditing(false)}
+                    className="rounded-lg border border-line px-3 py-1 font-mono text-xs font-bold text-fg-muted transition-all hover:border-fg-muted active:scale-95"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  {(user.user_metadata?.first_name || user.user_metadata?.last_name) && (
+                    <p className="font-mono text-base font-bold text-fg">
+                      {[user.user_metadata.first_name, user.user_metadata.last_name]
+                        .filter(Boolean)
+                        .join(" ")}
+                    </p>
+                  )}
+                  <p className="truncate font-mono text-sm text-fg-muted">{user.email}</p>
+                </div>
+                <button
+                  onClick={startEditing}
+                  className="shrink-0 rounded-lg border border-line px-2.5 py-1 font-mono text-xs text-fg-muted transition-all hover:border-fg-muted hover:text-fg active:scale-95"
+                >
+                  Edit
+                </button>
+              </div>
             )}
-            <p className="truncate font-mono text-sm text-fg-muted">{user.email}</p>
           </div>
         )}
 

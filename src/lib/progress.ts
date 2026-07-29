@@ -8,6 +8,23 @@ const MAX_HEARTS = 5;
 export const QUESTIONS_PER_SLOT = 7;
 const DIFFICULTIES: DifficultyTier[] = ["EASY", "MEDIUM", "HARD"];
 
+function localToday(): string {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function localYesterday(): string {
+  const now = new Date();
+  now.setDate(now.getDate() - 1);
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 export const DEFAULT_PROGRESS: UserProgress = {
   xp: 0,
   streak: 0,
@@ -104,8 +121,8 @@ export function completeQuiz(
   difficulty: DifficultyTier,
   correctCount: number,
 ): UserProgress {
-  const today = new Date().toISOString().slice(0, 10);
-  const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+  const today = localToday();
+  const yesterday = localYesterday();
 
   const newXp = progress.xp + xpEarned;
 
@@ -184,8 +201,8 @@ export function completeLesson(
   xpEarned: number,
   heartsLost: number,
 ): UserProgress {
-  const today = new Date().toISOString().slice(0, 10);
-  const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+  const today = localToday();
+  const yesterday = localYesterday();
 
   const isAlreadyDone = progress.completedLessons[lessonId];
   const newXp = progress.xp + (isAlreadyDone ? 0 : xpEarned);

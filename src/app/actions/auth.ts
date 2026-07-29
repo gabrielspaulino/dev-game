@@ -43,6 +43,18 @@ export async function getUser() {
   return user;
 }
 
+export async function updateProfile(firstName: string, lastName: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({
+    data: {
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
+    },
+  });
+  if (error) return { error: error.message };
+  return { error: null };
+}
+
 export async function saveProgressToServer(progressJson: string) {
   const supabase = await createClient();
   const {
