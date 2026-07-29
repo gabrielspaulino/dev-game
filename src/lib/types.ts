@@ -42,6 +42,12 @@ export interface Topic {
 
 export type DifficultyTier = "EASY" | "MEDIUM" | "HARD";
 
+export const DIFFICULTY_LABELS: Record<DifficultyTier, string> = {
+  EASY: "Foundations",
+  MEDIUM: "Intermediate",
+  HARD: "Advanced",
+};
+
 export interface TierStats {
   answered: number;
   correct: number;

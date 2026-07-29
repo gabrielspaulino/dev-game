@@ -36,6 +36,7 @@ interface QuizResult {
   correctCount: number;
   totalQuestions: number;
   trackStyle: TrackStyle;
+  difficulty: DifficultyTier;
 }
 
 interface HomeContentProps {
@@ -123,6 +124,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         correctCount,
         totalQuestions,
         trackStyle: quiz.trackStyle,
+        difficulty: quiz.difficulty,
       });
       setScreen("result");
     },
@@ -156,6 +158,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         xpEarned={quizResult.xpEarned}
         correctCount={quizResult.correctCount}
         totalQuestions={quizResult.totalQuestions}
+        difficulty={quizResult.difficulty}
         streak={progress.streak}
         onContinue={handleResultContinue}
       />

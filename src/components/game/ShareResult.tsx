@@ -2,21 +2,31 @@
 
 import { useState } from "react";
 import { ShareIcon, CheckCircleIcon } from "@/components/Icons";
+import { DIFFICULTY_LABELS } from "@/lib/types";
+import type { DifficultyTier } from "@/lib/types";
 
 interface ShareResultProps {
   correctCount: number;
   totalQuestions: number;
   trackTitle: string;
+  difficulty: DifficultyTier;
   streak: number;
 }
 
 const APP_URL = "https://learningstackdev.vercel.app";
 
-function buildShareText({ correctCount, totalQuestions, trackTitle, streak }: ShareResultProps) {
+function buildShareText({
+  correctCount,
+  totalQuestions,
+  trackTitle,
+  difficulty,
+  streak,
+}: ShareResultProps) {
   const score = `${correctCount}/${totalQuestions}`;
   const label =
     correctCount === totalQuestions ? "Perfect" : correctCount >= 7 ? "Great" : "Scored";
-  return `${label} ${score} on ${trackTitle} in LearningStack!${streak > 1 ? ` ${streak}-day streak!` : ""}\n\n${APP_URL}`;
+  const level = DIFFICULTY_LABELS[difficulty];
+  return `${label} ${score} on ${trackTitle} (${level}) in LearningStack!${streak > 1 ? ` ${streak}-day streak!` : ""}\n\n${APP_URL}`;
 }
 
 export function ShareResult(props: ShareResultProps) {

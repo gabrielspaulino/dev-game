@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { updateProfile } from "@/app/actions/auth";
-import { getCategoryProgress, getCategoryTotal, QUESTIONS_PER_SLOT } from "@/lib/progress";
+import { getCategoryProgress, getCategoryTotal, getCurrentSlot } from "@/lib/progress";
 import { getTrackStyle, CATEGORY_ORDER, SKILL_ORDER } from "@/lib/track-styles";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileMenu } from "@/components/ProfileMenu";
 import { Icon, FireIcon, TrophyIcon, BoltIcon, ChartIcon } from "@/components/Icons";
+import { DIFFICULTY_LABELS } from "@/lib/types";
 import type { UserProgress, DifficultyTier } from "@/lib/types";
 import type { SkillStats } from "@/app/actions/questions";
 
@@ -252,53 +253,76 @@ export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
         <div className="rounded-2xl border border-line bg-surface-raised p-4">
           <h2 className="mb-3 font-mono text-sm font-bold text-fg">{"// category_progress"}</h2>
           <div className="space-y-3">
-            {categories.map((category) => {
-              const style = getTrackStyle(category);
-              const answered = getCategoryProgress(progress, category);
-              const total = getCategoryTotal(category);
-              const pct = total > 0 ? Math.min(100, Math.round((answered / total) * 100)) : 0;
+            {categories
+              .filter((category) => getCategoryProgress(progress, category) > 0)
+              .map((category) => {
+                const style = getTrackStyle(category);
+                const answered = getCategoryProgress(progress, category);
+                const total = getCategoryTotal(category);
+                const pct = total > 0 ? Math.min(100, Math.round((answered / total) * 100)) : 0;
 
-              const skills = SKILL_ORDER[category] ?? [];
-              let totalCorrect = 0;
-              let totalAttempted = 0;
-              const catStats = progress.difficultyStats[category];
-              if (catStats) {
-                for (const d of DIFFICULTIES) {
-                  totalCorrect += catStats[d].correct;
-                  totalAttempted += catStats[d].answered;
+                const skills = SKILL_ORDER[category] ?? [];
+                let totalCorrect = 0;
+                let totalAttempted = 0;
+                for (const skill of skills) {
+                  const skillDiffStats = progress.difficultyStats[skill];
+                  if (skillDiffStats) {
+                    for (const d of DIFFICULTIES) {
+                      totalCorrect += skillDiffStats[d].correct;
+                      totalAttempted += skillDiffStats[d].answered;
+                    }
+                  }
                 }
-              }
-              const catAccuracy =
-                totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+                const catAccuracy =
+                  totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
 
-              return (
-                <div key={category} className="rounded-xl border border-line bg-surface p-3">
-                  <div className="mb-2 flex items-center gap-2">
-                    <Icon name={style.icon} className={`h-5 w-5 ${style.textClass}`} />
-                    <span className="text-sm font-bold text-fg">{category}</span>
-                    <span className="ml-auto font-mono text-xs text-fg-faint">{pct}%</span>
+                const slot = getCurrentSlot(progress, category);
+                const currentDifficulty = slot?.difficulty ?? "EASY";
+                const isComplete = pct === 100;
+
+                let justUnlocked = false;
+                if (!isComplete && currentDifficulty !== "EASY") {
+                  let answeredAtDifficulty = 0;
+                  for (const skill of skills) {
+                    answeredAtDifficulty +=
+                      progress.slotProgress[`${skill}:${currentDifficulty}`] ?? 0;
+                  }
+                  justUnlocked = answeredAtDifficulty === 0;
+                }
+
+                return (
+                  <div key={category} className="rounded-xl border border-line bg-surface p-3">
+                    <div className="mb-2 flex items-center gap-2">
+                      <Icon name={style.icon} className={`h-5 w-5 ${style.textClass}`} />
+                      <span className="text-sm font-bold text-fg">{category}</span>
+                      <span className="ml-auto font-mono text-xs text-fg-faint">{pct}%</span>
+                    </div>
+                    <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-surface-inset">
+                      <div
+                        className={`h-full rounded-full ${style.bgClass} transition-all duration-500`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <div className="font-mono text-xs">
+                      <div className="flex gap-4 text-fg-muted">
+                        <span>
+                          {isComplete ? "All levels complete" : DIFFICULTY_LABELS[currentDifficulty]}
+                        </span>
+                        {totalAttempted > 0 && <span>{catAccuracy}% accuracy</span>}
+                      </div>
+                      {justUnlocked && (
+                        <p className="mt-1 text-emerald-500">
+                          {"→ "}
+                          {currentDifficulty === "MEDIUM"
+                            ? "Foundations complete — ready for intermediate"
+                            : "Intermediate complete — ready for advanced"}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-surface-inset">
-                    <div
-                      className={`h-full rounded-full ${style.bgClass} transition-all duration-500`}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <div className="flex gap-4 font-mono text-xs text-fg-muted">
-                    <span>
-                      {answered}/{total} questions
-                    </span>
-                    {totalAttempted > 0 && <span>{catAccuracy}% accuracy</span>}
-                    <span>
-                      {skills.length * DIFFICULTIES.length * QUESTIONS_PER_SLOT === answered
-                        ? "Completed"
-                        : `${skills.length} skills`}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-            {categories.length === 0 && (
+                );
+              })}
+            {categories.filter((c) => getCategoryProgress(progress, c) > 0).length === 0 && (
               <p className="font-mono text-xs text-fg-muted">
                 No progress yet. Start answering questions!
               </p>
