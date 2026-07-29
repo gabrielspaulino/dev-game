@@ -1,6 +1,7 @@
 "use client";
 
 import type { TrackStyle } from "@/lib/track-styles";
+import type { DifficultyTier } from "@/lib/types";
 import { getStreakEncouragement } from "@/lib/progress";
 import { TrophyIcon, TargetIcon, BoltIcon, FireIcon } from "@/components/Icons";
 import { ShareResult } from "./ShareResult";
@@ -10,6 +11,7 @@ interface QuizResultScreenProps {
   xpEarned: number;
   correctCount: number;
   totalQuestions: number;
+  difficulty: DifficultyTier;
   streak: number;
   onContinue: () => void;
 }
@@ -19,6 +21,7 @@ export function QuizResultScreen({
   xpEarned,
   correctCount,
   totalQuestions,
+  difficulty,
   streak,
   onContinue,
 }: QuizResultScreenProps) {
@@ -77,6 +80,7 @@ export function QuizResultScreen({
           correctCount={correctCount}
           totalQuestions={totalQuestions}
           trackTitle={trackStyle.title}
+          difficulty={difficulty}
           streak={streak}
         />
       </div>
