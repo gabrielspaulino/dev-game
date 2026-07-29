@@ -63,6 +63,15 @@ const TRACK_MAP: Record<string, TrackStyle> = {
     borderClass: "border-red-500",
     textClass: "text-red-600 dark:text-red-400",
   },
+  AWS: {
+    id: "AWS",
+    title: "AWS",
+    description: "Cloud services, architecture, and best practices",
+    icon: "cloud",
+    bgClass: "bg-yellow-500",
+    borderClass: "border-yellow-500",
+    textClass: "text-yellow-600 dark:text-yellow-400",
+  },
 };
 
 const DEFAULT_STYLE: TrackStyle = {
@@ -79,7 +88,15 @@ export function getTrackStyle(category: string): TrackStyle {
   return TRACK_MAP[category] ?? { ...DEFAULT_STYLE, id: category, title: category };
 }
 
-export const CATEGORY_ORDER = ["JavaScript", "Git", "Python", "SQL", "Systems Design", "Java"];
+export const CATEGORY_ORDER = [
+  "JavaScript",
+  "Git",
+  "Python",
+  "SQL",
+  "Systems Design",
+  "Java",
+  "AWS",
+];
 
 export const SKILL_ORDER: Record<string, string[]> = {
   JavaScript: [
@@ -104,4 +121,16 @@ export const SKILL_ORDER: Record<string, string[]> = {
     "sd-patterns",
   ],
   Java: ["java-core", "java-oop", "java-collections", "java-concurrency", "java-spring"],
+  AWS: [
+    "aws-cloud-fundamentals",
+    "aws-compute",
+    "aws-networking",
+    "aws-storage",
+    "aws-databases",
+    "aws-security",
+    "aws-monitoring",
+    "aws-pricing",
+    "aws-architecture",
+    "aws-migration",
+  ],
 };

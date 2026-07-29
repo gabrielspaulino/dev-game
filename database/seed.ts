@@ -63,6 +63,16 @@ const SKILLS: SeedSkill[] = [
   { code: "java-oop", name: "OOP & Design Patterns", category: "Java" },
   { code: "java-concurrency", name: "Concurrency & Resources", category: "Java" },
   { code: "java-spring", name: "Spring Framework", category: "Java" },
+  { code: "aws-cloud-fundamentals", name: "Cloud Fundamentals", category: "AWS" },
+  { code: "aws-compute", name: "Compute", category: "AWS" },
+  { code: "aws-networking", name: "Networking", category: "AWS" },
+  { code: "aws-storage", name: "Storage", category: "AWS" },
+  { code: "aws-databases", name: "Databases", category: "AWS" },
+  { code: "aws-security", name: "Security", category: "AWS" },
+  { code: "aws-monitoring", name: "Monitoring", category: "AWS" },
+  { code: "aws-pricing", name: "Pricing & Cost Management", category: "AWS" },
+  { code: "aws-architecture", name: "Architecture & Best Practices", category: "AWS" },
+  { code: "aws-migration", name: "Migration", category: "AWS" },
 ];
 
 const QUESTIONS: SeedQuestion[] = [
