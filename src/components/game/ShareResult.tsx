@@ -10,10 +10,13 @@ interface ShareResultProps {
   streak: number;
 }
 
+const APP_URL = "https://learningstackdev.vercel.app";
+
 function buildShareText({ correctCount, totalQuestions, trackTitle, streak }: ShareResultProps) {
   const score = `${correctCount}/${totalQuestions}`;
-  const emoji = correctCount === totalQuestions ? "🏆" : correctCount >= 7 ? "🔥" : "💪";
-  return `${emoji} I just scored ${score} on ${trackTitle} in LearningStack!${streak > 1 ? ` ${streak}-day streak!` : ""}\n\nhttps://learningstack.dev`;
+  const label =
+    correctCount === totalQuestions ? "Perfect" : correctCount >= 7 ? "Great" : "Scored";
+  return `${label} ${score} on ${trackTitle} in LearningStack!${streak > 1 ? ` ${streak}-day streak!` : ""}\n\n${APP_URL}`;
 }
 
 export function ShareResult(props: ShareResultProps) {
@@ -42,7 +45,7 @@ export function ShareResult(props: ShareResultProps) {
         WhatsApp
       </a>
       <a
-        href={`https://twitter.com/intent/tweet?text=${encoded}`}
+        href={`https://x.com/intent/post?text=${encoded}`}
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-1.5 rounded-lg border border-line bg-surface-raised px-3 py-2 font-mono text-xs font-bold text-fg transition-all hover:border-fg-muted active:scale-95"
@@ -50,7 +53,7 @@ export function ShareResult(props: ShareResultProps) {
         X
       </a>
       <a
-        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://learningstack.dev")}`}
+        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(APP_URL)}`}
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-1.5 rounded-lg border border-line bg-surface-raised px-3 py-2 font-mono text-xs font-bold text-fg transition-all hover:border-fg-muted active:scale-95"

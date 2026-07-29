@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
-import { loadProgressFromServer } from "@/app/actions/auth";
-import { loadProgress } from "@/lib/progress";
 import { getCategoryProgress, getCategoryTotal, QUESTIONS_PER_SLOT } from "@/lib/progress";
 import { getTrackStyle, CATEGORY_ORDER, SKILL_ORDER } from "@/lib/track-styles";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -80,29 +77,10 @@ function ActivityGrid({ activeDays }: { activeDays: string[] }) {
 }
 
 export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, progress } = useAuth();
   const router = useRouter();
-  const [progress, setProgress] = useState<UserProgress | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      if (user) {
-        const { data } = await loadProgressFromServer();
-        if (data) {
-          setProgress(data as UserProgress);
-        } else {
-          setProgress(loadProgress());
-        }
-      } else {
-        setProgress(loadProgress());
-      }
-      setLoading(false);
-    }
-    if (!authLoading) load();
-  }, [user, authLoading]);
-
-  if (loading || authLoading || !progress) {
+  if (authLoading || !progress) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-surface">
         <p className="font-mono text-fg-muted">Loading...</p>
@@ -143,7 +121,18 @@ export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-6">
         <h1 className="mb-6 font-mono text-xl font-bold text-fg">{"// profile"}</h1>
 
-        {user && <p className="mb-4 truncate font-mono text-sm text-fg-muted">{user.email}</p>}
+        {user && (
+          <div className="mb-4">
+            {(user.user_metadata?.first_name || user.user_metadata?.last_name) && (
+              <p className="font-mono text-base font-bold text-fg">
+                {[user.user_metadata.first_name, user.user_metadata.last_name]
+                  .filter(Boolean)
+                  .join(" ")}
+              </p>
+            )}
+            <p className="truncate font-mono text-sm text-fg-muted">{user.email}</p>
+          </div>
+        )}
 
         <div className="mb-6 grid grid-cols-2 gap-3">
           <StatCard
