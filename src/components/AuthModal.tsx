@@ -12,6 +12,8 @@ interface AuthModalProps {
 
 export function AuthModal({ mode: initialMode, onClose }: AuthModalProps) {
   const [mode, setMode] = useState(initialMode);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export function AuthModal({ mode: initialMode, onClose }: AuthModalProps) {
 
     try {
       if (mode === "signup") {
-        const result = await signUp(email, password);
+        const result = await signUp(email, password, firstName, lastName);
         if (result.error) {
           setError(result.error);
           return;
@@ -67,6 +69,30 @@ export function AuthModal({ mode: initialMode, onClose }: AuthModalProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === "signup" && (
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <label className="mb-1 block font-mono text-xs text-fg-muted">first name</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full rounded-lg border border-line bg-surface-raised px-3 py-2 font-mono text-sm text-fg outline-none placeholder:text-fg-faint focus:border-fg-muted"
+                  placeholder="John"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="mb-1 block font-mono text-xs text-fg-muted">last name</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full rounded-lg border border-line bg-surface-raised px-3 py-2 font-mono text-sm text-fg outline-none placeholder:text-fg-faint focus:border-fg-muted"
+                  placeholder="Doe"
+                />
+              </div>
+            </div>
+          )}
           <div>
             <label className="mb-1 block font-mono text-xs text-fg-muted">email</label>
             <input

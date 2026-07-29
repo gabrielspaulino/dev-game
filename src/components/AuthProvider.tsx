@@ -1,33 +1,66 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import type { User } from "@supabase/supabase-js";
+import type { UserProgress } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
+import { loadProgress, DEFAULT_PROGRESS } from "@/lib/progress";
+import { loadProgressFromServer } from "@/app/actions/auth";
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  progress: UserProgress | null;
+  refreshProgress: () => Promise<UserProgress>;
   refresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   loading: true,
+  progress: null,
+  refreshProgress: async () => DEFAULT_PROGRESS,
   refresh: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState<UserProgress | null>(null);
+  const progressLoaded = useRef(false);
+
+  const loadCachedProgress = useCallback(
+    async (currentUser: User | null): Promise<UserProgress> => {
+      if (currentUser) {
+        const { data } = await loadProgressFromServer();
+        if (data) {
+          const local = loadProgress();
+          const server = { ...DEFAULT_PROGRESS, ...data } as UserProgress;
+          const merged = server.xp >= local.xp ? server : local;
+          setProgress(merged);
+          return merged;
+        }
+      }
+      const local = loadProgress();
+      setProgress(local);
+      return local;
+    },
+    [],
+  );
+
+  const refreshProgress = useCallback(async () => {
+    return loadCachedProgress(user);
+  }, [user, loadCachedProgress]);
 
   const refresh = useCallback(async () => {
     const supabase = createClient();
     const {
-      data: { user },
+      data: { user: freshUser },
     } = await supabase.auth.getUser();
-    setUser(user);
+    setUser(freshUser);
     setLoading(false);
-  }, []);
+    await loadCachedProgress(freshUser);
+  }, [loadCachedProgress]);
 
   useEffect(() => {
     refresh();
@@ -43,7 +76,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [refresh]);
 
-  return <AuthContext.Provider value={{ user, loading, refresh }}>{children}</AuthContext.Provider>;
+  useEffect(() => {
+    if (!loading && !progressLoaded.current) {
+      progressLoaded.current = true;
+      loadCachedProgress(user);
+    }
+  }, [loading, user, loadCachedProgress]);
+
+  return (
+    <AuthContext.Provider value={{ user, loading, progress, refreshProgress, refresh }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
