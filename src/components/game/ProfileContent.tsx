@@ -306,7 +306,9 @@ export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
                     <div className="font-mono text-xs">
                       <div className="flex gap-4 text-fg-muted">
                         <span>
-                          {isComplete ? "All levels complete" : DIFFICULTY_LABELS[currentDifficulty]}
+                          {isComplete
+                            ? "All levels complete"
+                            : DIFFICULTY_LABELS[currentDifficulty]}
                         </span>
                         {totalAttempted > 0 && <span>{catAccuracy}% accuracy</span>}
                       </div>
