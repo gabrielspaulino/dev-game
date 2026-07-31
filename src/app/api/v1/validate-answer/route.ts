@@ -25,13 +25,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ correct: false });
   }
 
-  const systemPrompt = `You are a strict programming answer validator. A quiz asked the user to predict the output of code or answer a technical question. The accepted answers are provided. The user gave a different answer. Determine if the user's answer is semantically equivalent to one of the accepted answers.
+  const systemPrompt = `You are a programming answer validator for a developer quiz app. A quiz asked the user to predict the output of code or answer a technical question. The accepted answers are provided. The user gave a different answer. Determine if the user's answer is correct.
 
 Rules:
 - Compare meaning, not exact formatting. Whitespace differences, quotes vs no quotes, trailing newlines, and minor formatting variations should be accepted.
 - For code output questions, the answer must produce the same observable result.
+- For conceptual or descriptive questions, accept any answer that conveys the same core idea as an accepted answer, even if worded differently or less precisely.
 - "True" and "true" are equivalent. "False" and "false" are equivalent.
-- If the user's answer conveys the same value/result as an accepted answer, respond YES.
+- Accept synonyms, rephrasings, and different levels of specificity as long as the answer is technically correct and conveys the same meaning.
+- When in doubt, lean towards accepting the answer if the user clearly demonstrates understanding of the concept.
 - If the user's answer is wrong or materially different, respond NO.
 - Respond with ONLY "YES" or "NO", nothing else.`;
 

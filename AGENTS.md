@@ -233,7 +233,36 @@ The client must never send: correctness, score, mastery changes, XP, or completi
 
 ---
 
-## 14. GitHub CLI
+## 14. Adding a New Skill
+
+When a new skill is added to the database (via `database/seed.ts` or direct SQL), it must also be registered in `src/lib/track-styles.ts` inside the `SKILL_ORDER` map under its category. The `SKILL_ORDER` drives progress percentage calculation — a missing skill means the category total is wrong and progress bars will show incorrect percentages.
+
+Checklist:
+
+1. Add the skill to the `SKILLS` array in `database/seed.ts`
+2. Add the skill code to the correct category in `SKILL_ORDER` in `src/lib/track-styles.ts`
+3. Run the seed or import to populate the database
+
+---
+
+## 15. Typed Answer Validation Pipeline
+
+Typing questions (CODE_OUTPUT with `correct_answer.text`) use a three-layer validation pipeline before marking an answer wrong:
+
+1. **Exact match** — case-insensitive comparison against accepted answers.
+2. **Normalized match** — strips separators (whitespace, commas, arrows, dashes, dots, colons, pipes, slashes) and compares. Catches "EBCDA" matching "E, B, C, D, A".
+3. **AI fallback** — calls OpenAI (`gpt-4o-mini`) via `POST /api/v1/validate-answer` to check if the answer is semantically equivalent. The AI prompt is lenient for conceptual questions (accepts rephrasings and synonyms) but strict for code output (must produce the same result).
+
+The validation logic lives in:
+
+- `src/components/game/DailyQuiz.tsx` — `checkTypingAnswer()` (layers 1–2) and `validateWithAI()` (layer 3)
+- `src/app/api/v1/validate-answer/route.ts` — AI validation endpoint and system prompt
+
+When updating the AI prompt, keep the principle: **lean towards accepting when the user demonstrates understanding**.
+
+---
+
+## 16. GitHub CLI
 
 - `gh auth` is **not configured** on this machine.
 - Do not attempt `gh pr create`, `gh issue`, or other `gh` commands — they will fail with exit code 4.
@@ -241,7 +270,7 @@ The client must never send: correctness, score, mastery changes, XP, or completi
 
 ---
 
-## 15. Key Documents
+## 17. Key Documents
 
 | Document                  | Purpose                                      |
 | ------------------------- | -------------------------------------------- |
