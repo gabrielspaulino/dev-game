@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { Lesson, Topic, AnswerState } from "@/lib/types";
 import { loadProgress, completeLesson } from "@/lib/progress";
+import { useAuth } from "@/components/AuthProvider";
 import { ResultScreen } from "./ResultScreen";
 import { MAX_HEARTS } from "@/lib/progress";
 import { HeartIcon } from "@/components/Icons";
@@ -15,6 +16,7 @@ interface LessonFlowProps {
 
 export function LessonFlow({ topic, lesson }: LessonFlowProps) {
   const router = useRouter();
+  const { syncProgress } = useAuth();
   const [questionIdx, setQuestionIdx] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [answerState, setAnswerState] = useState<AnswerState>("unanswered");
@@ -50,13 +52,14 @@ export function LessonFlow({ topic, lesson }: LessonFlowProps) {
     if (questionIdx + 1 >= lesson.questions.length) {
       const saved = loadProgress();
       completeLesson(saved, lesson.id, lesson.xpReward, heartsLost);
+      syncProgress();
       setDone(true);
     } else {
       setQuestionIdx((i) => i + 1);
       setSelectedOption(null);
       setAnswerState("unanswered");
     }
-  }, [questionIdx, lesson, heartsLost]);
+  }, [questionIdx, lesson, heartsLost, syncProgress]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

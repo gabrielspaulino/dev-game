@@ -15,7 +15,6 @@ import {
 } from "@/lib/progress";
 import { fetchQuizQuestions } from "@/app/actions/questions";
 import { useAuth } from "@/components/AuthProvider";
-import { saveProgressToServer } from "@/app/actions/auth";
 import { RoadmapScreen } from "./RoadmapScreen";
 import { DailyQuiz } from "./DailyQuiz";
 import { QuizResultScreen } from "./QuizResultScreen";
@@ -44,7 +43,7 @@ interface HomeContentProps {
 }
 
 export function HomeContent({ skillStats }: HomeContentProps) {
-  const { user, progress: cachedProgress, refreshProgress } = useAuth();
+  const { progress: cachedProgress, syncProgress } = useAuth();
   const [screen, setScreen] = useState<Screen>("loading");
   const [progress, setProgress] = useState<UserProgress>(DEFAULT_PROGRESS);
   const [quiz, setQuiz] = useState<QuizState | null>(null);
@@ -67,6 +66,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         const current = loadProgress();
         const updated = selectTopic(current, category);
         setProgress(updated);
+        syncProgress();
 
         const slot = getCurrentSlot(updated, category);
         if (!slot) {
@@ -97,7 +97,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         setIsLoadingQuiz(false);
       }
     },
-    [skillStats],
+    [skillStats, syncProgress],
   );
 
   const handleQuizComplete = useCallback(
@@ -114,10 +114,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         correctCount,
       );
       setProgress(updated);
-
-      if (user) {
-        saveProgressToServer(JSON.stringify(updated)).then(() => refreshProgress());
-      }
+      syncProgress();
 
       setQuizResult({
         xpEarned,
@@ -128,7 +125,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
       });
       setScreen("result");
     },
-    [quiz, user],
+    [quiz, syncProgress],
   );
 
   const handleResultContinue = useCallback(() => {
