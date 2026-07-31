@@ -5,7 +5,7 @@ import { SKILL_ORDER } from "./track-styles";
 
 const STORAGE_KEY = "devgame_progress";
 const MAX_HEARTS = 5;
-export const QUESTIONS_PER_SLOT = 7;
+export const QUESTIONS_PER_SLOT = 10;
 const DIFFICULTIES: DifficultyTier[] = ["EASY", "MEDIUM", "HARD"];
 
 function localToday(): string {

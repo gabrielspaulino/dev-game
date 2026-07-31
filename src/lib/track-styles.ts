@@ -110,8 +110,8 @@ export const SKILL_ORDER: Record<string, string[]> = {
     "js-prototypes",
   ],
   Git: ["git-basics", "git-branching", "git-remote"],
-  Python: ["py-syntax", "py-collections", "py-functions"],
-  SQL: ["sql-select", "sql-joins", "sql-aggregates"],
+  Python: ["py-syntax", "py-collections", "py-functions", "py-oop", "py-errors"],
+  SQL: ["sql-select", "sql-joins", "sql-aggregates", "sql-schema"],
   "Systems Design": [
     "sd-fundamentals",
     "sd-networking",
