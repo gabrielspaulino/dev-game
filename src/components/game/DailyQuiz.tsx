@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Question, AnswerState } from "@/lib/types";
 import type { TrackStyle } from "@/lib/track-styles";
 import { AskAI } from "./AskAI";
+import { ReportQuestion } from "./ReportQuestion";
 
 export const XP_PER_CORRECT = 10;
 export const XP_PERFECT_BONUS = 25;
@@ -275,6 +276,19 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
         )}
 
         {aiContext && answerState !== "checking" && <AskAI context={aiContext} />}
+
+        {(answerState === "correct" || answerState === "incorrect") && (
+          <ReportQuestion
+            questionSlug={currentQuestion.id}
+            userAnswer={
+              isTyping
+                ? typedAnswer
+                : selectedOption !== null
+                  ? (currentQuestion.options[selectedOption] ?? "")
+                  : ""
+            }
+          />
+        )}
       </div>
 
       <div className="sticky bottom-0 border-t border-line bg-surface-overlay px-4 py-4">
