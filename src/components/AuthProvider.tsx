@@ -43,8 +43,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setProgress(server);
           return server;
         }
-        if (local.xp > 0 || Object.keys(local.answeredSlugs).length > 0) {
+        const pendingTransfer =
+          typeof window !== "undefined" && localStorage.getItem("devgame_pending_transfer");
+        if (pendingTransfer && (local.xp > 0 || Object.keys(local.answeredSlugs).length > 0)) {
+          localStorage.removeItem("devgame_pending_transfer");
           saveProgressToServer(JSON.stringify(local));
+          setProgress(local);
+          return local;
         }
       }
 

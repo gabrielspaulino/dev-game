@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, signUp, saveProgressToServer } from "@/app/actions/auth";
+import { signIn, signUp } from "@/app/actions/auth";
 import { loadProgress } from "@/lib/progress";
 import { useAuth } from "./AuthProvider";
 
@@ -34,18 +34,16 @@ export function AuthModal({ mode: initialMode, onClose }: AuthModalProps) {
           setError(result.error);
           return;
         }
+        const progress = loadProgress();
+        if (progress.xp > 0 || Object.keys(progress.answeredSlugs).length > 0) {
+          localStorage.setItem("devgame_pending_transfer", "true");
+        }
         setSuccess("Check your email to confirm your account.");
       } else {
         const result = await signIn(email, password);
         if (result.error) {
           setError(result.error);
           return;
-        }
-
-        const progress = loadProgress();
-        const hasProgress = progress.xp > 0 || Object.keys(progress.answeredSlugs).length > 0;
-        if (hasProgress) {
-          await saveProgressToServer(JSON.stringify(progress));
         }
 
         await refresh();
