@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef } f
 import type { User } from "@supabase/supabase-js";
 import type { UserProgress } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
-import { loadProgress, saveProgress, mergeProgress, DEFAULT_PROGRESS } from "@/lib/progress";
+import { loadProgress, saveProgress, DEFAULT_PROGRESS } from "@/lib/progress";
 import { loadProgressFromServer, saveProgressToServer } from "@/app/actions/auth";
 
 interface AuthContextValue {
@@ -39,11 +39,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data } = await loadProgressFromServer();
         if (data) {
           const server = { ...DEFAULT_PROGRESS, ...data } as UserProgress;
-          const merged = mergeProgress(local, server);
-          saveProgress(merged);
-          saveProgressToServer(JSON.stringify(merged));
-          setProgress(merged);
-          return merged;
+          saveProgress(server);
+          setProgress(server);
+          return server;
         }
         if (local.xp > 0 || Object.keys(local.answeredSlugs).length > 0) {
           saveProgressToServer(JSON.stringify(local));
