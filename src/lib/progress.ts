@@ -55,68 +55,6 @@ export function loadProgress(): UserProgress {
   }
 }
 
-export function mergeProgress(local: UserProgress, server: UserProgress): UserProgress {
-  const mergedAnsweredSlugs: Record<string, string[]> = { ...server.answeredSlugs };
-  for (const [skill, slugs] of Object.entries(local.answeredSlugs)) {
-    mergedAnsweredSlugs[skill] = [...new Set([...(mergedAnsweredSlugs[skill] ?? []), ...slugs])];
-  }
-
-  const mergedCompletedLessons: Record<string, true> = {
-    ...server.completedLessons,
-    ...local.completedLessons,
-  };
-
-  const mergedSlotProgress: Record<string, number> = { ...server.slotProgress };
-  for (const [key, value] of Object.entries(local.slotProgress)) {
-    mergedSlotProgress[key] = Math.max(mergedSlotProgress[key] ?? 0, value);
-  }
-
-  const mergedDifficultyStats: Record<string, CategoryDifficultyStats> = {
-    ...server.difficultyStats,
-  };
-  for (const [skill, localStats] of Object.entries(local.difficultyStats)) {
-    const serverStats = mergedDifficultyStats[skill] ?? defaultCategoryStats();
-    mergedDifficultyStats[skill] = {
-      EASY: {
-        answered: Math.max(serverStats.EASY.answered, localStats.EASY.answered),
-        correct: Math.max(serverStats.EASY.correct, localStats.EASY.correct),
-      },
-      MEDIUM: {
-        answered: Math.max(serverStats.MEDIUM.answered, localStats.MEDIUM.answered),
-        correct: Math.max(serverStats.MEDIUM.correct, localStats.MEDIUM.correct),
-      },
-      HARD: {
-        answered: Math.max(serverStats.HARD.answered, localStats.HARD.answered),
-        correct: Math.max(serverStats.HARD.correct, localStats.HARD.correct),
-      },
-    };
-  }
-
-  const pickLatestDate = (a: string | null, b: string | null): string | null => {
-    if (!a) return b;
-    if (!b) return a;
-    return a > b ? a : b;
-  };
-
-  return {
-    xp: Math.max(local.xp, server.xp),
-    streak: Math.max(local.streak, server.streak),
-    hearts: Math.min(local.hearts, server.hearts),
-    lastPlayedDate: pickLatestDate(local.lastPlayedDate, server.lastPlayedDate),
-    completedLessons: mergedCompletedLessons,
-    selectedTopicId: local.selectedTopicId ?? server.selectedTopicId,
-    dailyQuizCompletedDate: pickLatestDate(
-      local.dailyQuizCompletedDate,
-      server.dailyQuizCompletedDate,
-    ),
-    quizzesCompletedToday: Math.max(local.quizzesCompletedToday, server.quizzesCompletedToday),
-    questionsAnsweredToday: Math.max(local.questionsAnsweredToday, server.questionsAnsweredToday),
-    answeredSlugs: mergedAnsweredSlugs,
-    difficultyStats: mergedDifficultyStats,
-    slotProgress: mergedSlotProgress,
-  };
-}
-
 export function saveProgress(progress: UserProgress): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
