@@ -19,6 +19,26 @@ function checkTypingAnswer(input: string, accepted: string[]): boolean {
   return accepted.some((a) => a.trim().toLowerCase() === normalized);
 }
 
+async function validateWithAI(
+  prompt: string,
+  code: string | undefined,
+  acceptedAnswers: string[],
+  userAnswer: string,
+): Promise<boolean> {
+  try {
+    const res = await fetch("/api/v1/validate-answer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, code, acceptedAnswers, userAnswer }),
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data.correct === true;
+  } catch {
+    return false;
+  }
+}
+
 export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps) {
   const [questionIdx, setQuestionIdx] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -31,7 +51,7 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
 
   const canCheck = isTyping ? typedAnswer.trim().length > 0 : selectedOption !== null;
 
-  const handleCheck = useCallback(() => {
+  const handleCheck = useCallback(async () => {
     if (!currentQuestion || !canCheck) return;
 
     if (currentQuestion.type === "typing") {
@@ -39,7 +59,19 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
         setAnswerState("correct");
         setCorrectCount((c) => c + 1);
       } else {
-        setAnswerState("incorrect");
+        setAnswerState("checking");
+        const aiCorrect = await validateWithAI(
+          currentQuestion.prompt,
+          currentQuestion.code,
+          currentQuestion.acceptedAnswers,
+          typedAnswer,
+        );
+        if (aiCorrect) {
+          setAnswerState("correct");
+          setCorrectCount((c) => c + 1);
+        } else {
+          setAnswerState("incorrect");
+        }
       }
     } else {
       if (selectedOption === currentQuestion.correctIndex) {
@@ -67,6 +99,7 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (answerState === "checking") return;
       if (e.key === "Enter") {
         if (answerState === "unanswered") handleCheck();
         else handleContinue();
@@ -159,7 +192,7 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
               placeholder="Type your answer..."
               autoFocus
               className={`w-full rounded-2xl border-2 bg-surface-raised p-4 font-mono text-fg outline-none transition-all placeholder:text-fg-faint ${
-                answerState === "unanswered"
+                answerState === "unanswered" || answerState === "checking"
                   ? `border-line-strong focus:${trackStyle.borderClass}`
                   : answerState === "correct"
                     ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/40"
@@ -209,7 +242,7 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
           </div>
         )}
 
-        {answerState !== "unanswered" && (
+        {(answerState === "correct" || answerState === "incorrect") && (
           <div
             className={`mt-6 w-full rounded-2xl border-2 p-4 ${
               answerState === "correct"
@@ -232,7 +265,7 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
           </div>
         )}
 
-        {aiContext && <AskAI context={aiContext} />}
+        {aiContext && answerState !== "checking" && <AskAI context={aiContext} />}
       </div>
 
       <div className="sticky bottom-0 border-t border-line bg-surface-overlay px-4 py-4">
@@ -249,6 +282,14 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
             >
               {"> check"}
             </button>
+          ) : answerState === "checking" ? (
+            <button
+              disabled
+              className="w-full cursor-not-allowed rounded-2xl bg-surface-inset py-4 font-mono text-lg font-bold text-fg-muted transition-all"
+            >
+              {"$ checking"}
+              <span className="animate-blink">_</span>
+            </button>
           ) : (
             <button
               onClick={handleContinue}
@@ -262,8 +303,11 @@ export function DailyQuiz({ questions, trackStyle, onComplete }: DailyQuizProps)
             </button>
           )}
           <p className="mt-2 text-center font-mono text-xs text-fg-faint">
-            ↵ to {answerState === "unanswered" ? "check" : "continue"}
-            {!isTyping &&
+            {answerState === "checking"
+              ? "validating your answer..."
+              : `↵ to ${answerState === "unanswered" ? "check" : "continue"}`}
+            {answerState === "unanswered" &&
+              !isTyping &&
               "options" in currentQuestion &&
               ` · 1–${currentQuestion.options.length} to select`}
           </p>
