@@ -82,9 +82,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const newUser = session?.user ?? null;
+      setUser(newUser);
       setLoading(false);
+      if (newUser) {
+        await loadCachedProgress(newUser);
+      }
     });
 
     return () => subscription.unsubscribe();
