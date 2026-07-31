@@ -70,4 +70,4 @@ export interface UserProgress {
   slotProgress: Record<string, number>;
 }
 
-export type AnswerState = "unanswered" | "correct" | "incorrect";
+export type AnswerState = "unanswered" | "checking" | "correct" | "incorrect";
