@@ -14,9 +14,18 @@ interface DailyQuizProps {
   onComplete: (xpEarned: number, correctCount: number, totalQuestions: number) => void;
 }
 
+function stripSeparators(s: string): string {
+  return s.replace(/[\s,\->.→;:|/\\]+/g, "").toLowerCase();
+}
+
 function checkTypingAnswer(input: string, accepted: string[]): boolean {
   const normalized = input.trim().toLowerCase();
-  return accepted.some((a) => a.trim().toLowerCase() === normalized);
+  const stripped = stripSeparators(input);
+  return accepted.some((a) => {
+    if (a.trim().toLowerCase() === normalized) return true;
+    if (stripSeparators(a) === stripped) return true;
+    return false;
+  });
 }
 
 async function validateWithAI(
