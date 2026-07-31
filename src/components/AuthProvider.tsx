@@ -4,14 +4,15 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef } f
 import type { User } from "@supabase/supabase-js";
 import type { UserProgress } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
-import { loadProgress, DEFAULT_PROGRESS } from "@/lib/progress";
-import { loadProgressFromServer } from "@/app/actions/auth";
+import { loadProgress, saveProgress, mergeProgress, DEFAULT_PROGRESS } from "@/lib/progress";
+import { loadProgressFromServer, saveProgressToServer } from "@/app/actions/auth";
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
   progress: UserProgress | null;
   refreshProgress: () => Promise<UserProgress>;
+  syncProgress: () => void;
   refresh: () => Promise<void>;
 }
 
@@ -20,6 +21,7 @@ const AuthContext = createContext<AuthContextValue>({
   loading: true,
   progress: null,
   refreshProgress: async () => DEFAULT_PROGRESS,
+  syncProgress: () => {},
   refresh: async () => {},
 });
 
@@ -31,17 +33,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadCachedProgress = useCallback(
     async (currentUser: User | null): Promise<UserProgress> => {
+      const local = loadProgress();
+
       if (currentUser) {
         const { data } = await loadProgressFromServer();
         if (data) {
-          const local = loadProgress();
           const server = { ...DEFAULT_PROGRESS, ...data } as UserProgress;
-          const merged = server.xp >= local.xp ? server : local;
+          const merged = mergeProgress(local, server);
+          saveProgress(merged);
+          saveProgressToServer(JSON.stringify(merged));
           setProgress(merged);
           return merged;
         }
+        if (local.xp > 0 || Object.keys(local.answeredSlugs).length > 0) {
+          saveProgressToServer(JSON.stringify(local));
+        }
       }
-      const local = loadProgress();
+
       setProgress(local);
       return local;
     },
@@ -51,6 +59,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshProgress = useCallback(async () => {
     return loadCachedProgress(user);
   }, [user, loadCachedProgress]);
+
+  const syncProgress = useCallback(() => {
+    const current = loadProgress();
+    setProgress(current);
+    if (user) {
+      saveProgressToServer(JSON.stringify(current));
+    }
+  }, [user]);
 
   const refresh = useCallback(async () => {
     const supabase = createClient();
@@ -84,7 +100,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [loading, user, loadCachedProgress]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, progress, refreshProgress, refresh }}>
+    <AuthContext.Provider
+      value={{ user, loading, progress, refreshProgress, syncProgress, refresh }}
+    >
       {children}
     </AuthContext.Provider>
   );
