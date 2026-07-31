@@ -58,9 +58,7 @@ export function loadProgress(): UserProgress {
 export function mergeProgress(local: UserProgress, server: UserProgress): UserProgress {
   const mergedAnsweredSlugs: Record<string, string[]> = { ...server.answeredSlugs };
   for (const [skill, slugs] of Object.entries(local.answeredSlugs)) {
-    mergedAnsweredSlugs[skill] = [
-      ...new Set([...(mergedAnsweredSlugs[skill] ?? []), ...slugs]),
-    ];
+    mergedAnsweredSlugs[skill] = [...new Set([...(mergedAnsweredSlugs[skill] ?? []), ...slugs])];
   }
 
   const mergedCompletedLessons: Record<string, true> = {
@@ -112,10 +110,7 @@ export function mergeProgress(local: UserProgress, server: UserProgress): UserPr
       server.dailyQuizCompletedDate,
     ),
     quizzesCompletedToday: Math.max(local.quizzesCompletedToday, server.quizzesCompletedToday),
-    questionsAnsweredToday: Math.max(
-      local.questionsAnsweredToday,
-      server.questionsAnsweredToday,
-    ),
+    questionsAnsweredToday: Math.max(local.questionsAnsweredToday, server.questionsAnsweredToday),
     answeredSlugs: mergedAnsweredSlugs,
     difficultyStats: mergedDifficultyStats,
     slotProgress: mergedSlotProgress,
