@@ -113,6 +113,190 @@ export function getCategoryTotal(category: string): number {
   return skills.length * DIFFICULTIES.length * QUESTIONS_PER_SLOT;
 }
 
+export const ADVANCE_THRESHOLD = 75;
+
+export function isLevelComplete(
+  progress: UserProgress,
+  category: string,
+  difficulty: DifficultyTier,
+): boolean {
+  const skills = SKILL_ORDER[category];
+  if (!skills) return false;
+  return skills.every(
+    (skill) => (progress.slotProgress[slotKey(skill, difficulty)] ?? 0) >= QUESTIONS_PER_SLOT,
+  );
+}
+
+export function getLevelProgress(
+  progress: UserProgress,
+  category: string,
+  difficulty: DifficultyTier,
+): number {
+  const skills = SKILL_ORDER[category];
+  if (!skills) return 0;
+  let total = 0;
+  for (const skill of skills) {
+    total += Math.min(QUESTIONS_PER_SLOT, progress.slotProgress[slotKey(skill, difficulty)] ?? 0);
+  }
+  return total;
+}
+
+export function getLevelTotal(category: string): number {
+  const skills = SKILL_ORDER[category];
+  if (!skills) return 0;
+  return skills.length * QUESTIONS_PER_SLOT;
+}
+
+export function getLevelAccuracy(
+  progress: UserProgress,
+  category: string,
+  difficulty: DifficultyTier,
+): number {
+  const skills = SKILL_ORDER[category];
+  if (!skills) return 0;
+  let answered = 0;
+  let correct = 0;
+  for (const skill of skills) {
+    const stats = progress.difficultyStats[skill]?.[difficulty];
+    if (stats) {
+      answered += stats.answered;
+      correct += stats.correct;
+    }
+  }
+  return answered > 0 ? Math.round((correct / answered) * 100) : 0;
+}
+
+export interface SkillAccuracy {
+  skillCode: string;
+  answered: number;
+  correct: number;
+  accuracy: number;
+}
+
+export function getSkillAccuracyForLevel(
+  progress: UserProgress,
+  category: string,
+  difficulty: DifficultyTier,
+): SkillAccuracy[] {
+  const skills = SKILL_ORDER[category];
+  if (!skills) return [];
+  return skills.map((skill) => {
+    const stats = progress.difficultyStats[skill]?.[difficulty];
+    const answered = stats?.answered ?? 0;
+    const correct = stats?.correct ?? 0;
+    return {
+      skillCode: skill,
+      answered,
+      correct,
+      accuracy: answered > 0 ? Math.round((correct / answered) * 100) : 0,
+    };
+  });
+}
+
+export function isCategoryComplete(progress: UserProgress, category: string): boolean {
+  return DIFFICULTIES.every((d) => isLevelComplete(progress, category, d));
+}
+
+export function getImprovementAreas(
+  progress: UserProgress,
+  category: string,
+): { skillCode: string; accuracy: number; difficulty: DifficultyTier }[] {
+  const skills = SKILL_ORDER[category];
+  if (!skills) return [];
+
+  const areas: { skillCode: string; accuracy: number; difficulty: DifficultyTier }[] = [];
+  for (const difficulty of DIFFICULTIES) {
+    for (const skill of skills) {
+      const stats = progress.difficultyStats[skill]?.[difficulty];
+      if (stats && stats.answered > 0) {
+        const accuracy = Math.round((stats.correct / stats.answered) * 100);
+        if (accuracy < 80) {
+          areas.push({ skillCode: skill, accuracy, difficulty });
+        }
+      }
+    }
+  }
+  return areas.sort((a, b) => a.accuracy - b.accuracy);
+}
+
+export function getCurrentDifficulty(progress: UserProgress, category: string): DifficultyTier {
+  const slot = getCurrentSlot(progress, category);
+  return slot?.difficulty ?? "EASY";
+}
+
+export function getBlockingLevel(progress: UserProgress, category: string): DifficultyTier | null {
+  const slot = getCurrentSlot(progress, category);
+  if (!slot) return null;
+
+  const diffIdx = DIFFICULTIES.indexOf(slot.difficulty);
+  if (diffIdx > 0) {
+    const prevDiff = DIFFICULTIES[diffIdx - 1]!;
+    if (isLevelComplete(progress, category, prevDiff)) {
+      const accuracy = getLevelAccuracy(progress, category, prevDiff);
+      if (accuracy < ADVANCE_THRESHOLD) {
+        return prevDiff;
+      }
+    }
+  }
+  return null;
+}
+
+export function restartLevel(
+  progress: UserProgress,
+  category: string,
+  difficulty: DifficultyTier,
+): UserProgress {
+  const skills = SKILL_ORDER[category];
+  if (!skills) return progress;
+
+  const newSlotProgress = { ...progress.slotProgress };
+  const newDifficultyStats = { ...progress.difficultyStats };
+
+  for (const skill of skills) {
+    delete newSlotProgress[slotKey(skill, difficulty)];
+
+    if (newDifficultyStats[skill]) {
+      newDifficultyStats[skill] = {
+        ...newDifficultyStats[skill],
+        [difficulty]: { answered: 0, correct: 0 },
+      };
+    }
+  }
+
+  const updated: UserProgress = {
+    ...progress,
+    slotProgress: newSlotProgress,
+    difficultyStats: newDifficultyStats,
+  };
+  saveProgress(updated);
+  return updated;
+}
+
+export function restartCategory(progress: UserProgress, category: string): UserProgress {
+  const skills = SKILL_ORDER[category];
+  if (!skills) return progress;
+
+  const newSlotProgress = { ...progress.slotProgress };
+  const newDifficultyStats = { ...progress.difficultyStats };
+
+  for (const skill of skills) {
+    for (const difficulty of DIFFICULTIES) {
+      delete newSlotProgress[slotKey(skill, difficulty)];
+    }
+    delete newDifficultyStats[skill];
+  }
+
+  const updated: UserProgress = {
+    ...progress,
+    slotProgress: newSlotProgress,
+    difficultyStats: newDifficultyStats,
+  };
+  saveProgress(updated);
+  return updated;
+}
+
+export { DIFFICULTIES };
+
 export function completeQuiz(
   progress: UserProgress,
   xpEarned: number,

@@ -4,7 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { updateProfile } from "@/app/actions/auth";
-import { getCategoryProgress, getCategoryTotal, getCurrentSlot } from "@/lib/progress";
+import {
+  getCategoryProgress,
+  getCategoryTotal,
+  getCurrentSlot,
+  getLevelProgress,
+  getLevelTotal,
+  isCategoryComplete,
+} from "@/lib/progress";
 import { getTrackStyle, CATEGORY_ORDER, SKILL_ORDER } from "@/lib/track-styles";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileMenu } from "@/components/ProfileMenu";
@@ -257,9 +264,17 @@ export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
               .filter((category) => getCategoryProgress(progress, category) > 0)
               .map((category) => {
                 const style = getTrackStyle(category);
-                const answered = getCategoryProgress(progress, category);
-                const total = getCategoryTotal(category);
-                const pct = total > 0 ? Math.min(100, Math.round((answered / total) * 100)) : 0;
+                const isComplete = isCategoryComplete(progress, category);
+                const slot = getCurrentSlot(progress, category);
+                const currentDifficulty = slot?.difficulty ?? "EASY";
+
+                const levelAnswered = getLevelProgress(progress, category, currentDifficulty);
+                const levelTotal = getLevelTotal(category);
+                const pct = isComplete
+                  ? 100
+                  : levelTotal > 0
+                    ? Math.min(100, Math.round((levelAnswered / levelTotal) * 100))
+                    : 0;
 
                 const skills = SKILL_ORDER[category] ?? [];
                 let totalCorrect = 0;
@@ -276,10 +291,6 @@ export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
                 const catAccuracy =
                   totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
 
-                const slot = getCurrentSlot(progress, category);
-                const currentDifficulty = slot?.difficulty ?? "EASY";
-                const isComplete = pct === 100;
-
                 let justUnlocked = false;
                 if (!isComplete && currentDifficulty !== "EASY") {
                   let answeredAtDifficulty = 0;
@@ -295,21 +306,21 @@ export function ProfileContent({ skillStats }: { skillStats: SkillStats[] }) {
                     <div className="mb-2 flex items-center gap-2">
                       <Icon name={style.icon} className={`h-5 w-5 ${style.textClass}`} />
                       <span className="text-sm font-bold text-fg">{category}</span>
-                      <span className="ml-auto font-mono text-xs text-fg-faint">{pct}%</span>
+                      <span className="ml-auto font-mono text-xs text-fg-faint">
+                        {isComplete ? "Complete" : DIFFICULTY_LABELS[currentDifficulty]}
+                      </span>
                     </div>
-                    <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-surface-inset">
-                      <div
-                        className={`h-full rounded-full ${style.bgClass} transition-all duration-500`}
-                        style={{ width: `${pct}%` }}
-                      />
+                    <div className="mb-2 flex items-center gap-3">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-inset">
+                        <div
+                          className={`h-full rounded-full ${style.bgClass} transition-all duration-500`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className="font-mono text-xs text-fg-faint">{pct}%</span>
                     </div>
                     <div className="font-mono text-xs">
                       <div className="flex gap-4 text-fg-muted">
-                        <span>
-                          {isComplete
-                            ? "All levels complete"
-                            : DIFFICULTY_LABELS[currentDifficulty]}
-                        </span>
                         {totalAttempted > 0 && <span>{catAccuracy}% accuracy</span>}
                       </div>
                       {justUnlocked && (

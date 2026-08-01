@@ -4,7 +4,14 @@ import type { UserProgress } from "@/lib/types";
 import type { TrackStyle } from "@/lib/track-styles";
 import type { SkillStats } from "@/app/actions/questions";
 import { getTrackStyle, CATEGORY_ORDER, SKILL_ORDER } from "@/lib/track-styles";
-import { getStreakEncouragement, getCategoryProgress, getCategoryTotal } from "@/lib/progress";
+import {
+  getStreakEncouragement,
+  getLevelProgress,
+  getLevelTotal,
+  getCurrentDifficulty,
+  isCategoryComplete,
+} from "@/lib/progress";
+import { DIFFICULTY_LABELS } from "@/lib/types";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileMenu } from "@/components/ProfileMenu";
 import { Icon, FireIcon, CheckCircleIcon } from "@/components/Icons";
@@ -116,15 +123,23 @@ export function RoadmapScreen({ progress, skillStats, onStartQuiz }: RoadmapScre
 
         <div className="space-y-3">
           {categories.map((entry) => {
-            const answered = getCategoryProgress(progress, entry.category);
-            const total = getCategoryTotal(entry.category);
-            const pct = total > 0 ? Math.min(100, Math.round((answered / total) * 100)) : 0;
+            const complete = isCategoryComplete(progress, entry.category);
+            const currentDiff = getCurrentDifficulty(progress, entry.category);
+            const levelAnswered = getLevelProgress(progress, entry.category, currentDiff);
+            const levelTotal = getLevelTotal(entry.category);
+            const pct = complete
+              ? 100
+              : levelTotal > 0
+                ? Math.min(100, Math.round((levelAnswered / levelTotal) * 100))
+                : 0;
+            const levelLabel = complete ? "Complete" : DIFFICULTY_LABELS[currentDiff];
             return (
               <CategoryCard
                 key={entry.category}
                 category={entry.category}
                 style={entry.style}
                 progressPct={pct}
+                levelLabel={levelLabel}
                 isSelected={progress.selectedTopicId === entry.category}
                 onStart={() => onStartQuiz(entry.category)}
               />
@@ -146,12 +161,14 @@ function CategoryCard({
   category,
   style,
   progressPct,
+  levelLabel,
   isSelected,
   onStart,
 }: {
   category: string;
   style: TrackStyle;
   progressPct: number;
+  levelLabel: string;
   isSelected: boolean;
   onStart: () => void;
 }) {
@@ -169,6 +186,7 @@ function CategoryCard({
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-fg">{category}</span>
+            <span className="font-mono text-xs text-fg-faint">{levelLabel}</span>
             {isSelected && (
               <span className={`font-mono text-xs font-medium ${style.textClass}`}>current</span>
             )}
