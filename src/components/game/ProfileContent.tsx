@@ -6,7 +6,6 @@ import { useAuth } from "@/components/AuthProvider";
 import { updateProfile } from "@/app/actions/auth";
 import {
   getCategoryProgress,
-  getCategoryTotal,
   getCurrentSlot,
   getLevelProgress,
   getLevelTotal,

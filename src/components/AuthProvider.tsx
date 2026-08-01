@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, [refresh]);
+  }, [refresh, loadCachedProgress]);
 
   useEffect(() => {
     if (!loading && !progressLoaded.current) {

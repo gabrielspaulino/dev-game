@@ -136,7 +136,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         setIsLoadingQuiz(false);
       }
     },
-    [skillStats, syncProgress, showLevelComplete],
+    [syncProgress, showLevelComplete],
   );
 
   const handleQuizComplete = useCallback(
