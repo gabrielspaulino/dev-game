@@ -12,14 +12,23 @@ import {
   selectTopic,
   getCurrentSlot,
   DEFAULT_PROGRESS,
+  isLevelComplete,
+  isCategoryComplete,
+  getLevelAccuracy,
+  getSkillAccuracyForLevel,
+  getImprovementAreas,
+  getBlockingLevel,
+  restartLevel,
+  restartCategory,
 } from "@/lib/progress";
 import { fetchQuizQuestions } from "@/app/actions/questions";
 import { useAuth } from "@/components/AuthProvider";
 import { RoadmapScreen } from "./RoadmapScreen";
 import { DailyQuiz } from "./DailyQuiz";
 import { QuizResultScreen } from "./QuizResultScreen";
+import { LevelCompleteScreen } from "./LevelCompleteScreen";
 
-type Screen = "loading" | "roadmap" | "quiz" | "result" | "error";
+type Screen = "loading" | "roadmap" | "quiz" | "result" | "level-complete" | "error";
 
 const QUIZ_SIZE = 10;
 
@@ -28,6 +37,7 @@ interface QuizState {
   skillCode: string;
   trackStyle: TrackStyle;
   difficulty: DifficultyTier;
+  category: string;
 }
 
 interface QuizResult {
@@ -36,6 +46,12 @@ interface QuizResult {
   totalQuestions: number;
   trackStyle: TrackStyle;
   difficulty: DifficultyTier;
+}
+
+interface LevelCompleteState {
+  category: string;
+  difficulty: DifficultyTier;
+  trackStyle: TrackStyle;
 }
 
 interface HomeContentProps {
@@ -48,6 +64,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
   const [progress, setProgress] = useState<UserProgress>(DEFAULT_PROGRESS);
   const [quiz, setQuiz] = useState<QuizState | null>(null);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+  const [levelComplete, setLevelComplete] = useState<LevelCompleteState | null>(null);
   const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -58,6 +75,15 @@ export function HomeContent({ skillStats }: HomeContentProps) {
     }
   }, [cachedProgress]);
 
+  const showLevelComplete = useCallback((category: string, difficulty: DifficultyTier) => {
+    setLevelComplete({
+      category,
+      difficulty,
+      trackStyle: getTrackStyle(category),
+    });
+    setScreen("level-complete");
+  }, []);
+
   const handleStartQuiz = useCallback(
     async (category: string) => {
       setIsLoadingQuiz(true);
@@ -67,6 +93,19 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         const updated = selectTopic(current, category);
         setProgress(updated);
         syncProgress();
+
+        if (isCategoryComplete(updated, category)) {
+          setIsLoadingQuiz(false);
+          showLevelComplete(category, "HARD");
+          return;
+        }
+
+        const blockedAt = getBlockingLevel(updated, category);
+        if (blockedAt) {
+          setIsLoadingQuiz(false);
+          showLevelComplete(category, blockedAt);
+          return;
+        }
 
         const slot = getCurrentSlot(updated, category);
         if (!slot) {
@@ -88,7 +127,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         }
 
         const trackStyle = getTrackStyle(category);
-        setQuiz({ questions, skillCode, trackStyle, difficulty });
+        setQuiz({ questions, skillCode, trackStyle, difficulty, category });
         setScreen("quiz");
       } catch {
         setErrorMsg("Could not load questions. Check your connection and try again.");
@@ -97,7 +136,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         setIsLoadingQuiz(false);
       }
     },
-    [skillStats, syncProgress],
+    [syncProgress, showLevelComplete],
   );
 
   const handleQuizComplete = useCallback(
@@ -105,6 +144,9 @@ export function HomeContent({ skillStats }: HomeContentProps) {
       if (!quiz) return;
       const slugs = quiz.questions.map((q) => q.id);
       const current = loadProgress();
+
+      const wasLevelDone = isLevelComplete(current, quiz.category, quiz.difficulty);
+
       const updated = completeQuiz(
         current,
         xpEarned,
@@ -116,6 +158,13 @@ export function HomeContent({ skillStats }: HomeContentProps) {
       setProgress(updated);
       syncProgress();
 
+      const isLevelDoneNow = isLevelComplete(updated, quiz.category, quiz.difficulty);
+
+      if (!wasLevelDone && isLevelDoneNow) {
+        showLevelComplete(quiz.category, quiz.difficulty);
+        return;
+      }
+
       setQuizResult({
         xpEarned,
         correctCount,
@@ -125,7 +174,7 @@ export function HomeContent({ skillStats }: HomeContentProps) {
       });
       setScreen("result");
     },
-    [quiz, syncProgress],
+    [quiz, syncProgress, showLevelComplete],
   );
 
   const handleResultContinue = useCallback(() => {
@@ -133,6 +182,31 @@ export function HomeContent({ skillStats }: HomeContentProps) {
     setQuizResult(null);
     setScreen("roadmap");
   }, []);
+
+  const handleLevelAdvance = useCallback(() => {
+    setLevelComplete(null);
+    setScreen("roadmap");
+  }, []);
+
+  const handleLevelRestart = useCallback(() => {
+    if (!levelComplete) return;
+    const current = loadProgress();
+
+    let updated: UserProgress;
+    if (
+      levelComplete.difficulty === "HARD" &&
+      isCategoryComplete(current, levelComplete.category)
+    ) {
+      updated = restartCategory(current, levelComplete.category);
+    } else {
+      updated = restartLevel(current, levelComplete.category, levelComplete.difficulty);
+    }
+
+    setProgress(updated);
+    syncProgress();
+    setLevelComplete(null);
+    setScreen("roadmap");
+  }, [levelComplete, syncProgress]);
 
   if (screen === "loading" || isLoadingQuiz) {
     return <LoadingSkeleton />;
@@ -158,6 +232,38 @@ export function HomeContent({ skillStats }: HomeContentProps) {
         difficulty={quizResult.difficulty}
         streak={progress.streak}
         onContinue={handleResultContinue}
+      />
+    );
+  }
+
+  if (screen === "level-complete" && levelComplete) {
+    const currentProgress = loadProgress();
+    const roadmapDone = isCategoryComplete(currentProgress, levelComplete.category);
+    const accuracy = getLevelAccuracy(
+      currentProgress,
+      levelComplete.category,
+      levelComplete.difficulty,
+    );
+    const skillAccuracies = getSkillAccuracyForLevel(
+      currentProgress,
+      levelComplete.category,
+      levelComplete.difficulty,
+    );
+    const improvements = roadmapDone
+      ? getImprovementAreas(currentProgress, levelComplete.category)
+      : [];
+
+    return (
+      <LevelCompleteScreen
+        category={levelComplete.category}
+        difficulty={levelComplete.difficulty}
+        trackStyle={levelComplete.trackStyle}
+        accuracy={accuracy}
+        skillAccuracies={skillAccuracies}
+        isRoadmapComplete={roadmapDone}
+        improvementAreas={improvements}
+        onAdvance={handleLevelAdvance}
+        onRestart={handleLevelRestart}
       />
     );
   }
