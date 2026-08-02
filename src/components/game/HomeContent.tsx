@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import type { UserProgress, Question, DifficultyTier } from "@/lib/types";
 import type { TrackStyle } from "@/lib/track-styles";
 import type { SkillStats } from "@/app/actions/questions";
@@ -67,11 +67,15 @@ export function HomeContent({ skillStats }: HomeContentProps) {
   const [levelComplete, setLevelComplete] = useState<LevelCompleteState | null>(null);
   const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const initialized = useRef(false);
 
   useEffect(() => {
     if (cachedProgress) {
       setProgress(cachedProgress);
-      setScreen("roadmap");
+      if (!initialized.current) {
+        initialized.current = true;
+        setScreen("roadmap");
+      }
     }
   }, [cachedProgress]);
 
