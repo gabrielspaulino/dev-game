@@ -68,6 +68,7 @@ export interface UserProgress {
   questionsAnsweredToday: number;
   difficultyStats: Record<string, CategoryDifficultyStats>;
   slotProgress: Record<string, number>;
+  activityDates: string[];
 }
 
 export type AnswerState = "unanswered" | "checking" | "correct" | "incorrect";

@@ -8,21 +8,21 @@ const MAX_HEARTS = 5;
 export const QUESTIONS_PER_SLOT = 10;
 const DIFFICULTIES: DifficultyTier[] = ["EASY", "MEDIUM", "HARD"];
 
-function localToday(): string {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+function formatLocalDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+export function localToday(): string {
+  return formatLocalDate(new Date());
 }
 
 function localYesterday(): string {
   const now = new Date();
   now.setDate(now.getDate() - 1);
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  return formatLocalDate(now);
 }
 
 export const DEFAULT_PROGRESS: UserProgress = {
@@ -38,6 +38,7 @@ export const DEFAULT_PROGRESS: UserProgress = {
   questionsAnsweredToday: 0,
   difficultyStats: {},
   slotProgress: {},
+  activityDates: [],
 };
 
 export function loadProgress(): UserProgress {
@@ -45,11 +46,22 @@ export function loadProgress(): UserProgress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_PROGRESS;
-    const parsed = JSON.parse(raw) as UserProgress;
-    return {
+    const parsed = JSON.parse(raw) as Partial<UserProgress>;
+    const result: UserProgress = {
       ...DEFAULT_PROGRESS,
       ...parsed,
     };
+
+    if (!parsed.activityDates && result.lastPlayedDate && result.streak > 0) {
+      const last = new Date(result.lastPlayedDate + "T00:00:00");
+      for (let i = 0; i < result.streak; i++) {
+        const d = new Date(last);
+        d.setDate(d.getDate() - i);
+        result.activityDates.push(formatLocalDate(d));
+      }
+    }
+
+    return result;
   } catch {
     return DEFAULT_PROGRESS;
   }
@@ -342,6 +354,10 @@ export function completeQuiz(
   const key = slotKey(skillCode, difficulty);
   const prevSlot = progress.slotProgress[key] ?? 0;
 
+  const activityDates = progress.activityDates.includes(today)
+    ? progress.activityDates
+    : [...progress.activityDates, today];
+
   const updated: UserProgress = {
     ...progress,
     xp: newXp,
@@ -353,6 +369,7 @@ export function completeQuiz(
     answeredSlugs: { ...progress.answeredSlugs, [skillCode]: mergedSlugs },
     difficultyStats: { ...progress.difficultyStats, [skillCode]: updatedCategoryStats },
     slotProgress: { ...progress.slotProgress, [key]: prevSlot + slugs.length },
+    activityDates,
   };
   saveProgress(updated);
   return updated;
@@ -400,6 +417,10 @@ export function completeLesson(
 
   const newHearts = Math.max(0, Math.min(MAX_HEARTS, progress.hearts - heartsLost));
 
+  const activityDates = progress.activityDates.includes(today)
+    ? progress.activityDates
+    : [...progress.activityDates, today];
+
   const updated: UserProgress = {
     ...progress,
     xp: newXp,
@@ -407,6 +428,7 @@ export function completeLesson(
     hearts: newHearts,
     lastPlayedDate: today,
     completedLessons: { ...progress.completedLessons, [lessonId]: true },
+    activityDates,
   };
 
   saveProgress(updated);

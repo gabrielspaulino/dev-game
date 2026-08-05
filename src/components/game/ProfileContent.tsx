@@ -54,15 +54,11 @@ function formatLocalDate(d: Date): string {
 }
 
 function getRecentDays(progress: UserProgress): string[] {
-  if (!progress.lastPlayedDate) return [];
-  const days: string[] = [];
-  const last = new Date(progress.lastPlayedDate + "T00:00:00");
-  for (let i = 0; i < progress.streak && i < 14; i++) {
-    const d = new Date(last);
-    d.setDate(d.getDate() - i);
-    days.push(formatLocalDate(d));
-  }
-  return days;
+  if (!progress.activityDates || progress.activityDates.length === 0) return [];
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 14);
+  const cutoffStr = formatLocalDate(cutoff);
+  return progress.activityDates.filter((d) => d >= cutoffStr);
 }
 
 function ActivityGrid({ activeDays }: { activeDays: string[] }) {

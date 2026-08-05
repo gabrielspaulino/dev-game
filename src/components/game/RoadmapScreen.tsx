@@ -10,6 +10,7 @@ import {
   getLevelTotal,
   getCurrentDifficulty,
   isCategoryComplete,
+  localToday,
 } from "@/lib/progress";
 import { DIFFICULTY_LABELS } from "@/lib/types";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -55,7 +56,7 @@ export function RoadmapScreen({ progress, skillStats, onStartQuiz }: RoadmapScre
   const xpInLevel = progress.xp % XP_PER_LEVEL;
   const xpPct = (xpInLevel / XP_PER_LEVEL) * 100;
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localToday();
   const questionsToday =
     progress.dailyQuizCompletedDate === today ? progress.questionsAnsweredToday : 0;
 
